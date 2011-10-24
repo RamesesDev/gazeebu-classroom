@@ -1,0 +1,12 @@
+<schema>
+    <element name="class_exam" tablename="class_exam">
+    	<field name="objid" primary="true"/>
+    	<field name="title"/>
+	   	<field name="examdate"/>
+		<field name="maxscore"/>
+		<field name="notes"/>
+    	<field name="teacherid"/>
+		<field name="classid"/>
+		<field name="examcode"/>
+    </element> 
+</schema>

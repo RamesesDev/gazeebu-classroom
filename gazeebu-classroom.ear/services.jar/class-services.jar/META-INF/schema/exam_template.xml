@@ -1,0 +1,8 @@
+<schema>
+    <element name="exam_template" tablename="exam_template">
+        <field name="objid" primary="true"/>        
+        <field name="name"/>
+        <field name="description"/>
+        <complex name="questions" type="list" serializer="default"/>
+    </element>  
+</schema>

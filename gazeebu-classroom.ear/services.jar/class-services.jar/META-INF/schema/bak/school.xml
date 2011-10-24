@@ -1,0 +1,5 @@
+<schema>
+    <element tablename="school">
+    	<field name="name"/>
+    </element>
+</schema>

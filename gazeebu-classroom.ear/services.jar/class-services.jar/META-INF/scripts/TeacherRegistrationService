@@ -1,0 +1,91 @@
+import com.rameses.annotations.*;
+
+class TeacherRegistrationService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Resource("TemplateService")
+	def templateSvc;
+	
+	@Service("MessageService")
+	def messageSvc;
+
+	@Service("EmailService")
+	def emailSvc;
+	
+	@Service("UserProfileService")
+	def userProfileSvc;
+	
+	@Env
+	def env;
+	
+	@ProxyMethod
+	public def checkEmail(def o) {
+		def status = [:];
+		def x = em.sqlContext.createQuery('select objid, usertype from login where uid=$P{email}').setParameters(o).singleResult;
+		if( x ) {
+			status.error = "This email account is already used.";
+		}
+		else {
+			status.ok = true;
+		}
+		return 	status;
+	}
+	
+	@ProxyMethod
+	public def register( def o ) {
+		o.objid = "TCHR"+new java.rmi.server.UID(); 
+		def v = em.create("registration",o);
+		def message = templateSvc.getResult("META-INF/templates/teacher_request_forapproval.groovy", [user: o] );
+		def m = [:];
+		m.subject = "New Teacher Request for Invitation";
+		m.recipients = ["gazeebu@gmail.com", "elmonazareno@gmail.com"];
+		m.message = message.toString();	
+		emailSvc.send(m);	
+	}
+	
+	@ProxyMethod
+	public def approve( def p ) {
+		def o = em.read( "registration", p );
+		def message = templateSvc.getResult("META-INF/templates/teacher_foractivation.groovy", [user: o] );
+		def m = [:];
+		m.subject = "Gazeebu request accepted for activation";
+		m.recipients = [o.email];
+		m.message = message.toString();	
+		emailSvc.send(m);
+		return "ok";	
+	}
+	
+	@ProxyMethod
+	public def activate( id ) {
+		def r = em.read( "registration",[objid:id] );
+    	if(!r) {
+			throw new Exception("reg-not-found");
+		}
+
+		def u = [:];    	
+    	u.objid = id;
+    	u.uid = r.email;
+    	u.password = r.password;
+		u.usertype = "teacher";
+		em.create( "login", u );
+
+		def tch = [:];
+		tch.objid = id;
+		tch.username = u.uid;
+		tch.firstname = r.firstname;
+		tch.lastname = r.lastname;
+    	tch.email = r.email;
+		tch.gender = r.gender;
+		tch.birthdate = r.birthdate;
+		tch.usertype = "teacher";
+		
+		userProfileSvc.create( tch );
+    	em.delete( "registration", r );
+		
+		return tch;
+	}
+	
+	
+}

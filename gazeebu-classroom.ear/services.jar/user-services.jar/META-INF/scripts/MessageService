@@ -1,0 +1,167 @@
+import com.rameses.annotations.*;
+import java.io.*;
+import com.rameses.io.FileTransfer;
+import java.util.concurrent.*;
+import java.util.*;
+
+class MessageService {
+
+	@PersistenceContext("main")
+	def em;
+
+	@Env
+	def env;
+	
+	@Service("DateService")
+	def dateSvc;
+
+	def df = new java.text.SimpleDateFormat("EEE MMMM dd yyyy KK:mm a");
+	
+	@Service
+	def messageService;
+	
+	@Resource("CacheService")
+	def cacheService;
+	
+	private int LIMIT = 3;
+	
+	/** getCustomChannels should be intercepted**/
+	@ProxyMethod
+	public def getCustomChannels(user) {
+		return [];
+	}
+	
+	@ProxyMethod
+	public def getFolders(o) {
+		def m = [:];
+		m.userid = ( o?.userid ) ? o.userid : env.userid;
+		//cache the folders if it is not yet cached
+		def key = "USER_INBOX:" + m.userid;
+		def folders = cacheService.get( key );
+		if( !folders ) {
+			folders = messageService.getCustomChannels(m);
+			cacheService.put( key, folders, 30000 );
+		}
+		return folders;
+	}
+
+	private def getLastMessageDate( o ) {
+		if( o.lastmsgid ) {
+			def x = em.sqlContext.createNamedQuery('message:last-dtfiled').setParameter(1, o.lastmsgid).singleResult;
+			if(x?.dtfiled) return x.dtfiled;
+		}
+		return new Date();
+	}
+	
+	private def formatMessages(list) {
+		list.each {
+			if(it.message) {
+				StringBuilder result = new StringBuilder();
+				StringTokenizer t = new StringTokenizer(it.message, "\n");
+				while (t.hasMoreTokens()) {	
+					result.append(t.nextToken().trim()).append("<br>");
+				} 
+				it.message = result.toString();
+			}
+			if(it.dtfiled) it.dtfiled = df.format(it.dtfiled);
+		}
+		return list;
+	}
+	
+	@ProxyMethod
+	public def getPublicMessages(o) {
+		def channelid = o.channelid;
+		def dtfiled = getLastMessageDate(o);
+		def m = [userid: env.userid, channelid: channelid, limit:LIMIT, lastdtfiled: dtfiled, msgtype: o.msgtype ];
+		def list = em.sqlContext.createNamedQuery("message:public-messages").setParameters(m).resultList;
+		return formatMessages(list);
+	}
+	
+	@ProxyMethod
+	public def getIncomingPrivateMessages(o) {
+		//check the last date filed
+		def dtfiled = getLastMessageDate(o);
+		def channelid = o.channelid;
+		def m = [channelid: channelid, userid: env.userid, lastdtfiled:dtfiled, limit:LIMIT ];
+		def list = em.sqlContext.createNamedQuery("message:incoming-private-messages").setParameters(m).resultList;
+		return formatMessages( list );
+	}
+	
+	@ProxyMethod
+	public def getConversation(o) {
+		def dtfiled = getLastMessageDate(o);
+		def channelid = o.channelid;
+		def m = [observerid: env.userid, channelid: channelid, userid: o.userid, lastdtfiled:dtfiled, limit:LIMIT];
+		def list = em.sqlContext.createNamedQuery("message:conversation").setParameters(m).resultList;
+		return formatMessages(list);
+	}
+	
+	@ProxyMethod
+	public def getResponses(o) {
+		print o.parentid;
+		def m = [parentid: o.parentid];
+		def list = em.sqlContext.createNamedQuery("message:responses").setParameters(m).resultList;
+		return formatMessages(list);
+	}
+	
+	@ProxyMethod
+	public def send(o) {
+		o.objid = "MSGFD:" + new java.rmi.server.UID();
+		if(o.recipients) {
+			o.scope = 'private';
+			if(!o.msgtype) o.msgtype = 'private';
+		}
+		else {
+			o.scope = 'public';
+			if(!o.msgtype) o.msgtype = "announcement";
+		}
+		o.dtfiled = dateSvc.serverDate;
+		o.replies = 0;
+		if(!o.sendername) o.sendername = env.username;
+		if(!o.senderid) o.senderid = env.userid;
+		if(!o.sendertype) o.sendertype = env.usertype;
+		if(!o.senderprofile) o.senderprofile = env.profile;
+		em.create( "message", o );	
+		o.dtfiled = df.format( o.dtfiled );
+		
+		//if message is private add also sender as recipient.
+		if( o.recipients ) {
+			o.recipients.each {
+				def x = [:];
+				x.objid = "MSGR:" + new java.rmi.server.UID();
+				x.msgid = o.objid;
+				x.userid = it.userid;
+				//x.usertype = it.usertype;
+				x.status = "unread";
+				em.save( "message:recipient", x );
+			}	
+		}
+		if(o.parentid) {
+			em.sqlContext.createExecutor('update message set replies=replies+1 where objid=?').setParameter(1, o.parentid ).execute();
+		}	
+		return o;
+	}
+	
+	@ProxyMethod
+	public def sendResponse(o) {
+		if(!o.sendername) o.sendername = env.username;
+		if(!o.senderid) o.senderid = env.userid;
+		if(!o.sendertype) o.sendertype = env.usertype;
+		
+		o.scope = 'private';
+		o.msgtype = "response";
+		o.dtfiled = dateSvc.serverDate;
+		def recipients = [];
+		def origMsg = em.read( "message", [objid: o.parentid] );
+		recipients.add( [userid: origMsg.senderid] );
+		recipients.addAll( em.sqlContext.createNamedQuery("message:recipients").setParameter(1, o.parentid ).resultList );
+		
+		recipients = recipients - [ [userid: o.senderid] ];
+		o.recipients = recipients;	
+		send( o );
+		
+	}
+	
+	
+	
+}

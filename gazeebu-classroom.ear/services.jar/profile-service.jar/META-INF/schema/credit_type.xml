@@ -1,0 +1,6 @@
+<schema>
+    <element tablename="credit_type">
+    	<field name="code"/>
+    	<field name="name"/>
+    </element>
+</schema>

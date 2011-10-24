@@ -1,0 +1,13 @@
+import com.rameses.annotations.*;
+
+class DiscussionService {
+
+	@PersistenceContext("main")
+	def em;
+	
+    @ProxyMethod
+	public def getList( def o ){
+		return [];
+	}
+	
+}

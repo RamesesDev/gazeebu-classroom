@@ -1,0 +1,50 @@
+import com.rameses.annotations.*;
+
+class ClassNotificationService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Resource("NotificationServer")
+	def notifier;
+	
+    public def sendNotification( def o ) {
+		for( id in o.recipients ) {
+			def list = em.sqlContext.createQuery('select sessionid from usersession where userid=?').setParameter(1,id).resultList*.sessionid;	
+			for(sessionId in list) {
+				print "sending to " + sessionId + " for " + id;
+				notifier.signal(sessionId, o.message);
+			}
+		}
+	}
+
+    @ProxyMethod
+	public def notifyJoinClass( def o ) {
+		def _class = em.read("class", [objid:o.classid] );
+		def m = [:]
+		m.recipients = [_class.ownerid];
+		m.message = '{msgtype:"joinclass", studentid:"' + o.studentid +'", classid:"' + o.classid + '"}'; 
+		sendNotification(m);
+	}
+
+    @ProxyMethod
+	public def notifyLeaveClass( def o ) {
+		def _class = em.read("class", [objid:o.classid] );
+		def m = [:]
+		m.recipients = [_class.ownerid];
+		m.message = '{msgtype:"leaveclass", studentid:"' + o.studentid +'", classid:"' + o.classid + '"}'; 
+		sendNotification(m);
+	}
+
+	@ProxyMethod
+	public def notifyAllStudentsInClass( def o ) {
+		def students = em.sqlContext.createQuery('select studentid from class_student where classid=$P{classid}').setParameters( o ).resultList*.studentid;
+		o.recipients.addAll(students);
+		o.message = '{msgtype:"'+ o.msgtype +'", classid:"' + o.classid + '"}'; 
+		sendNotification( o );
+	}
+	
+	
+	
+	
+}

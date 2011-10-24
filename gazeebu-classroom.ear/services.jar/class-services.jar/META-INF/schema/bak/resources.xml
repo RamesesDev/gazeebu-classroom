@@ -1,0 +1,8 @@
+<schema>
+	<element name="resources" tablename="resources">
+		<field name ="title"/>
+		<field name ="date"/>
+		<field name ="type"/>
+		<field name ="comment"/>
+	</element>
+</schema>

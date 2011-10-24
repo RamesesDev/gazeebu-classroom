@@ -1,0 +1,1 @@
+<schema>	<element tablename="folder">		<field name="objid" primary="true" />		<field name="foldername" />		<field name="classid" />	</element>	</schema>

@@ -1,0 +1,35 @@
+<schema>
+    <element name="message" tablename="message">
+        <field name="objid" primary="true"/>
+		<field name="dtfiled"/>
+		<field name="senderid"/>
+		<field name="sendername"/>
+		<field name="sendertype"/>
+		<field name="senderprofile"/>
+		<field name="subject"/>
+		<field name="message"/>
+		<field name="msgtype"/>
+		<field name="channelid"/>
+		<field name="scope"/>
+		<field name="parentid"/>
+		<field name="replies"/>
+    </element>
+	
+	<element name="unsubscribe" tablename="message_unsubscribe">
+	    <field name="objid"  primary="true"/>
+	    <field name="userid"/>
+		<field name="msgid" />
+		<field name="status"/>
+		<field name="usertype"/>
+    </element>
+	
+	<element name="recipient" tablename="message_recipient">
+	    <field name="objid"  primary="true"/>
+	    <field name="userid"/>
+		<field name="msgid" />
+		<field name="status"/>
+		<field name="usertype"/>
+    </element>
+
+	
+</schema>

@@ -1,0 +1,15 @@
+import com.rameses.annotations.*;
+
+class StudentService {
+
+	@PersistenceContext("main")
+	def em;
+	
+    @ProxyMethod
+	public def getInfo( def o ){
+		def info = em.read("teacher", [objid:o.objid]);
+		if(info.birthdate) info.birthdate = info.birthdate.toString();
+		return info;
+	}
+	
+}

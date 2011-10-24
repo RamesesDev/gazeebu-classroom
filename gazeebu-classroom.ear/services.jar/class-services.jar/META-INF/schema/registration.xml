@@ -1,0 +1,6 @@
+<schema>
+    <element tablename="registration">
+        <field name="objid" primary="true"/>
+        <complex name="data" serializer="default" merge="true"/>
+    </element>        
+</schema>

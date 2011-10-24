@@ -1,0 +1,8 @@
+<schema>
+    <element tablename="credit_exception">
+    	<field name="objid" primary="true"/>
+    	<field name="type" primary="true"/>
+    	<field name="amount"/>
+    	<field name="available"/>
+    </element>
+</schema>

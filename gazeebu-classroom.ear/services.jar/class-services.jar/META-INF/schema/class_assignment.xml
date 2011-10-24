@@ -1,0 +1,12 @@
+<schema>
+   <element tablename="class_assignment">
+	    <field  name="objid" primary="true"/>
+	    <field  name="title"/>
+	    <field  name="classid"/>
+        <field  name="teacherid"/>
+	    <field  name="todo"/>
+	    <field  name="resources"/>
+	    <field  name="deadline"/>
+	    <field  name="startdate"/>
+   </element>	
+</schema>

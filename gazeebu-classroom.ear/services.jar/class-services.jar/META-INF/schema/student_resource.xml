@@ -1,0 +1,8 @@
+<schema>
+    <element tablename="student_resource">
+    	<field name="objid" primary="true"/>    	
+    	<field name="studentid"/>
+    	<field name="resourceid"/>
+		<field name="classid"/>
+    </element>
+</schema>

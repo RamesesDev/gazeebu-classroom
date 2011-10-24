@@ -1,0 +1,10 @@
+<schema>
+    <element tablename="student_attendance">
+    	<field name="objid" primary="true"/>    	
+    	<field name="studentid"/>
+    	<field name="classid"/>
+    	<field name="date"/>
+		<field name="status"/>
+		<field name="comment"/>
+	</element>
+</schema>

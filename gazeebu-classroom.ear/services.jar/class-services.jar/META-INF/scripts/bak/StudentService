@@ -1,0 +1,24 @@
+import com.rameses.annotations.*;
+
+class StudentService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Service("ClassService")
+	def classService;
+	
+    @ProxyMethod
+	public def getListByClass( def o ){
+		return classService.getClassInfo( o.classid).students;
+	}
+	
+	@ProxyMethod
+	public def getInfo( def o ){
+		def z = em.read("student", [objid:o.objid]);
+		z.status = "online";
+		if(z.birthdate) z.birthdate = z.birthdate.toString();
+		return z;
+	}
+	
+}

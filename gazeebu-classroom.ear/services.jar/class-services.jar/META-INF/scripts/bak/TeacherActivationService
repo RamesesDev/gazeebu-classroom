@@ -1,0 +1,46 @@
+import com.rameses.annotations.*;
+
+class TeacherActivationService{
+
+    @PersistenceContext("main")
+    def em;
+	
+	@Service("BulletinService")
+	def bulletin;
+    
+    @ProxyMethod
+    public def activate(id) {
+		def r = em.read( "registration",[objid:id]);
+    	if(!r) {
+    		return [error: "reg-not-found"];
+		}
+
+		def u = [:];    	
+    	u.objid = id;
+    	u.uid = r.email;
+    	u.password = r.password;
+		u.usertype = "teacher";
+		em.create( "login", u );
+
+		def tch = [:];
+		tch.objid = id;
+		tch.firstname = r.firstname;
+		tch.lastname = r.lastname;
+    	tch.email = r.email;
+    	em.create("teacher", tch);
+		
+		em.delete( "registration", r );
+		
+		//compose a message for bulletin.
+		def b = [:];
+		b.subject = "Welcome";
+		b.message = "Welcome to Gazeebu. Before you begin, you need to create a class first. ";
+		b.recipients =[ [subscriberid: tch.objid, status:0,subscribertype:"teacher"] ];
+		bulletin.send( b );	
+    	return tch;
+    }    
+    
+	
+	
+}
+

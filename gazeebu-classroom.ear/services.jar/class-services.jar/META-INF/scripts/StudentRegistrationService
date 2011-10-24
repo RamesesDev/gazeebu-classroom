@@ -1,0 +1,141 @@
+import com.rameses.annotations.*;
+
+class StudentRegistrationService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Service("EmailService")
+	def emailSvc;
+	
+	@Resource("TemplateService")
+	def templateSvc;
+
+	@Service("ClassroomService")
+	def classroomService;
+	
+	@Service("UserProfileService")
+	def userProfileService;
+	
+	def df = new java.text.SimpleDateFormat("EEE MMMM dd yyyy KK:mm a"); 
+	
+	@ProxyMethod
+	public def checkEmail(def o) {
+		def status = [:];
+		def x = em.sqlContext.createQuery('select objid, usertype from login where uid=$P{email}').setParameters(o).singleResult;
+		if( x ) {
+			//check if student already exists in the same class
+			def list = em.sqlContext.createQuery('select classid from class_membership where userid=$P{studentid}').setParameters([studentid: x.objid]).resultList;
+			boolean alreadyRegistered = false;
+			for(i in list ) {
+				if(i.classid == o.classid ) {
+					alreadyRegistered = true;
+					break;
+				}	
+			}
+			if(alreadyRegistered) {
+				status.error = "You already registered in this class";
+			}	
+			else {	
+				status.info = em.read("student", [objid:x.objid]);
+				status.info.remove("birthdate");
+			}	
+		}
+		else {
+			status.ok = true;
+		}
+		return 	status;
+	}
+
+	/*
+	@ProxyMethod
+    public def xregister(o){
+		def x = em.sqlContext.createQuery('select 1 from login where uid=$P{email}').setParameters(o).singleResult;
+		if(x)  {
+			throw new Exception("email_exist");
+		}
+		o.objid = "STU"+new java.rmi.server.UID(); 
+		def v = em.create("registration",o);
+		
+		def message = templateSvc.getResult("META-INF/templates/student_confirmation.groovy", [user: o] );
+		def m = [:];
+		m.subject = "Gazeebu Classroom Confirmation";
+		m.recipients = [o.email];
+		m.message = message.toString();	
+		emailSvc.send(m);	
+		
+		return v;
+    }
+	*/
+
+	@ProxyMethod
+    public def register(o){
+		/*
+		def x = em.sqlContext.createQuery('select 1 from login where uid=$P{email}').setParameters(o).singleResult;
+		if(x)  {
+			throw new Exception("email_exist");
+		}
+		*/
+		def id = "STU"+new java.rmi.server.UID(); 
+		def u = [:];    	
+    	u.objid = id;
+    	u.uid = o.email;
+    	u.password = o.password;
+		u.usertype = "student";
+		em.create( "login", u );
+		
+		def stu = [:];
+		stu.objid = id;
+		stu.username = u.uid;
+		stu.firstname = o.firstname;
+		stu.lastname = o.lastname;
+    	stu.email = o.email;
+		stu.gender = o.gender;
+		stu.birthdate = o.birthdate;
+		stu.usertype = "student";
+		userProfileService.create( stu );	
+		
+		classroomService.addStudent( o.classid, stu );
+    	return stu;
+    }
+
+	
+	@ProxyMethod
+	public def registerClass(o) {
+		def student = em.read( "student", [objid: o.studentid] );
+		student.remove("birthdate");
+		classroomService.addStudent( o.classid, student );
+	}
+
+	
+	@ProxyMethod
+	public def activate(id) {
+		def r = em.read( "registration",[objid:id]);
+		if(!r) {
+			print "reg not found";
+    		throw new Exception("reg-not-found");
+		}
+		def u = [:];    	
+    	u.objid = id;
+    	u.uid = r.email;
+    	u.password = r.password;
+		u.usertype = "student";
+		em.create( "login", u );
+		
+		def stu = [:];
+		stu.objid = id;
+		stu.username = u.uid;
+		stu.firstname = r.firstname;
+		stu.lastname = r.lastname;
+    	stu.email = r.email;
+		stu.gender = r.gender;
+		stu.birthdate = r.birthdate;
+		stu.usertype = "student";
+		userProfileService.create( stu );	
+		
+		classroomService.addStudent( r.classid, stu );
+		em.delete( "registration", r );
+    	return stu;
+	}
+	
+}

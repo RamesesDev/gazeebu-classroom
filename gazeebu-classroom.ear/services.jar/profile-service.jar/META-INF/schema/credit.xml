@@ -1,0 +1,10 @@
+<schema>
+    <element tablename="credit">
+    	<field name="objid" primary="true"/>
+    	<field name="totalcredits"/>
+    	<field name="availablecredits"/>
+    	<field name="totalconsumed"/>
+    	<field name="totalshared"/>
+    	<field name="totaldonated"/>
+    </element>
+</schema>

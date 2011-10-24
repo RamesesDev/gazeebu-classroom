@@ -1,0 +1,13 @@
+import com.rameses.annotations.*;
+
+class InboxService {
+
+	@ProxyMethod
+	public def receive(def data ) {
+		print "data passed is " + data;
+		return "yeah this is inbox service typed " + data.msg;
+	}
+	
+	
+}
+

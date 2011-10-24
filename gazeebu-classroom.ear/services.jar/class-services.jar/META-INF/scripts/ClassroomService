@@ -1,0 +1,95 @@
+import com.rameses.annotations.*;
+
+import java.util.concurrent.*;
+
+/***
+* This service all classroom related functions like adding students, retrieving class info. notifying students, etc.
+*/
+public class ClassroomService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Resource("CacheService")
+	def cacheService;
+	
+	@ProxyMethod
+	public def getClassInfo( def classid ) {
+		def c = cacheService.get(classid);
+		if(!c) {
+			c = em.read("class", [objid:classid] );
+			if(c) {
+				def threads = [];	
+				ExecutorService exec = Executors.newCachedThreadPool();
+				c.members = em.sqlContext.createNamedQuery( "classroom:members").setParameters([classid:classid]).resultList;
+				c.members.each {
+					it.messages = 0;	
+					threads.add(  exec.submit(new ClassMemberSession(member:it, em:em)) );	
+				}	
+				
+				//fork-join it
+				threads.each { it.get(); }	
+				cacheService.put(classid, c, 30000 );
+				
+				//set the teacher
+				c.teacher = c.members.find{ it.membertype == 'teacher' };
+			}
+		}
+		return c;
+	}
+
+	@ProxyMethod
+	public void updateOnlineStatus( def classid, def userid, def status ) {
+		def clz = getClassInfo(classid);
+		if(clz!=null) {
+			cacheService.update( classid, 
+				[ '''
+					{o,v->
+						o.members.find{x->x.objid==v.userid}?.status=v.status;
+					};
+					''', 
+				[userid:userid, status: status]  ]
+			);
+		}	
+	}
+	
+	@ProxyMethod
+	public void updateMessageStatus( def classid, def userid ) {
+		def clz = getClassInfo(classid);
+		if(clz!=null) {
+			cacheService.update( classid, 
+				[ '''
+					{o,v->
+						def z = o.members.find{x->x.objid==v.userid};
+						z.messages=z.messages + 1;
+					};
+				  ''', 
+				  [userid:userid]  
+				]
+			);
+		}	
+	}
+	
+	@ProxyMethod
+	public void addStudent(def classid, def student) {
+		def cs = [:];
+		cs.objid = "CLSMMBRS" + new java.rmi.server.UID();
+		cs.usertype = "student";
+		cs.userid = student.objid;
+		cs.classid = classid;	
+		em.create( "class_membership", cs );
+		cacheService.remove( classid );
+	}
+	
+}
+
+class ClassMemberSession implements Runnable {
+	def em;
+	def member;
+	public void run() {
+		member.status = "offline";
+		def online_count = em.sqlContext.createQuery('select count(*) as count from sys_session where username=?')
+					.setParameter(1, member.objid ).singleResult.count; 
+		if( online_count > 0 ) member.status = "online";	
+	}
+}

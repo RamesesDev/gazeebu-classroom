@@ -1,0 +1,7 @@
+<schema>
+	<element tablename="grading_type">
+		<field name="id" primary="true" />
+		<field name="type" />
+		<field name="option" type="list" serializer="default"/>
+	</element>
+</schema>

@@ -1,0 +1,30 @@
+import com.rameses.annotations.*;
+
+class TeacherRegistrationService{
+
+    @PersistenceContext("main")
+    def em;
+    
+	@Env
+	def env;
+	
+    @ProxyMethod
+    public def create(p){
+		def messageTypes = p.messageTypes;
+		if(!messageTypes) messageTypes = [];
+		em.sqlContext.createExecutor('delete from sms_subscription where userid=?').setParameter(1, env.userid).execute();
+		def o = [userid: env.userid];
+		messageTypes.each {
+			o.msgtype = it;
+			o.phone = "129128129";
+			em.create("sms_subscription", o );
+		}
+    }
+
+	@ProxyMethod
+    public def getSubscriptions(){
+		return em.sqlContext.createQuery( 'select msgtype from sms_subscription where userid=?').setParameter(1,env.userid).resultList*.msgtype;
+    }
+	
+}
+

@@ -1,0 +1,46 @@
+import com.rameses.annotations.*;
+
+class ClassroomService {
+
+	@Resource("CacheService")
+	def cacheService;
+	
+	@PersistenceContext("main")
+	def em;
+
+	@ProxyMethod
+	public def getClassInfo(String classid) {
+		String key = "CLASS:" + classid;
+		def c = cacheService.get(key);
+		if(c=null) {
+			c = em.read("class", [objid:classid]);
+			c.teacher = em.sqlContext.createQuery(
+				'select t.* from teacher t inner join class_membership cs on cs.userid = t.objid where cs.classid = $P{classid}')
+				.setParameters([classid:classId]).singleResult; 
+			c.teacher.status = "offline";	
+			c.students = em.sqlContext.createQuery(
+				'select s.* from student s inner join class_membership cs on cs.userid = s.objid where cs.classid = $P{classid}')
+				.setParameters([classid:classId]).resultList; 
+			c.students.each {
+				it.status = "offline";
+			}				
+			cacheService.put(key, c, 30000 );
+		}
+		return c;
+	}
+	
+	@ProxyMethod
+	public def addMember(def member) {
+		def m = [:];
+		m.objid = "CS" + new java.rmi.server.UID();
+		m.userid = member.objid;
+		m.usertype = member.usertype;
+		m.classid = o.remove("classid");
+		em.create("class_membership", m );
+		//notify join class.
+	}
+	
+	
+	
+}
+

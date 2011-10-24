@@ -1,0 +1,171 @@
+import com.rameses.annotations.*;
+
+class AssignmentService {
+	@PersistenceContext("main")
+	def em;
+
+    @Service("StudentService")
+    def studentService;
+	
+	@Service("ResourcesService")
+    def resourceService;
+    
+   	@ProxyMethod
+	public def getAssignmentList( def o ) {
+		def assignmentList = em.sqlContext.createQuery('''
+				SELECT objid, title, deadline, todo 
+				FROM class_assignment 
+				WHERE classid = $P{classid}
+				ORDER BY deadline desc
+	   ''').setParameters( o ).resultList;
+		return assignmentList;
+   	}	
+	
+	@ProxyMethod
+	public def readStatusInfo( def o ){
+		def assignment = em.read("class_assignment", o);
+		
+		assignment.students = studentService.getListByClass( assignment );
+		def assignmentAssignList = em.sqlContext.createQuery('''
+						                SELECT car.objid, car.studentid, car.status, car.gradingtype, gt.option
+						                FROM class_assignment_response car INNER JOIN
+										     grading_type gt ON car.gradingtype = gt.id
+						                WHERE classassignmentid = $P{objid}
+								   ''').setParameters( assignment ).resultList;
+		assignment.students.each {
+			def studentId = it.objid;
+			def m = assignmentAssignList.find{ it.studentid == studentId }
+			
+			if( !m )
+				it.result = [objid:"CLSSASSRSP"+new java.rmi.server.UID(), status:"undone"];
+			else	
+				it.result = m; 
+		}
+		
+		assignment.students.sort( {it.result.status} )
+
+		return assignment;
+	}
+	
+	@ProxyMethod
+	public def readAssignmentInfo( def o ) {
+		print o;
+		def students = studentService.getListByClass( o );
+		
+		def assignment_response = em.sqlContext.createQuery('''
+			SELECT ca.title, ca.todo, car.*
+			FROM class_assignment ca INNER JOIN
+				 class_assignment_response car
+				 ON ca.objid = car.classassignmentid
+			WHERE car.studentid = $P{objid} AND  car.classassignmentid = $P{classassignmentid}
+	   ''').setParameters( o ).resultList;
+										
+		def record = [:];
+		students.each{
+			def studentId = it.objid;
+			def lastname = it.lastname;
+			def firstname = it.firstname;
+			
+			def entry = assignment_response.find { it.studentid == studentId }
+			
+				
+			if( entry ) { 
+				record.objid = entry.objid;
+				record.lastname = (lastname);
+				record.firstname = (firstname);
+				record.studentid = entry.studentid;
+				record.title = entry.title;
+				record.todo = entry.todo;
+				record.comments = entry.comments;
+				record.messages = entry.messages;
+				record.resources = entry.resources;
+				record.status = entry.status;
+				record.rating = entry.rating;
+			}
+		}
+		
+		print record;
+		
+		return record;
+	}
+	
+	@ProxyMethod
+	public def acceptAssignment( def list ) {
+		list.status = 'done';
+		return em.save( 'class_assignment_response', list );
+	}
+	
+	@ProxyMethod
+	public def returnAssignment( def list ) {
+		list.status = 'undone';
+		def o = em.save( 'class_assignment_response', list );
+		print o;
+		return o;
+	}
+	
+	@ProxyMethod
+	public def listgradingtype(){
+		def em = em.sqlContext.createQuery('''
+			select id from grading_type
+		''').resultList;
+		return em;
+	}
+	
+	@ProxyMethod
+	public def saveAssignment( def o ) {		
+		print o;
+		o.objid = "CLSASS" + new java.rmi.server.UID();
+		
+		if( o.assignTo != [] || o.shareType == 'all' ) {
+			if( o.shareType != 'all' ) {
+				o.assignTo.each{
+					def students = it;
+
+					students.studentid = students.objid;
+					students.objid = "CLSASSRSP" + new java.rmi.server.UID();
+					students.classassignmentid = o.objid;
+					students.gradingtype = o.gradingtype;
+					students.status = "undone";
+					em.save("class_assignment_response", student);
+				}
+			
+			}
+			else {
+				def studentList = studentService.getListByClass( o );
+				
+				
+				studentList.each{
+					def students = it;
+					 
+					students.studentid = students.objid;
+					students.objid = "CLSASSRSP" + new java.rmi.server.UID();
+					students.classassignmentid = o.objid;
+					students.gradingtype = o.gradingtype;
+					students.status = "undone";
+					print students;
+					em.save("class_assignment_response", students);
+				}
+				
+			}
+		}
+		return em.save("class_assignment",  o);
+	}
+	
+	@ProxyMethod
+	public def getFolderResourceList( def o ) {
+		print " classid = "+o;
+		def list = resourceService.getFolderList( o );
+	    print list;
+		return list;
+	}
+	
+	@ProxyMethod
+	public def getResourceList( def o ) {
+		return resourceService.getResourceList( o );
+	} 
+	
+	@ProxyMethod
+	public def searchName( def o ) {
+		print o;		
+	}
+}

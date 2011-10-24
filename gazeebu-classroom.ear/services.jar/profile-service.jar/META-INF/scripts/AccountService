@@ -1,0 +1,40 @@
+import com.rameses.annotations.*;
+
+class AccountService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	def df = new java.text.SimpleDateFormat("EEE MMMM dd yyyy KK:mm a");
+	
+   @ProxyMethod
+	public def getInfo( def o ){
+		def info = em.read("teacher", [objid:o.objid]);
+		if(info.birthdate) info.birthdate = df.format( info.birthdate );
+		return info;
+	}
+	
+	@ProxyMethod
+	public void savePictureDetails(def params) {
+	   em.save("teacher", params);
+	}
+	
+	@ProxyMethod
+	public def save(def params) {
+	   try {
+   	   def data = em.save("teacher", params);
+	   
+	   }catch(ex) {
+	      ex.printStackTrace();
+	      throw ex;
+	   }
+	   
+	   return "Save Successful";
+	}
+	
+	@ProxyMethod
+	public def getStudents() {
+	   return em.sqlContext.createNamedQuery("account:getStudents").resultList;
+	}
+	
+}

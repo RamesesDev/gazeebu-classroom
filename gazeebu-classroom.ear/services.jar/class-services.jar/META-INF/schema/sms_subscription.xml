@@ -1,0 +1,7 @@
+<schema>
+    <element tablename="sms_subscription">
+    	<field name="userid" primary="true"/>    	
+		<field name="msgtype" primary="true"/>    	
+    	<field name="phone"/>
+    </element>
+</schema>

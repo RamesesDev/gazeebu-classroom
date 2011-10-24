@@ -1,0 +1,10 @@
+<schema>
+    <element tablename="txn_history">
+    	<field name="objid" primary="true"/>
+    	<field name="refid"/>
+    	<field name="txntype"/>
+    	<field name="txndate"/>
+    	<field name="value"/>
+    	<field name="particulars"/>
+    </element>
+</schema>

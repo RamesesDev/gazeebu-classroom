@@ -1,0 +1,74 @@
+import com.rameses.annotations.*;
+
+class ClassMembershipService {
+
+    @PersistenceContext("main")
+    def em;
+    
+    @Service("ClassService")
+    def classService;
+    
+	@Resource("CacheService")
+    def cacheService;
+	
+	@Env
+	def env;
+	
+    @ProxyMethod
+    public def getActiveClass(String userid) {
+		String key = "ACTIVE_CLASS:"+userid;
+		def c = cacheService.get( key );
+		if(!c) {
+			c = em.sqlContext.createQuery('select objid from class_membership where userid=?')
+				.setParameter(1,userid).singleResult;
+			if(c) {
+				print "caching " + key;
+				cacheService.put( key, c, 30000 );	
+			}	
+		}
+		if(c) {
+			return classService.getInfo( c.objid );	
+		}
+		return null;
+    }
+
+	
+    @ProxyMethod
+    public def getClasses(String userid){
+		String key = "CLASS_MEMBERSHIP:"+userid;
+		def c = cacheService.get( key );
+		if( !c ) {
+			c = em.sqlContext.createQuery('select c.objid,c.name,c.classurl from class_membership cm inner join class c on cm.classid=c.objid where cm.userid=?')
+				.setParameter(1, userid).resultList;
+			if(c) {
+				print "caching " + key;
+				cacheService.put( key, c, 30000 );
+			}	
+		}	
+		return c;
+    }
+	
+
+	@ProxyMethod
+    public def createClass(def o){
+		def c = classService.create( o );
+		//add the creator also in the active class
+		def m = [:];
+		m.userid = env.userid;
+		m.usertype = "teacher";
+		m.classid = c.objid;
+		addMembership( m );
+	}
+
+	@ProxyMethod
+    public def addMembership(def member){
+		def m = [:];
+		m.objid = "CS" + new java.rmi.server.UID();
+		m.userid = member.userid;
+		m.usertype = member.usertype;
+		m.classid = member.classid;
+		return em.create("class_membership", m );
+	}
+	
+}
+

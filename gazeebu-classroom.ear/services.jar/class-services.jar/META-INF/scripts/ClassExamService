@@ -1,0 +1,22 @@
+import com.rameses.annotations.*;
+
+class ClassExamService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@ProxyMethod
+	public def create( def o){
+		em.create("class_exam",o);
+	}
+	
+	@ProxyMethod
+	public def delete( def o ) {
+		em.delete("class_exam", o );
+   	}
+   	
+   	@ProxyMethod
+    	public def getList() {
+		return em.sqlContext.createQuery( 'select * from class_exam' ).resultList;
+   	}		
+}

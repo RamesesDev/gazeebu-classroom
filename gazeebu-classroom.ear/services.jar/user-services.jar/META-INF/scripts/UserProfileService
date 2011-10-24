@@ -1,0 +1,33 @@
+import com.rameses.annotations.*;
+
+class UserProfileService {
+	
+    @PersistenceContext("main")
+    def em;
+    
+	@Service("DateService")
+	def dateSvc;
+	
+	def df = new java.text.SimpleDateFormat("yyyy-MM-dd");
+
+	
+    @ProxyMethod
+    public def create( def o ) {
+		if(!o.objid) o.objid = "USR:"+new java.rmi.server.UID();
+		o.dtcreated = dateSvc.serverDate;
+		return em.create("userprofile", o);
+    }     
+
+    @ProxyMethod
+    public def update( def o ) {
+		return em.update("userprofile", o);
+    }
+	
+   @ProxyMethod
+	public def getInfo( def o ){
+		def info = em.read("userprofile", [objid:o.objid]);
+		if(info.birthdate) info.birthdate = df.format( info.birthdate );
+		return info;
+	}
+	
+}

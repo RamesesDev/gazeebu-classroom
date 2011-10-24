@@ -1,0 +1,52 @@
+import com.rameses.annotations.*;
+
+class SMSMessageHandler 
+{
+	
+	@PersistenceContext("main")
+	def em;
+	
+	@Service('SMSService')
+	def smsService;
+	
+	@Service("ClassroomService")
+	def classroomService;
+	
+    
+    @After(pattern="MessageService.send*")
+    public def broadcastMessage( def evt ) 
+	{
+		try {
+			def o = evt.result;
+			if(!o.recipients) {
+				if(o.channelid) {
+					def classroom = classroomService.getClassInfo( o.channelid );
+					o.recipients = [];
+					classroom.members.each {
+						if( it.objid != o.senderid ) o.recipients << [userid: it.objid];
+					}
+				}
+			}
+			
+			def vars = [filter: ",?".multiply( o.recipients.size() ).substring(1)];
+			def qry = em.sqlContext.createQuery('select phone from sms_subscription where  msgtype=? and userid in  (${filter}) and not(userid=?)').setVars(vars);
+			int i = 1;
+			qry.setParameter(i++, o.msgtype );
+			o.recipients.each {
+				qry.setParameter(i++, it.userid);
+			}
+			qry.setParameter(i++, o.senderid );
+			//display the phones to send to.
+			qry.resultList.each {
+				println "send to phone " + it.phone + " " + o.message;
+				//smsService.send([to: it.phone, message: o.message]);
+			}
+		}
+		catch(e) {
+			e.printStackTrace();
+			throw e;
+		}
+    }	
+    
+}
+

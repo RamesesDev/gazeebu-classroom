@@ -1,0 +1,13 @@
+import com.rameses.annotations.*;
+
+class SMSInboxService {
+
+	@ProxyMethod
+	public def receive(def data ) {
+		print "data passed is " + data;
+		return "ok you typed " + data.msg;
+	}
+	
+	
+}
+

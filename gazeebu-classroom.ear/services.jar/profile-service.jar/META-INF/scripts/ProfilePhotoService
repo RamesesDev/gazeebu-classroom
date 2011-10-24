@@ -1,0 +1,41 @@
+import com.rameses.annotations.*;
+import org.apache.commons.fileupload.FileItem;
+import com.rameses.web.fileupload.*;
+import java.io.*;
+import java.util.regex.*;
+import imagewebutil.*;
+
+
+class ProfilePhotoService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Env
+	def env;
+	
+	def df = new java.text.SimpleDateFormat("EEE MMMM dd yyyy KK:mm a");
+
+   @ProxyMethod
+	public def savePhoto( def param ){
+	   try {
+		 def fi = param.fileitem;
+	   
+	     ImageUtil iu = new ImageUtil();
+         String ext = "jpg";		 
+		 def p = env.profile;
+         String target = param."res-url" + "/profile/" + p.substring(p.lastIndexOf('/')+1) + "/";
+         
+         def dest = new File(new URL(target).toURI());
+		 fi.write( new File(dest, fi.getName()) );
+         iu.convertToJPG( dest.getPath()+'/'+fi.getName(), dest.getPath()+'/'+"large."+ext);
+         iu.createThumbnail( dest.getPath()+'/'+"large."+ext, dest.getPath()+'/'+"medium."+ext, ext, 160);
+         iu.createThumbnail( dest.getPath()+'/'+"large."+ext, dest.getPath()+'/'+"thumbnail."+ext, ext, 50);
+         
+         return [:];
+      }catch(Exception ex) { 
+         ex.printStackTrace(); 
+         throw ex;
+      }
+	}
+}

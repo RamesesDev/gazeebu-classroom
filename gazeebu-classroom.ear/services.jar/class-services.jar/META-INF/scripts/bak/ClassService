@@ -1,0 +1,164 @@
+import com.rameses.annotations.*;
+
+/***
+* This service all classroom related functions like adding students, retrieving class info. notifying students, etc.
+*/
+public class ClassService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Env
+	def env;
+	
+	@Resource("CacheService")
+	def cacheService;
+	
+	@Service("SessionNotifier")
+	def sessionNotifier;
+	
+	@Service("NewsfeedService")
+	def newsFeed;
+	
+	@ProxyMethod
+	public def create( def o ){
+		o.objid = "CLASS" + new java.rmi.server.UID();
+		o.msgcount = 0;
+		o.status = 0;
+		def m = [:];
+		m.objid = "CLSMMBR" + new java.rmi.server.UID();
+		m.classid = o.objid;
+		m.userid = env.userid;
+		m.usertype = env.usertype;
+		o = em.create("class", o);
+		em.create( "class_membership", m);
+	}
+	
+	@ProxyMethod
+	public def getOpenClasses(def userid) {
+		return em.sqlContext.createQuery( 'select c.* from class_membership cm inner join class c on cm.classid=c.objid where cm.userid=? and status=0')
+			.setParameter(1, userid ).resultList;
+	}
+	
+	@ProxyMethod
+	public def getDefaultClassId() {
+		return em.sqlContext.createQuery( 'select c.objid from class_membership cm inner join class c on cm.classid=c.objid where cm.userid=? and status=0 limit 1')
+			.setParameter(1, env.userid ).singleResult.objid;
+	}
+	
+	@ProxyMethod
+	public def getClassInfo(String classid) {
+		String key = "CLASS:" + classid;
+		def c = cacheService.get(key);
+		if(!c) {
+			print "RELOADING NEW CLASS INFO " + classid;
+			c = em.read("class", [objid:classid] );
+			if(c) {
+				c.teacher = em.sqlContext.createQuery(
+					'select t.* from teacher t inner join class_membership cs on cs.userid = t.objid where cs.classid = $P{classid}')
+					.setParameters([classid:classid]).singleResult; 
+				c.teacher.status = "offline";	
+				c.students = em.sqlContext.createQuery(
+					'select s.* from student s inner join class_membership cs on cs.userid = s.objid where cs.classid = $P{classid}')
+					.setParameters([classid:classid]).resultList; 
+				c.students.each {
+					it.status = "offline";
+				}				
+				cacheService.put(key, c, 30000 );
+			}
+			
+		}
+		return c;
+	}
+	
+	@ProxyMethod
+	public def getClassByUrl(String url){
+		def c = em.sqlContext.createQuery('select c.objid from class c where c.classurl=$P{url}').setParameters([url: url]).singleResult;
+		return getClassInfo( c.objid );
+	}
+	
+	@ProxyMethod
+	public def update( def o){
+		return em.create("class", o);
+	}
+	
+	@ProxyMethod
+	public def getStudents(classid){
+		def list = getClassInfo(classid).students;
+		return list.collect {
+			[objid:it.objid, lastname: it.lastname, firstname: it.firstname, status: it.status ]
+		};
+	}
+	
+	
+	@ProxyMethod
+	public void addStudent( def o ){
+		assert o.classid;
+		assert o.userid;
+		assert o.student;
+		
+		def student = o.remove("student");
+		if(!o.objid) o.objid = "CLSMMBRS" + new java.rmi.server.UID();
+		o.usertype = "student";
+		em.create( "class_membership", o );
+		
+		def clsInfo = getClassInfo( o.classid );
+		def msg = [ msgtype: "addStudent", objid: o.userid ];
+		notifyClass( [classid: o.classid, userid: o.userid, usertype: o.usertype, msgtype: "addStudent"] );
+		
+		//force remove the class info so it will be renewed
+		cacheService.remove( "CLASS:" + o.classid);
+	}
+	
+	
+	/**
+	* this service is called everytime a member goes online
+	*/
+	@ProxyMethod
+	public void notifyClass( o ) {
+		def classInfo = getClassInfo( o.classid );
+		if( classInfo.teacher.objid == o.userid ) {
+			if(o.msgtype == "online" || o.msgtype == "offline" ) {
+				classInfo.teacher.status = o.msgtype;
+			}
+		}	
+		sessionNotifier.notifyUser( classInfo.teacher.objid, o );
+		classInfo.students.each { s->
+			if( s.objid == o.userid ) {
+				if(o.msgtype == "online" || o.msgtype == "offline" ) {
+					s.status = o.msgtype;
+				}
+			}	
+			sessionNotifier.notifyUser( s.objid, o );
+		}
+	}
+	
+	
+	@ProxyMethod
+	public void publishNews( msg ) {
+		//if classid is not specified, post to all classes
+		
+		def recipients = [];
+		if(!msg.classid) {
+			def classes = getOpenClasses(env.userid);
+			classes.each {
+				def clz = getClassInfo( it.objid );
+				recipients.add( [recipientid: clz.teacher.objid, recipienttype: "teacher", channelid: clz.objid ] );
+				clz.students.each { s->
+					recipients.add( [recipientid: s.objid, recipienttype: "student", channelid: clz.objid ] );
+				}	
+			}	
+		}
+		else {
+			def clz = getClassInfo( msg.classid );
+			recipients.add( [recipientid: clz.teacher.objid, recipienttype: "teacher", channelid: clz.objid ] );
+			clz.students.each { s->
+				recipients.add( [recipientid: s.objid, recipienttype: "student", channelid: clz.objid ] );
+			}	
+		}
+		msg.recipients = recipients;
+		newsFeed.send( msg );	
+	}
+	
+	
+}

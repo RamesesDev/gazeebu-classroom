@@ -1,0 +1,13 @@
+<schema>
+   <element tablename="class_assignment_response">
+	    <field  name="objid" primary="true"/>
+	    <field  name="classassignmentid"/>
+	    <field  name="studentid"/>
+        <field  name="resources"/>
+	    <field  name="comments"/>
+	    <field  name="messages"/>
+	    <field  name="datesubmitted"/>
+	    <field  name="status"/>
+        <field  name="rating"/>
+   </element>	
+</schema>

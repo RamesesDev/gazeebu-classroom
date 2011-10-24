@@ -1,0 +1,38 @@
+import com.rameses.annotations.*;
+
+class StudentActivationService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Service("ClassroomService")
+	def classService;
+	
+	@ProxyMethod
+	public def activate(id) {
+		def r = em.read( "registration",[objid:id]);
+		if(!r) {
+    		throw new Exception("reg-not-found");
+		}
+		
+		def u = [:];    	
+    	u.objid = id;
+    	u.uid = r.email;
+    	u.password = r.password;
+		u.usertype = "student";
+		em.create( "login", u );
+
+		def stu = [:];
+		stu.putAll( r );
+		stu.remove("password");
+    	em.create("student", stu);
+
+		classService.addStudent( r.classid, stu );
+		
+		em.delete( "registration", r );
+		
+    	return stu;
+	}
+	
+	
+}

@@ -1,0 +1,8 @@
+<schema>
+    <element name="class_student_grade" tablename="class_student_grade">
+        <field name="studentid" primary="true"  />
+        <field name="classgradingid" primary="true" />
+        <field name="grade" />
+        <field name="comments" />
+    </element> 
+</schema>

@@ -1,0 +1,9 @@
+<schema>
+   <element name="class_grading" tablename="class_grading">
+	<field  name="objid" primary="true"/>
+	<field  name="classid"/>
+	<field  name="period"/>
+	<field  name="formula"/>
+	<field  name="indexno"/>
+   </element>	
+</schema>

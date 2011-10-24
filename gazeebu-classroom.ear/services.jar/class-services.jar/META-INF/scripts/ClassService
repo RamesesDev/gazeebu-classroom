@@ -1,0 +1,53 @@
+import com.rameses.annotations.*;
+
+/***
+* This class handles management of classes.
+*/
+public class ClassService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Env
+	def env;
+	
+	@Service("ClassroomService")
+	def classroomSvc;
+	
+	@ProxyMethod
+	public def create( def o ){
+		o.objid = "CLASS" + new java.rmi.server.UID();
+		o.msgcount = 0;
+		o.status = 0;
+		def m = [:];
+		m.objid = "CLSMMBR" + new java.rmi.server.UID();
+		m.classid = o.objid;
+		m.userid = env.userid;
+		m.usertype = env.usertype;
+		o = em.create("class", o);
+		em.create( "class_membership", m);
+	}
+	
+	//this method depends on whatever is passed, either userid or sessionid. If session id, retrieve the userid first
+	@ProxyMethod
+	public def getOpenClasses(def user) {
+		def userid = (user.userid) ? user.userid : env.userid;
+		if(!userid)
+			throw new Exception( "ClassService.getOpenClasses error. userid must be provided" );
+		return em.sqlContext.createQuery( 'select c.* from class_membership cm inner join class c on cm.classid=c.objid where cm.userid=? and status=0')
+			.setParameter(1, userid ).resultList;
+	}
+
+	@ProxyMethod
+	public def getClassByUrl(String url){
+		def c = em.sqlContext.createQuery('select c.objid from class c where c.classurl=$P{url}').setParameters([url: url]).singleResult;
+		return classroomSvc.getClassInfo( c.objid );
+	}
+	
+	@ProxyMethod
+	public def update( def o){
+		return em.create("class", o);
+	}
+	
+	
+}

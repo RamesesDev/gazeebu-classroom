@@ -1,0 +1,102 @@
+import com.rameses.annotations.*;
+
+class ClassGradingService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Service("StudentService")
+	def studentService;
+	
+    @ProxyMethod
+	public def getGradeList( def o ){
+		def studentList = studentService.getListByClass( o );
+		
+        def gradeList = em.sqlContext.createQuery('''
+			SELECT sg.studentid, sg.grade, sg.classgradingid, cg.period, cg.indexno
+			FROM class_student_grade sg 
+			INNER JOIN class_grading cg ON cg.objid=sg.classgradingid
+			WHERE cg.classid = $P{classid}
+		''').setParameters( o ).resultList;
+		
+		
+        studentList.each {
+            def studentId = it.objid;        
+            def map = [:];
+            gradeList.findAll { it.studentid == studentId }.each {
+			
+                String s = it.period.replaceAll("(\\s+|-)", "_").toLowerCase(); 
+                map[s] = [ grade: it.grade, index: it.indexno ];
+            }
+            
+            it.grading = map;
+        }
+		
+		return studentList;    
+	}
+	
+	@ProxyMethod
+	public def getGradingPeriod( def o ) {
+		def gradingPeriod = em.sqlContext.createQuery('''
+															SELECT objid, period
+															FROM class_grading
+															WHERE classid = $P{classid}
+													 ''').setParameters( o ).resultList;
+													 
+		gradingPeriod.each {
+			it.caption = it.period;
+			it.period = it.period.replaceAll("(\\s+|-)", "_").toLowerCase();
+		}
+		return gradingPeriod;
+	}
+	
+	@ProxyMethod
+	public def saveNewPeriod( def o ) {
+		o.objid = "CLSGRDNG" + new java.rmi.server.UID();
+		return em.create( "class_grading", o );
+	}
+	
+	@ProxyMethod
+	public def displayEditGrade( def o ) {
+		def studentList = studentService.getListByClass( o );
+		
+        def gradeList = em.sqlContext.createQuery('''
+			SELECT cg.period,sg.studentid, sg.grade, sg.classgradingid, sg.comments 
+			FROM class_student_grade sg 
+			INNER JOIN class_grading cg ON cg.objid = sg.classgradingid
+			WHERE cg.classid = $P{classid} AND objid = $P{objid}
+		''').setParameters( o ).resultList;
+												  
+		
+		def newList = [];
+		studentList.each {
+			def record = [:];
+			record.studentid = it.objid;
+			record.lastname = it.lastname;
+			record.firstname = it.firstname;
+			record.classgradingid = o.objid;
+			
+			def entry = gradeList.find { it.studentid == record.studentid }
+			
+			if( entry ) {
+				record.grade = entry.grade;
+				record.comments = entry.comments;
+			}
+			
+			newList.add( record );
+		}
+
+		return newList;
+	}
+	
+	@ProxyMethod
+	public def saveEditGrade( list ) {
+		
+		list.each {
+			def record = it;
+			if( record.grade != null ) {
+				return em.save( "class_student_grade", it );
+			}
+		}
+	}
+}

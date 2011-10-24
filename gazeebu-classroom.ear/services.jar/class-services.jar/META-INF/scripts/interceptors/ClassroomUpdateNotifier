@@ -1,0 +1,26 @@
+import com.rameses.annotations.*;
+import java.util.concurrent.*;
+
+class ClassroomUpdateNotifier {
+	
+	@Service("SessionService")
+	def sessionService;
+	
+    @After(pattern="CacheServiceHandler.(updated|removed)", eval="args[0].startsWith('CLASS')")
+    public def notifyClassMembers( def evt ) {
+		def classid = evt.args[0];
+		def m = evt.args[1];
+		ExecutorService exec = Executors.newCachedThreadPool();
+		m.members.each {
+			sessionService.notifyUser( it.objid, [classroom: classid] );
+		};
+    } 
+    
+	
+    @After(pattern="CacheServiceHandler.timeout", eval="args[0].startsWith('CLASS')")
+    public def notifyClassroomCacheTimeout( def evt ) {
+		print "cache timeout";
+    } 
+
+}
+

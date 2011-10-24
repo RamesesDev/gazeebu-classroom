@@ -1,0 +1,15 @@
+import com.rameses.annotations.*;
+
+class TeacherRegistrationService{
+
+    @PersistenceContext("main")
+    def em;
+    
+    @ProxyMethod
+    public def save(o){
+		print "saving teacher " + o;
+    }
+
+	
+}
+

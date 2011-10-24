@@ -1,0 +1,10 @@
+<schema>
+    <element name="class_exam_student" tablename="class_exam_student">
+    	<field name="objid" primary="true"/>
+    	<field name="studentid"/>
+	   	<field name="examid"/>
+    	<field name="grade"/>
+    	<field name="remarks"/>
+		<field name="classid"/>
+    </element> 
+</schema>

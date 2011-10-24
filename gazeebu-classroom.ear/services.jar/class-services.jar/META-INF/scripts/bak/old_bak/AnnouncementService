@@ -1,0 +1,44 @@
+import com.rameses.annotations.*;
+
+class AnnouncementService {
+
+	@PersistenceContext("main")
+	def em;
+
+	@Env
+	def env;
+	
+	@Service("DateService")
+	def dtSvc;
+	
+	@Service("BulletinService")
+	def bulletin;
+
+	@Service("SessionService")
+	def session;
+
+	@Service("SessionNotifier")
+	def notifier;
+	
+	
+	@ProxyMethod
+	public void publish(o) {
+		def x = session.getInfo( env.sessionid );
+		def msg = [msgtype:"bulletin", message: o.message];	
+		notifier.notifyUser( x.userid, msg );
+		
+		/*
+		o.senderid = env.USERID;
+		o.sendertype = env.usertype;
+		o.sendername = env.USER;
+		o.dtfiled = dtSvc.serverDate;
+		o.subject = "Announcement";
+		o.msgtype = "announcement";
+		
+		o.recipients = [env.USER];
+		
+		bulletin.send(o);
+		*/
+	}
+	
+}

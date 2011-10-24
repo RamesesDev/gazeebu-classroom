@@ -1,0 +1,30 @@
+import com.rameses.annotations.*;
+
+class EmailMessageHandler {
+	
+	@PersistenceContext("main")
+	def em;
+
+	@Service("EmailService")
+	def emailSvc;
+	
+    @After(pattern="MessageService.send*")
+    public def sendEmailNotifications( def evt ) {
+		def o = evt.result;
+		
+		def vars = [filter: ",?".multiply(o.recipients.size()).substring(1)];
+		def qry = em.sqlContext.createQuery('select email from student where objid in ( ${filter} ) and not(objid=?)').setVars(vars);
+		int i = 1;
+		o.recipients.each {
+			qry.setParameter(i++, it.recipientid );
+		}
+		qry.setParameter(i++, o.senderid);
+		def m = [:];
+		m.subject = "Gazeebu Message Service from " + evt.result.sendername;
+		m.message = evt.result.message;	
+		m.recipients = qry.resultList*.email;
+		emailSvc.send(m);	
+    } 
+    
+}
+

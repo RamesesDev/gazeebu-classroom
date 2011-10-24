@@ -1,0 +1,33 @@
+import com.rameses.annotations.*;
+
+class StudentInfoService {
+
+    @PersistenceContext("main")
+    def em;
+    
+	@ProxyMethod
+	public def getInfo(def params) {
+		def result = [usertype:"student"];
+		
+		result.info = em.read("student", [objid:params.objid]);
+		
+		def classId = params.classid;
+		if(!classId) classId = result.info.defaultclass;
+		if(classId) {
+			result.classinfo = em.read("class", [objid: classId ]);	
+			//retrieve students in this class
+			result.teacher = em.sqlContext.createQuery('select t.* from teacher t inner join class c on c.ownerid = t.objid where c.objid = $P{classid}')
+				.setParameters([classid:classId]).singleResult; 	
+				
+			result.teacher.status = "online";
+		}
+		
+		//retrieve other classes
+		result.classes = em.sqlContext.createQuery('select c.* from class c inner join class_student cs on c.objid=cs.classid where c.status=0 and cs.studentid = $P{studentid}').setParameters([studentid:params.objid]).resultList;
+		return result;	
+	}
+
+	
+	
+}
+

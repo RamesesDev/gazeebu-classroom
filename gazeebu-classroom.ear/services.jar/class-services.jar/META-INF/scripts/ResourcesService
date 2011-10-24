@@ -1,0 +1,71 @@
+import com.rameses.annotations.*;
+
+class ResourcesService {
+	@PersistenceContext("main")
+	def em;
+	
+	
+	@Service("StudentService")
+	def studentService;
+	
+	@ProxyMethod
+	public def getFolderList( def o ){
+	    return em.sqlContext.createQuery('''
+			SELECT objid, foldername, classid
+			FROM folder
+			WHERE classid = $P{classid}
+	    ''').setParameters( o ).resultList;
+	}
+	
+	@ProxyMethod
+	public def getResourceList( def o ){
+	    return em.sqlContext.createQuery('''
+			SELECT *
+			FROM resource 
+			WHERE folderid = $P{folderid}
+		''').setParameters(o).resultList;
+								
+	}
+	
+	@ProxyMethod
+	public def saveResource( def o ){
+		o.objid = 'RES' + new java.rmi.server.UID();
+		
+		if( o.assignTo != [] || o.shareType == 'all') {
+			if(o.shareType != 'all') {
+				o.assignTo.each {
+					def students = it;
+					
+					students.classid = o.classid;
+					students.resourceid = o.objid;
+					students.studentid = students.objid;
+					students.objid = 'STDRSRC' + new java.rmi.server.UID();
+					
+					em.save('student_resource', students);
+				}
+			}
+			else {
+				def studentList = studentService.getListByClass( o );
+				
+				studentList.each {
+					def students = it;
+					
+					students.classid = o.classid;
+					students.resourceid = o.objid;
+					students.studentid = students.objid;
+					students.objid = 'STDRSRC' + new java.rmi.server.UID();
+					
+					em.save( 'student_resource', students );
+				}
+			}
+		}
+		
+		return em.save("resource", o);
+	}
+	
+	@ProxyMethod
+	public def saveFolder( def o ){
+	    o.objid = 'FLDR' + new java.rmi.server.UID();
+	    return em.save( 'folder', o )
+	}
+}

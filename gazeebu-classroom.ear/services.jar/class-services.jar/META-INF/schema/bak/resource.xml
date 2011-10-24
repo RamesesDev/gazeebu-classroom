@@ -1,0 +1,1 @@
+<schema>	<element tablename="resource">		<field name="objid" primary="true" />		<field name="folderid" />		<field name="linkurl" />		<field name="teacherid" />		<field name="embedcode" />		<field name="type" />		<field name="comment" />		<field name="title" />		<field name="classid"/>	</element>	</schema>

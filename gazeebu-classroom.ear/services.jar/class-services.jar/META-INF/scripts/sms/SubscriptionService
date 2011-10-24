@@ -1,0 +1,75 @@
+import com.rameses.annotations.*;
+
+class SubscriptionService 
+{
+	@PersistenceContext('main')
+	def em;
+	
+	@Env
+	def env;
+	
+	@Service('UserProfileService')
+	def profileSvc;
+
+	@ProxyMethod
+	public void subscribe( param ) {
+		assert param.userid;
+		assert param.msgtypes;
+		
+		if( !param.phone ) {
+			def info = profileSvc.getInfo([objid: env.userid]);
+			def mobile = info.contacts?.find{ 'mobile' == it.type.toLowerCase() };
+			if( mobile ) param.phone = mobile.value;
+		}
+		
+		if( !param.phone )
+			throw new Exception('SMS Subscription Error: Mobile number is required.');
+		
+		param.msgtypes.each {
+			param.msgtype = it;
+			em.save('sms_subscription', param);
+		}
+	}
+	
+	@ProxyMethod
+	public void unsubscribe( param ) {
+		assert param.userid;
+		assert param.msgtypes;
+		
+		param.msgtypes.each {
+			param.msgtype = it;
+			em.sqlContext.createExecutor('delete from sms_subscription where userid=$P{userid} and msgtype = $P{msgtype}')
+			  .setParameters(param)
+			  .execute();
+		}
+	}
+	
+	@ProxyMethod
+	public def getSubscriptions( param ) {
+		assert param.userid;
+		
+		return em.sqlContext.createQuery('select * from sms_subscription where userid=?')
+		         .setParameter(1, param.userid).resultList;
+	}
+	
+	@ProxyMethod
+	public def update( param ) {
+		try {
+			if( param.subscribe ) {
+				param.msgtypes = param.subscribe;
+				subscribe( param );
+			}
+			if( param.unsubscribe ) {
+				param.msgtypes = param.unsubscribe;
+				unsubscribe( param );
+			}
+			
+			return getSubscriptions(param);
+		}
+		catch(e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+}
+

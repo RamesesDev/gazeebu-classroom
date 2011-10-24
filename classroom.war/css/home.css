@@ -1,0 +1,33 @@
+.menutitle { 
+			font-family:verdana;
+			font-weight:bold;
+			text-transform:underline;
+			font-size:11px;
+			padding-top:15px;
+			color: darkslateblue;
+		}
+.menuitem td{
+	font-size:11px;font-family:verdana;
+	padding:1px;
+	padding-left:4px;
+}
+.menuitem td a{
+	text-decoration:none; 
+}
+#classesmenu tr.selected {
+	background-color:lightgrey;
+}
+#classesmenu tr.selected a {
+	color: black;
+	font-weight: bold;
+}
+.notification {
+	color:white;
+	background-color:red;
+	font:8px;
+	font-family:verdana;
+	text-align:center;
+	padding:1px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+}

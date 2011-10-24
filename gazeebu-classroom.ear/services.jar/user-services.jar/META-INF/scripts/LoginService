@@ -1,0 +1,37 @@
+import com.rameses.annotations.*;
+
+class LoginService {
+	
+    @PersistenceContext("main")
+    def em;
+    
+	@Service("SessionService")
+	def sessionService;
+	
+    @ProxyMethod
+    public def login( def o ) {
+		def login = em.sqlContext.createQuery('select * from login where uid=$P{username}').setParameters(o).singleResult;
+		if(!login) {
+			throw new Exception("Invalid username and password");
+		}
+		if(login.password != o.password) {
+			throw new Exception("Invalid username and password");
+		}
+		//retrieve the associated entity for this login
+		def profile = em.read( "userprofile", [objid: login.objid] );
+		if(!profile) profile = [:];
+		//test first adding the roles.
+		def p = [:];
+		p.username = login.uid;	
+		p.userid = login.objid;	
+		p.usertype = login.usertype;
+		
+		p.profile = profile.profile;
+		p.lastname = profile.lastname;
+		p.firstname = profile.firstname;
+		def sessionid =  sessionService.register([username:p.userid, info:p]);
+		p.sessionid = sessionid;
+		return p;
+    }     
+
+}

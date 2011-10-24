@@ -1,0 +1,21 @@
+<schema>
+    <element tablename="exam">
+    	<field name="objid" primary="true"/>
+    	<field name="title"/>
+	   	<field name="examdate"/>
+		<field name="maxscore"/>
+		<field name="passingscore"/>
+		<field name="notes"/>
+		<field name="classid"/>
+		<field name="gradingtype"/>
+    </element> 
+	
+    <element name="result" tablename="exam_result">
+		<field name="objid" primary="true"/>
+		<field name="examid"/>
+		<field name="studentid"/>
+		<field name="score"/>
+		<field name="remarks"/>
+	</element>	
+	
+</schema>

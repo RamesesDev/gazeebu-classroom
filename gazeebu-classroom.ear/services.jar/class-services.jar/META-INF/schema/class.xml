@@ -1,0 +1,14 @@
+<schema>
+    <element tablename="class">
+    	<field name="objid" primary="true"/>
+    	<field name="school"/>
+    	<field name="name"/>
+    	<field name="timezone"/>
+    	<field name="startdate"/>
+    	<field name="enddate"/>
+    	<field name="classurl"/>
+    	<complex name="schedules" serializer="default"/>
+		<field name="msgcount"/>
+		<field name="status"/>
+    </element>
+</schema>

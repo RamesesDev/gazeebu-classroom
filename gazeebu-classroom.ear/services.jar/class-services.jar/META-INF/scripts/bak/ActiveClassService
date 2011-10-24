@@ -1,0 +1,33 @@
+import com.rameses.annotations.*;
+
+/**
+  Active classes determine the current default class 
+  for a teacher, student or parent. 
+*/
+
+class ActiveClassService {
+
+    @PersistenceContext("main")
+    def em;
+	
+	@Service("ClassroomService")
+	def classRoom;
+	
+	@ProxyMethod
+	public def getInfo(String userid) {
+		def c = em.read("active_class", [userid: userid] );	
+		return classRoom.getInfo( c.classid );
+	}	
+	
+	@ProxyMethod
+	public def setActiveClass(def c) {
+		assert c.userid;
+		assert c.usertype;
+		assert c.classid;
+		em.save( "active_class", c );
+		return classRoom.getInfo( c.classid );
+	}	
+	
+	
+}
+

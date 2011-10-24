@@ -1,0 +1,122 @@
+import com.rameses.annotations.*;
+
+/**
+* absent
+* present
+* late
+* late-excused
+* absent-excused 
+*/
+class AttendanceService {
+
+	@PersistenceContext("main")
+	def em;
+
+    @Service("ClassroomService")
+    def classroomService;
+
+	@ProxyMethod
+	public def getSummary(def classid) {
+		def classInfo = classroomService.getClassInfo(classid);
+		def summary = [ 
+			months:[   
+				[month:3, title:"March", school_days:20], 
+				[month:4, title:"April", school_days:10],
+				[month:5, title:"May", school_days:30]
+			], 
+			students: []
+		];
+		classInfo.students.each {
+			summary.students.add( it );
+		}
+		return summary;
+	}
+	
+	@ProxyMethod
+	public def getAttendance(def classid, def date) {
+		def classInfo = classroomService.getClassInfo(classid);
+		if(date!=null && date.startsWith("2010")) {
+			return classInfo.students.collect{ [objid:it.objid,lastname:it.lastname+"X",firstname:it.firstname, status:"absent",comment:"hoy" ] };
+		}
+		else {
+			return classInfo.students.collect{ [objid:it.objid,lastname:it.lastname,firstname:it.firstname, status:"present"] };
+		}
+		
+	}
+	
+	/*
+	@ProxyMethod
+	public def save( def o ) {
+		o.entries.each {
+			em.save( "student_attendance", it );
+		}
+	}
+	
+	@ProxyMethod
+	public def getSummaryByClass( def classid ) {
+		def x = [:];
+		x.fromdate = java.sql.Date.valueOf("2011-06-01");
+		x.todate = java.sql.Date.valueOf("2012-03-01");
+		x.months = [
+			[ date: java.sql.Date.valueOf("2011-06-01"), schooldays:19 ],
+			[ date: java.sql.Date.valueOf("2011-07-01"), schooldays:20 ],
+			[ date: java.sql.Date.valueOf("2011-08-01"), schooldays:21 ],
+			[ date: java.sql.Date.valueOf("2011-09-01"), schooldays:22 ],
+			[ date: java.sql.Date.valueOf("2011-10-01"), schooldays:23 ],
+			[ date: java.sql.Date.valueOf("2011-11-01"), schooldays:24 ],
+			[ date: java.sql.Date.valueOf("2011-12-01"), schooldays:25 ],
+			[ date: java.sql.Date.valueOf("2012-01-01"), schooldays:26 ],
+			[ date: java.sql.Date.valueOf("2012-02-01"), schooldays:27 ],
+			[ date: java.sql.Date.valueOf("2012-03-01"), schooldays:28 ]
+		];
+		def list = studentService.getListByClass( [classid: classid ] );
+		list.each {
+			it.attendance = [
+				"201106":[present:22,absent:2],
+				"201108":[present:24,late:3],
+				"201201":[present:25, late:4]
+			]; 
+		}
+		x.students = list;
+		return x;
+	}
+	
+	@ProxyMethod
+	public def getByMonth( o ) {
+		def r = [:];
+		r.month = "January";
+		r.monthid = 1;
+		r.year = 2011;
+		r.days_in_month = 31;
+		r.students = studentService.getListByClass( [classid: o.classid ] );
+		r.students.each {
+			it.entries = [:]
+			it.entries['1'] = "absent";
+			it.entries['5'] = "present";
+			it.entries['9'] = "late";
+			it.entries['15'] = "late-excused";
+			it.entries['25'] = "absent-excused";
+		}
+		return r;
+	}
+	
+	@ProxyMethod
+	public def getByDay( o ) {
+		def list = [];
+		def students = studentService.getListByClass( [classid: o.classid ] );
+		students.each {
+			def m = [:];
+			m.objid = "ATT" + new  java.rmi.server.UID();
+			m.studentid = it.objid;
+			m.firstname = it.firstname;
+			m.lastname = it.lastname;
+			m.classid = o.classid;
+			m.date = o.date;	
+			list.add( m );
+		}
+		return [entries: list];
+	}
+	*/
+	
+	
+}

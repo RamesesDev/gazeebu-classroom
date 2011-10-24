@@ -1,0 +1,22 @@
+<schema>
+    <element tablename="teacher">
+    	<field name="objid" primary="true"/>    	
+    	<field name="firstname"/>
+    	<field name="lastname"/>
+    	<field name="birthdate"/>
+    	<complex name="contacts" ref="contacts" serializer="default" merge="true"/>
+		<field name="email"/>
+		<field name="gender"/>
+		<complex name="homeaddress" serializer="default" merge="true"/>
+		<field name="languages"/>
+		<field name="aboutme"/>
+		<field name="profile"/>
+	</element>
+	
+	 <element name="contacts">
+		<field name="name"/>
+		<field name="type"/>
+		<field name="value"/>
+	</element>
+		
+</schema>

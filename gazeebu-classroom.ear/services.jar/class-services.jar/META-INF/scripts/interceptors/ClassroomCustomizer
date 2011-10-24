@@ -1,0 +1,53 @@
+import com.rameses.annotations.*;
+
+/***
+ This class handles all interceptions to customize the application.
+**/
+
+class ClassroomCustomizer {
+	
+	@Service("ClassService")
+	def classService;
+	
+	@Service("ClassroomService")
+	def classroomService;
+	
+	@Service("MessageService")
+	def messageService;
+
+	@After(pattern="MessageService.getCustomChannels")
+    public def getFolders( def evt ) {
+		def result = evt.result;
+		def info = evt.args[0];
+		def classes = classService.getOpenClasses( [userid:info.userid] );
+		result.addAll( classes.collect{[id:it.objid, link: "?classid="+it.objid+"#news", name: it.name, title: it.classurl ]} );
+    } 
+	
+	//get all open classes first and for each open class, determine if you are student or teacher
+	//to trace: 
+	//MessageService.getFolders->MessageService.getCustomChannels->ClassroomCustomizer.getFolders
+	private void notifyClass( def userid, def status ) {
+		if(userid) {
+			def folders = messageService.getFolders( [userid:userid] );
+			folders.each {
+				if(it.id) classroomService.updateOnlineStatus( it.id, userid, status );
+			}
+		}
+	}
+	
+    @After(pattern="LoginService.login")
+    public def notifyLogin( def evt ) {
+		notifyClass( evt.result.userid, "online" );
+    } 
+	
+	
+	@After(pattern="LogoutService.logout")
+    public def notifyLogout( def evt ) {
+		notifyClass( evt.result?.username, "offline" );
+    } 
+    
+	
+    
+	
+}
+

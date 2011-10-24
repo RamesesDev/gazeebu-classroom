@@ -1,0 +1,28 @@
+import com.rameses.annotations.*;
+
+class MyTestService {
+
+	@PersistenceContext("main")
+	def em;
+
+	@ProxyMethod
+	public def getInfo(def params) {
+		def parm = [start: params._start, limit : params._limit ];
+		print parm;
+		def limit = params._limit;
+		return em.sqlContext.createQuery( 'select firstname, lastname from student limit $P{start},$P{limit}')
+			.setParameters(parm).resultList;
+	}
+
+	@ProxyMethod
+	public def fire() {
+		print "firing";
+	}
+	
+	@ProxyMethod
+	public def save( s ) {
+		print s;
+	}
+	
+}
+

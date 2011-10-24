@@ -1,0 +1,8 @@
+<schema>
+    <element name="class_membership" tablename="class_membership">
+        <field name="objid" primary="true"  />
+        <field name="classid" />
+        <field name="userid" />
+        <field name="usertype" />
+    </element> 
+</schema>

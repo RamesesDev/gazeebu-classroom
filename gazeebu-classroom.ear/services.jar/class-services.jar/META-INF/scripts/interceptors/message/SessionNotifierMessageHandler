@@ -1,0 +1,35 @@
+import com.rameses.annotations.*;
+
+class SessionNotifierMessageHandler {
+	
+	@Service("SessionService")
+	def sessionService;
+	
+	@Service("ClassroomService")
+	def classroomService;
+	
+    @After(pattern="MessageService.send*")
+    public def broadcastMessage( def evt ) {
+		def r = evt.result;
+		if(r.recipients) {
+			sessionService.notifyUser( r.senderid, r );
+			r.recipients.each {
+				sessionService.notifyUser( it.userid, r );
+			}
+		}
+		else {
+			if(r.channelid) {
+				def classroom = classroomService.getClassInfo( r.channelid );		
+				classroom.members.each {
+					sessionService.notifyUser( it.objid, r );
+				}
+			}
+			else {
+				sessionService.notifyAllExceptSender( r, r.senderid  );
+			}	
+		}
+		
+    } 
+    
+}
+

@@ -1,0 +1,96 @@
+import com.rameses.annotations.*;
+import java.io.*;
+import com.rameses.io.FileTransfer;
+import java.util.concurrent.*;
+import java.util.*;
+
+class MessageService {
+
+	@PersistenceContext("main")
+	def em;
+
+	@Env
+	def env;
+	
+	@Service("DateService")
+	def dateSvc;
+
+	def df = new java.text.SimpleDateFormat("EEE MMMM dd yyyy KK:mm a");
+	
+	@ProxyMethod
+	public def getUserMessages(o) {
+		def channelid = o.channelid;
+		def m = [userid: o.userid, channelid: channelid ];
+		def qryName = ( channelid ) ? "message:channel" : "message:all";
+		def list = em.sqlContext.createNamedQuery(qryName).setParameters(m).resultList;
+		list.each {
+			if(it.message) {
+				StringBuilder result = new StringBuilder();
+				StringTokenizer t = new StringTokenizer(it.message, "\n");
+				while (t.hasMoreTokens()) {	
+					result.append(t.nextToken().trim()).append("<br>");
+				} 
+				it.message = result.toString();
+			}
+			if(it.dtfiled) it.dtfiled = df.format(it.dtfiled);
+		}
+		return list;
+	}
+	
+	@ProxyMethod
+	public def send(o) {
+		o.objid = "PMSG:" + new java.rmi.server.UID();
+		o.dtfiled = dateSvc.serverDate;
+		o.sendername = env.username;
+		o.senderid = env.userid;
+		o.sendertype = env.usertype;
+		em.create( "message", o );	
+
+		//add the recipients
+		if(o.recipients) {
+			o.recipients.each {
+				def m = [:];
+				m.objid = "PMSGR:" + new java.rmi.server.UID();
+				m.userid= it.userid;
+				m.msgid = o.objid;
+				m.usertype = it.usertype;
+				m.status = "unread";
+				em.create( "message:recipient", m );
+			}
+		}
+		
+		o.dtfiled = df.format( o.dtfiled );
+		return o;
+	}
+	
+	@ProxyMethod
+	public def respond(o) {
+		o.objid = "PMSG:" + new java.rmi.server.UID();
+		o.dtfiled = dateSvc.serverDate;
+		o.sendername = env.username;
+		o.senderid = env.userid;
+		o.sendertype = env.usertype;
+		em.create( "message:response", o );	
+		o.dtfiled = df.format( o.dtfiled );
+		return o;
+	}
+	
+	@ProxyMethod
+	public def getResponses(o) {
+		def m = [ parentid: o.objid  ];
+		def list = em.sqlContext.createNamedQuery("message:responses").setParameters(m).resultList;
+		list.each {
+			if(it.message) {
+				StringBuilder result = new StringBuilder();
+				StringTokenizer t = new StringTokenizer(it.message, "\n");
+				while (t.hasMoreTokens()) {	
+					result.append(t.nextToken().trim()).append("<br>");
+				} 
+				it.message = result.toString();
+			}
+			if(it.dtfiled) it.dtfiled = df.format(it.dtfiled);
+		}
+		return list;
+	}
+	
+}
