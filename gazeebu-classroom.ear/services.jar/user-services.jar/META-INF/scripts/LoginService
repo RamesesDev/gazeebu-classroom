@@ -27,6 +27,7 @@ class LoginService {
 		p.usertype = login.usertype;
 		
 		p.profile = profile.profile;
+		p.photoversion = profile.info?.photoversion;
 		p.lastname = profile.lastname;
 		p.firstname = profile.firstname;
 		def sessionid =  sessionService.register([username:p.userid, info:p]);

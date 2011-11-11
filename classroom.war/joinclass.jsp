@@ -2,14 +2,24 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 
-<s:invoke service="ClassService" method="getClassByUrl" params="${param['url']}" var="result"/>
+<c:if test="${!empty param['url']}">
+	<s:invoke service="ClassService" method="getClassByUrl" params="${param['url']}" var="result"/>
+</c:if>
 <t:public redirect_session="false">
+	<script type="text/javascript" src="js/ext/birthdate.js"></script>
 
+	<c:if test="${empty param['url'] or !empty error}">
 		<c:if test="${!empty error}">
-			<h2>An Error occured</h2>
-			<p class="error">${error.message}</p>
+			<p class="error">Error: Class code not found.</p>
 		</c:if>
 		
+		<form method="get">
+			Enter Class Code: 
+			<input type="text" name="url" />
+			<input type="submit" value="Next"/>
+		</form>
+	</c:if>
+	<c:if test="${!empty param['url']}">
 		<c:if test="${!empty result}">
 			<script>
 				$put(
@@ -21,6 +31,8 @@
 						this.confirmpassword;
 						
 						var svc = ProxyService.lookup("StudentRegistrationService");
+						
+						this.birthdateModel = new DateModel(null,null,null,1905);
 						
 						this.verify = function() {
 							try {
@@ -57,9 +69,8 @@
 									return;	
 								}
 								svc.register( this.entry );
-								
-							}	
-							WindowUtil.load("thankyou.jsp");
+							}
+							WindowUtil.load("register_success.jsp?u=" + this.entry.email);
 						}
 						
 						this.verified = "false";
@@ -128,7 +139,9 @@
 					</tr>
 					<tr>
 						<td>Birthdate (yyyy-MM-dd)</td>
-						<td><input type="text" r:context="student_register" r:name="entry.birthdate" r:caption="Birthdate" r:required="true" /></td>
+						<td>
+							<birthdate r:context="student_register" r:name="entry.birthdate" r:caption="Birthdate" r:model="birthdateModel" r:required="true" />
+						</td>
 					</tr>
 					<tr>
 						<td>Password</td>
@@ -160,5 +173,5 @@
 			</div>	
 			
 		</c:if>
-		
+	</c:if>
 </t:public>

@@ -1,11 +1,4 @@
-<%@ page import="java.util.*;" %>
-
 <%
-	Enumeration en = request.getParameterNames();
-	System.out.println("================ receiving response from paypal =====================");
-	while( en.hasMoreElements() ) {
-		Object key = en.nextElement();
-		if( key == null ) continue;
-		System.out.println( key +"="+ request.getParameter(key+"") );
-	}
+   System.out.println("transaction id is " + request.getParameter("custom"));
+   System.out.println("verify sign is " + request.getParameter("verify_sign"));
 %>

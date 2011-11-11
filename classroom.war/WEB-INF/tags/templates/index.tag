@@ -28,7 +28,7 @@
 			<script>
 				$put("login",
 					new function() {
-						this.username;
+						this.username = '${param['u']}';
 						this.password;
 						this.onload = function() {
 							<c:if test="${redirect_session=='true'}">
@@ -54,7 +54,7 @@
 						<table width="100%" height="100%" cellpadding="0" cellspacing="0">
 							<tr>
 								<td id="topmenu" align="left" valign="top">
-									<a href="/">
+									<a href="/classroom">
 										<img src="img/biglogo.png" style="border:none;">	
 									</a>
 								</td>
@@ -65,7 +65,7 @@
 											<table cellspacing="0" cellpadding="1" class="loginform">
 												<tr>
 													<td valign="top" colspan="2">
-														<input id="uid" type="text" r:name="username" name="username" r:hint="Email" class="logininput" r:context="login" />
+														<input id="uid" type="text" r:name="username" name="username" r:hint="Email" class="logininput" r:context="login"/>
 													</td>	
 													<td valign="top">
 														<input id="pwd" type="password" r:name="password" name="password"  r:hint="Password" class="logininput"  r:context="login"/>

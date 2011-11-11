@@ -3,9 +3,11 @@
 
 <t:content title="Credits">
    <script>
+      Registry.add({id:"sharecredit", page:"profile/sharecredit.jsp", context:"sharecredit"});
+      Registry.add({id:"donate", page:"profile/donate.jsp", context:"donate"});
+      Registry.add({id:"buycredits", page:"profile/buycredits.jsp", context:"buycredits"});
       $put("credits", 
          new function() {
-         
             var self = this;
             var accsvc = ProxyService.lookup("UserProfileService");
             var creditsvc = ProxyService.lookup("CreditService");
@@ -37,6 +39,12 @@
                self._controller.refresh();
             }
             
+            this.buycredits = function() {
+               var popup = new PopupOpener('buycredits', {credits:this.credits});
+               popup.title="Buy Credits";
+               popup.options={width:500, height:375, resizable:false};
+               return popup;
+            }
          }
       );
    </script>
@@ -44,7 +52,7 @@
       <table class="page-data-table" width="100%" cellpadding="0" cellspacing="0" border="0">
          <tr>
             <td class="center">
-               <a href="#buycredits">Buy</a>
+               <a r:context="credits" r:name="buycredits">Buy</a>
             </td>
          </tr>
          <tr>

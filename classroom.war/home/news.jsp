@@ -140,8 +140,13 @@
 
 		<div style="width:550px">
 			<t:textarea id="message" context="news" name="message.message" hint="Write a message">
-				<select r:context="news" r:items="sendModes" r:name="sendMode" r:itemLabel="title" r:itemKey="id" ></select>
-				<input type="button" value="Send" r:context="news" r:name="send"/>
+				<jsp:attribute name="leftcontrols">
+					<a href="#" title="attach a link"><img src="img/post-icons/doc-attach.png"/></a>
+				</jsp:attribute>
+				<jsp:attribute name="rightcontrols">
+					<select r:context="news" r:items="sendModes" r:name="sendMode" r:itemLabel="title" r:itemKey="id" ></select>
+					<input type="button" value="Send" r:context="news" r:name="send"/>
+				</jsp:attribute>
 			</t:textarea>
 		</div>
 		

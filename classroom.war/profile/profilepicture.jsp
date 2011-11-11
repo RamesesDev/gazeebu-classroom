@@ -18,9 +18,7 @@
             }
             
             this.doneupload = function() {
-               this.upload = false;
-			   this.imgversion = Math.random();
-               this._controller.refresh();
+               this._controller.reload();
             }
             
             this.change = function() {
@@ -45,7 +43,7 @@
                <tr>
                   <td align="center">
                      <label r:context="profilepicture">
-                        <img src="${pageContext.servletContext.contextPath}/#{user.profile}/large.jpg?v=#{imgversion}"/>
+                        <img src="${pageContext.servletContext.contextPath}/#{user.info.photoversion == null? 'img/profilephoto.png' : user.profile+'/medium.jpg?v='+user.info.photoversion}"/>
                      </label>
                   </td>
                </tr>

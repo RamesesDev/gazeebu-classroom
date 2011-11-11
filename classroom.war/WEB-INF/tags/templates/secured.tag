@@ -13,6 +13,7 @@
 	<s:invoke service="SessionService" method="getInfo" params="${SESSIONID}" var="SESSION_INFO"/>
 
 	<jsp:invoke fragment="before_rendering"/>
+	<!DOCTYPE html>
 	<html>
 		<head>
 			<link href="${pageContext.servletContext.contextPath}/js/lib/css/jquery-ui/jquery.css" type="text/css" rel="stylesheet" />
@@ -77,7 +78,7 @@
 				html, body { height: 100%; overflow: hidden; }
 				.header-wrapper { position: absolute; top: 0; left: 0; width: 100%; }
 				.header { position: relative; margin-right: 17px; width: auto; text-align: center; }
-				.wrapper { height: 100%; overflow: auto; text-align: left; }
+				.wrapper { height: 100%; overflow: auto; text-align: left; position: relative; }
 				
 				#feedback { position: absolute; }
 			</style>
@@ -120,7 +121,7 @@
 			<div class="wrapper ie-scroller">
 				<table class="main-container" width="930px" align="center" cellpadding="0" cellspacing="0" height="100%">
 					<tr>
-						<td height="100%" style="padding-top:10px;">
+						<td height="100%">
 							<jsp:doBody/>
 						</td>
 					</tr>
@@ -186,7 +187,13 @@
 								</tr>
 								<tr>
 									<td colspan="2">
-										<textarea id="comments" r:context="feedback" r:name="entity.comments" r:required="true" r:caption="Feedback"></textarea>
+										<textarea id="comments" 
+										          r:context="feedback" 
+												  r:name="entity.comments" 
+												  r:required="true" 
+												  r:caption="Feedback"
+												  rows="6">
+										</textarea>
 									</td>
 								</tr>
 								<tr>

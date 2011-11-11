@@ -23,7 +23,7 @@ function DateModel(m, d, y, minYear) {
 	
 	minYear = minYear || 1900;
 	var curDate = new Date();
-	for( var i=minYear; i<= curDate.getFullYear(); ++i ) {
+	for( var i=curDate.getFullYear(); i>=minYear ; --i ) {
 		this.years.push( i+'' );
 	}
 	

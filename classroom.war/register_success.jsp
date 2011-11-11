@@ -18,13 +18,8 @@
 	</style>
 	
 	<h2>Your registration was submitted successfully.</h2>
-	Please wait for the confirmation email that you will be receiving.
-	Follow the instructions in the email to activate your account.
-	<br>
-	<br>
-	<br>
-	
-	<h3>Thank you for taking the time to register. Enjoy and dont forget to give us feedback. </h3>
+	<h3>Thank you for taking the time to register. Enjoy and don't forget to give us feedback. </h3>
 	Follow us on facebook, twitter.	
-	
+	<br/>
+	To Login, <a href="/classroom?u=${param['u']}">click here</a>.
 </t:public>

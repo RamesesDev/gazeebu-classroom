@@ -47,8 +47,11 @@
 		</td>
 	</tr>
 	<tr>
-		<td align="left" colspan="2" style="${not empty title ? 'border-top:1px solid lightgrey;' : ''} padding-top:10px;">
-			<table width="100%" cellpadding="0" cellspacing="0">
+		<td align="left" colspan="2">
+			<c:if test="${not empty title}">
+				<div class="hr"></div>
+			</c:if>
+			<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:10px;">
 				<tr>
 					<td valign="top">
 						<jsp:doBody/>	

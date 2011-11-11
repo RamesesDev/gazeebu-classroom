@@ -85,8 +85,16 @@
             <tr>
                 <td rowspan="4" width="60" style="padding-right:10px;">
                     <label r:context="usermessage">
-                        <img src="#{user.profile}/thumbnail.jpg"/>
+                        <img src="${pageContext.servletContext.contextPath}/#{user.info.photoversion == null? 'img/profilephoto.png' : user.profile+'/thumbnail.jpg?v='+user.info.photoversion}"/>
                     </label>
+					<!--
+					<c:if test="${empty SESSION_INFO.photoversion}">
+						<img src="${pageContext.servletContext.contextPath}/img/profilephoto.png"/>
+					</c:if>
+					<c:if test="${!empty SESSION_INFO.photoversion}">
+						<img src="${pageContext.servletContext.contextPath}/${SESSION_INFO.profile}/thumbnail.jpg?v=${SESSION_INFO.photoversion}"/>
+					</c:if>
+					-->
                 </td>
             </tr>
             <tr>
@@ -112,13 +120,13 @@
         <!-- POSTING A COMMENT HERE -->
         <div style="float:left;width:500px;">
             <t:textarea id="message" context="usermessage" name="text" hint="Write a message">
-                <jsp:body>
-                    <div r:context="usermessage"
-                         style="border:1px solid #a5aa84;margin-top:10px;margin-bottom:10px;padding:3px;">
-                        <input type="button" value="Add Person" r:context="usermessage" r:name="addPerson">
-                    </div>
+				<jsp:attribute name="leftcontrols">
+					<a href="#" title="Attach a link"><img src="img/post-icons/doc-attach.png"/></a>
+					<a href="#" title="Add another recipient"><img src="img/post-icons/doc-add.png"/></a>
+				</jsp:attribute>
+                <jsp:attribute name="rightcontrols">
                     <input type="button" value="Send" r:context="usermessage" r:name="send"/>
-                </jsp:body>
+                </jsp:attribute>
             </t:textarea>
 
             <!-- POSTED MESSAGES ARE SHOW HERE -->
@@ -126,7 +134,7 @@
                 <tbody>
                     <tr>
                         <td valign="top" align="left" width="50" style="padding-top:10px;border-bottom:1px solid lightgrey" rowspan="2">
-                            <img src="${pageContext.servletContext.contextPath}/#{item.senderprofile ?  item.senderprofile + '/thumbnail.jpg' : 'blank.jpg'}"></img>
+                            <img src="${pageContext.servletContext.contextPath}/#{item.senderprofile ?  item.senderprofile + '/thumbnail.jpg' : 'img/profilephoto.jpg'}"></img>
                         </td>
                         <td valign="top" class="message">
                             #{item.message}	

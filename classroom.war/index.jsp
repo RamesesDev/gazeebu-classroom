@@ -20,7 +20,11 @@
 				<b style="font-size:1em;font-family:georgia">New User?</b><br>
 				You must have an invitation to create
 				an account. 
-				<br><a href="teacher_register.jsp">Request an invitation here</a>	
+				<br><a href="teacher_register.jsp">Request an invitation here</a>
+				<br/>
+				<br/>
+				<b style="font-size:1em;font-family:georgia">For Students</b><br>
+				<a href="joinclass.jsp">Join a class here</a>
 			</td>
 		</tr>
 		<tr>

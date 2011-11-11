@@ -28,7 +28,7 @@
 						<table width="100%" height="100%" cellpadding="0" cellspacing="0">
 							<tr>
 								<td id="topmenu" align="left" valign="center">
-									<a href="/">
+									<a href="/classroom">
 										<img src="img/biglogo25.png">	
 									</a>
 								</td>

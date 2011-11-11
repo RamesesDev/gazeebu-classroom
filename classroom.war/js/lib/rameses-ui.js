@@ -179,19 +179,33 @@ var BindingUtils = new function() {
 			return;
 		}
 
-		input.wrap('<span style="display:inline-block;position:relative"></span>')
-		 .keyup(input_keyup)
+		//find or create the wrapper
+		var wrapper;
+		if( input.parent('.hint-wrapper').length > 0 )
+			wrapper = input.parent('.hint-wrapper');
+		else
+			wrapper = input.wrap('<span class="hint-wrapper"></span>').parent();
+		
+		wrapper.css({display:'inline-block', position:'relative'});
+		
+		input.keyup(input_keyup)
 		 .keypress(input_keypress)
 		 .focus(input_focus)
 		 .blur(input_blur)
 		 .change(input_change)
+		 .bind('paste', hideHint)
 		 .data('hint_decorator', this);
 
-		var span = $('<span class="hint" style="position:absolute;z-index:100;overflow:hidden;top:0px;left:0px;"></span>')
-		 .html( R.attr(input, 'hint') )
+		var span;
+		if( wrapper.find('span.hint:first').length > 0 )
+			span = wrapper.find('span.hint:first');
+		else
+			span =  $('<span class="hint"></span>').insertBefore( input );
+		
+		span.html( R.attr(input, 'hint') )
+		 .css({position:'absolute', 'z-index':100, overflow:'hidden', top:'0', left:'0'})
 		 .hide()
 		 .disableSelection()
-		 .insertBefore( input )
 		 .click(onClick);
 
 		this.refresh = refresh;
@@ -257,7 +271,7 @@ var BindingUtils = new function() {
 			else
 				hideHint();
 		}
-
+		
 		function isCharacterPressed(evt) {
 			if (typeof evt.which == "undefined") {
 				return true;
@@ -440,7 +454,6 @@ function Controller( code, pages ) {
         }
 		else if( outcome == "_reload" ) {
 			if(this.container && this.container.reload) {
-				console.log('reloading container....');
 				this.container.reload();	
 			}
 			else {
@@ -450,9 +463,6 @@ function Controller( code, pages ) {
 				var _controller = this;
 				
 				var tgt = $('#'+_target);
-				console.log('==================================');
-				console.log( _target );
-				console.log( tgt.length );
 				//if  target is specified reload the content of the target element
 				if( tgt.length > 0 ) {
 					tgt.load( this.pages[_outcome], WindowUtil.getAllParameters('#'+_target), function() { 
@@ -766,7 +776,24 @@ BindingUtils.handlers.button = function( elem, controller, idx ) {
 		}
 		return false; 
 	}
-}
+};
+
+BindingUtils.handlers.input_image = function( elem, controller, idx ) {
+	var $e = $(elem);
+    var action = R.attr($e, "name");
+    
+    elem.onclick = function() { 
+		if( action ) {
+			try {
+				$get(controller.name).invoke( this, action ); 
+			}
+			catch(e) {
+				if( window.console && R.DEBUG ) console.log( e.message );	
+			}
+		}
+		return false; 
+	}
+};
 
 BindingUtils.handlers.input_submit = function( elem, controller, idx ) {
     var action = R.attr(elem, "name");
@@ -916,7 +943,7 @@ BindingUtils.handlers.input_file = function( elem, controller, idx ) {
 		var value = null;
 		var lbl = frame.parent().find('div.label')
 
-		var resptext = frame.contents().text();
+		var resptext = frame.contents().text().trim();
 		try {
 			value = $.parseJSON(resptext);
 		}catch(e){
@@ -2016,7 +2043,7 @@ function DropdownOpener( id, params )
 	//--- DropdownWindow class ----
 	function DropdownWindow( source, options, styleClass ) {
 
-		var div = $('<div class="dropdown-window" style="position: absolute; z-index: 200000; top: 0; left: 0;"></div>');
+		var div = $('<div class="dropdown-window" style="position: absolute; z-index: 999999; top: 0; left: 0;"></div>');
 		var dynamic = false;
 		
 		if( styleClass ) div.addClass( styleClass );
@@ -2029,7 +2056,7 @@ function DropdownOpener( id, params )
 			
 			if( isFixedPositioned( posConfig.of ) )
 				div.css('position', 'fixed');
-			
+
 			if( dynamic ) {
 				div.hide().load( page, params, initDailog);
 			}
