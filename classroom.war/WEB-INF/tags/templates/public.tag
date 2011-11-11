@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <%@ attribute name="redirect_session" fragment="false" %>
+<%@ attribute name="head" fragment="true" %>
 
 <c:if test="${!empty SESSIONID and redirect_session=='true'}">
 	<%response.sendRedirect("home.jsp");%>
@@ -19,6 +20,7 @@
 			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ext-lib.js"></script>
 			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ui.js"></script>
 			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-proxy.js"></script>
+			<jsp:invoke fragment="head" />
 		</head>
 		<body>
 			<table width="100%" height="100%" cellpadding="0" cellspacing="0">
@@ -28,7 +30,7 @@
 						<table width="100%" height="100%" cellpadding="0" cellspacing="0">
 							<tr>
 								<td id="topmenu" align="left" valign="center">
-									<a href="/classroom">
+									<a href="/">
 										<img src="img/biglogo25.png">	
 									</a>
 								</td>

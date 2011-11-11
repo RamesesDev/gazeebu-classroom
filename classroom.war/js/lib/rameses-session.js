@@ -3,11 +3,13 @@
   This code is used to track session of the user and receive notifications
   from the server. 
 **/
-function Notifier(sessionid) {
+function Notifier(sessionid, url) {
 
 	this.handler;
 	this.handlers = {}
 	this.connectionListener = {};
+	this.url = url;
+	
 	var self = this;
 	
 	this.sessionid = sessionid;
@@ -24,6 +26,11 @@ function Notifier(sessionid) {
 	}
 	
 	var poll = function() {
+		//check first if ever url is specified, the current url must match with it.
+		if( self.url && self.url != window.location.href ) {
+			return;
+		}	
+	
 		var sid = self.sessionid;
 		//start polling for server updates.
 		var d = {};
@@ -52,7 +59,7 @@ function Notifier(sessionid) {
 							window.console.log('connection started...new token id '+self.tokenid+" .please provide  handler connectionListener.started to remove this message");
 						}	
 						poll();
-					}					
+					}		
 					else if(data == "_:expired" || data=="_:aborted" || data=="_:destroyed" || data=="_:ended") {
 						if( self.connectionListener.ended ) self.connectionListener.ended(data);
 						else alert("Session " + data + "! Please provide a connectionListener to remove this message");

@@ -1,0 +1,155 @@
+import com.rameses.annotations.*;
+
+class GradingCriteriaService {
+	
+	@PersistenceContext("main")
+	def em;
+	
+	private def dtformat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+
+	@ProxyMethod
+	public def getAll(def o) {
+		
+		def m = [:];
+		m.criteriaList  = getGradingCriteria(o);
+		m.criteriaList.each {
+			it.subcriteria = getSubcriteria( it.objid );
+		}
+		m.gradingPeriods = getGradingPeriods(o);
+		m.gradingEq = getGradingEquivalents(o);
+		return m;
+	}
+
+	
+	@ProxyMethod
+	public def getGradingCriteria(def o) {
+		return em.sqlContext.createNamedQuery("grading:criterialist").setParameters(o).resultList;
+	}
+	
+	@ProxyMethod
+	public def getSubcriteria(def id) {
+		return em.sqlContext.createNamedQuery("grading:subcriteria").setParameter("criteriaid", id).resultList;
+	}
+	
+	@ProxyMethod
+	public def getGradingPeriods(def o) {
+		def list = em.sqlContext.createNamedQuery("grading:periods").setParameters(o).resultList;
+		list.each {
+			if(it.fromdate) it.fromdate = dtformat.format(it.fromdate);
+			if(it.todate) it.todate = dtformat.format(it.todate);
+		}
+		return list;
+	}
+	
+	@ProxyMethod
+	public def getGradingEquivalents(def o) {
+		def m = [:]
+		m.list = em.sqlContext.createNamedQuery("grading:eqs").setParameters(o).resultList;
+		m.sortorder = ( m.list && m.list[0].fromscore != 0 ) ? "descending" : "ascending";
+		return m;
+	}
+	
+	
+	@ProxyMethod
+	public void saveCriteria(def o) {
+		def list = o.list;
+		list.each {
+			if(!it.objid) it.objid = "CLGRD:" + new java.rmi.server.UID();
+			if(!it.weight) it.weight = 0; 
+			it.weight = new java.math.BigDecimal(it.weight);
+			if(!it.indexno) it.indexno = 0;
+			if(!it.subentries) it.subentries= 0;
+		}
+		if( list.sum{ it.weight } != 100 ) {
+			throw new Exception( "Total weight must be equal to 100" );
+		}
+		list.each {
+			em.save( "grading:criteria", it );
+		}
+		def removedItems = o.removedItems;
+		removedItems.each {
+			em.delete( 	"grading:criteria", it );
+		}
+	}
+
+	@ProxyMethod
+	public void saveCategories(def list) {
+		list.each {
+			if(!it.objid) it.objid = "CLGRDTYP:" + new java.rmi.server.UID();
+			if(!it.indexno) it.indexno = 0;
+			if(!it.weight) it.weight = 0; 
+			it.weight = new java.math.BigDecimal(it.weight);
+		}
+	
+		if( list.sum{ it.weight } != 100 ) 
+			throw new Exception( "Total weight must be equal to 100" );
+			
+		def m =[:];
+		list.each {
+			em.save( "grading:category", it );
+			if(!m.criteriaid) m.criteriaid = it.criteriaid;
+		}
+		m.subentrycount = list.size();
+		em.sqlContext.createNamedExecutor("grading:update-subentry-count").setParameters( m ).execute();
+	}
+	
+	@ProxyMethod
+	public void saveGradingPeriod(def o) {
+		def list = o.list;
+		if(list) {
+			int i = 0;
+			list.each {
+				if(!it.objid) it.objid = "CLGRDPRD:" + new java.rmi.server.UID();
+				if(!it.weight) it.weight = 0; 
+				it.weight = new java.math.BigDecimal(it.weight);
+				if(!it.indexno) it.indexno = i++;
+			}
+			if( list.sum{ it.weight } != 100 ) {
+				throw new Exception( "Total weight must be equal to 100" );
+			}
+			list.each {
+				em.save( "grading:period", it );
+			}
+		}
+		def removedItems = o.removedItems;
+		removedItems.each {
+			em.delete( 	"grading:period", it );
+		}
+	}
+	
+	@ProxyMethod
+	public void saveGradingEq(def o) {
+		def list = o.list;
+		if(list) {
+			def lastItem = list[list.size()-1];
+			def lastValue = (o.listorder=='ascending') ? 100 : 0;
+			if(!lastItem.score) lastItem.score = lastValue;
+			if( lastItem.score != lastValue )
+				throw new Exception("Leave the last entry blank or the value must be " + lastValue);
+			list.each {
+				it.score = new java.math.BigDecimal(it.score);
+			}
+			def fromscore = 0;
+			if( o.listorder != "ascending" ) {
+				list.sort { 1 - it.score }
+				fromscore = 100;
+			}
+			else {
+				list.sort{ it.score }
+			}			
+			int i = 0;		
+			list.each {
+				if(!it.objid) it.objid = "CLGRDEQ:" + new java.rmi.server.UID();
+				if(!it.indexno) it.indexno = i++;
+				it.fromscore = fromscore;
+				it.toscore = it.score;
+				em.save( "grading:eq", it );
+				fromscore = it.score;
+			}
+		}
+		o.removedItems.each {
+			em.delete( "grading:eq", it );
+		}
+	}
+	
+}

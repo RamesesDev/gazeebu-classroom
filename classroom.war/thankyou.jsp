@@ -25,6 +25,6 @@
 	<br>
 	
 	<h3>Thank you for taking the time to register. Enjoy and dont forget to give us feedback. </h3>
-	Follow us on facebook, twitter.	
+	Follow us at facebook, twitter.	
 	
 </t:public>

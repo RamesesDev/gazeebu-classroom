@@ -17,6 +17,7 @@ public class ClassService {
 	@ProxyMethod
 	public def create( def o ){
 		o.objid = "CLASS" + new java.rmi.server.UID();
+		o.classurl = o.name.toLowerCase().trim().replaceAll( "\\s{1,}", "_"); 
 		o.msgcount = 0;
 		o.status = 0;
 		def m = [:];

@@ -17,9 +17,6 @@ class StudentRegistrationService {
 	@Service("UserProfileService")
 	def userProfileService;
 	
-	@Service("LoginService")
-	def loginSvc;
-	
 	def df = new java.text.SimpleDateFormat("EEE MMMM dd yyyy KK:mm a"); 
 	
 	@ProxyMethod
@@ -99,7 +96,6 @@ class StudentRegistrationService {
 		userProfileService.create( stu );	
 		
 		classroomService.addStudent( o.classid, stu );
-		
     	return stu;
     }
 

@@ -1,0 +1,108 @@
+import com.rameses.annotations.*;
+
+class ClassrecordService {
+	
+	@PersistenceContext("main")
+	def em;
+
+	@Service("ClassroomService")
+    def classroomService;
+	
+	@Service("GradingCriteriaService")
+    def gradingService;
+	
+	@Env
+	def env;
+	
+	private def dtformat = new java.text.SimpleDateFormat( "MM/dd" );
+	
+	@ProxyMethod
+	public def getSummary(def p) {
+		def classInfo = classroomService.getClassInfo(p.classid);
+		def summary = [:];
+		summary.gradingPeriods = gradingService.getGradingPeriods( p );
+		summary.gradingCriteria = gradingService.getGradingCriteria( p );
+		summary.activities = em.sqlContext.createNamedQuery('classrecord:activitylist').setParameters(p).resultList;
+		summary.students = classInfo.members.findAll{ it.membertype == "student" };
+		summary.activities.each {
+			if(it.activitydate) it.activitydate = dtformat.format(it.activitydate);
+			it.totalscore = new java.math.BigDecimal( it.totalscore );
+		}
+		def classResults = em.sqlContext.createNamedQuery("classrecord:class-results").setParameters(p).resultList;
+		//retrieve results by class and target resukt to the student's results 
+		summary.students.each { stud ->
+			stud.entries = [:];
+			summary.activities.each { exm->
+				def entry = classResults.find{ x-> return (x.studentid == stud.objid && x.activityid == exm.objid) };
+				if(!entry) entry = [:];
+				stud.entries[exm.objid] = entry; 
+				
+				//determine the state
+				if( entry.score ) {
+					try {
+						entry.score = new java.math.BigDecimal(entry.score);
+						entry.scorestate = "pass";
+					}
+					catch(ign){;}	
+				}	
+			}
+		}
+		return summary;
+	}
+	
+	@ProxyMethod
+	public def addActivity(def o) {
+		if(!o.objid) o.objid = "ACV"+ new java.rmi.server.UID();
+		if(!o.categoryid) o.remove("categoryid");
+		if(!o.periodid) o.remove("periodid");
+		return em.create( "classrecord:activity", o );
+	}
+	
+	@ProxyMethod
+	public def getActivityResult(def activityid) {
+		def e = em.read( "classrecord:activity", [objid:activityid] );
+		def classInfo = classroomService.getClassInfo(e.classid);
+		def students = classInfo.members.findAll{ it.membertype == "student" };
+		def activityResults = em.sqlContext.createNamedQuery("classrecord:results-byactivity").setParameters([activityid:e.objid]).resultList;
+		def results = [];
+		students.each { stud->
+			def v = activityResults.find{z-> stud.objid == z.studentid }
+			if(!v) {
+				v = [objid: "ACVG:"+new java.rmi.server.UID(), activityid:e.objid, studentid: stud.objid ];
+			}
+			v.lastname = stud.lastname;
+			v.firstname = stud.firstname;
+			v.profile = stud.profile;
+			results.add( v );
+		}
+		return [title:e.title, 
+				activitydate:dtformat.format(e.activitydate), 
+				totalscore:e.totalscore,
+				results:results ];	
+	}
+	
+	@ProxyMethod
+	public def saveActivityResults(def results) {
+		results.each {
+			em.save("classrecord:grade", it );
+		};
+	}
+	
+	@ProxyMethod
+	public def getStudentRecord(def p) {
+		if(!p.studentid) p.studentid = env.userid;
+		def result = [:];
+		
+		def classInfo = classroomService.getClassInfo(p.classid);
+		result.student = classInfo.members.find{ it.objid == p.studentid };
+		result.activities = em.sqlContext.createNamedQuery('classrecord:activitylist').setParameters(p).resultList;
+		def studentResults = em.sqlContext.createNamedQuery('classrecord:student-results').setParameters(p).resultList;
+		studentResults.each {
+			def actid = it.activityid;
+			def m = result.activities.find{ z->z.objid == actid };
+			m.score = it.score;	
+		}
+		return result;
+	}
+	
+}

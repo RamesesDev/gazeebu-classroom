@@ -8,7 +8,7 @@
 <%@ attribute name="script" fragment="true"%>
 <%@ attribute name="style" fragment="true"%>
 <%@ attribute name="head" fragment="true"%>
-
+<%@ attribute name="sections" fragment="true"%>
 <%@ attribute name="rightpanel" fragment="true"%>
 
 
@@ -47,11 +47,8 @@
 		</td>
 	</tr>
 	<tr>
-		<td align="left" colspan="2">
-			<c:if test="${not empty title}">
-				<div class="hr"></div>
-			</c:if>
-			<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:10px;">
+		<td align="left" colspan="2" style="${not empty title ? 'border-top:1px solid lightgrey;' : ''} padding-top:10px;">
+			<table width="100%" cellpadding="0" cellspacing="0">
 				<tr>
 					<td valign="top">
 						<jsp:doBody/>	
@@ -67,3 +64,5 @@
 		</td>
 	</tr>
 </table>
+
+<jsp:invoke fragment="sections"/>	

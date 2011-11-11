@@ -5,6 +5,9 @@
 <%@ attribute name="before_rendering" fragment="true" %>
 <%@ attribute name="head" fragment="true" %>
 
+<%@ attribute name="script" fragment="true"%>
+<%@ attribute name="style" fragment="true"%>
+
 <%@ attribute name="header_middle" fragment="true" %>
 
 <t:secured>
@@ -15,6 +18,19 @@
 
 	<jsp:attribute name="head">
 		<jsp:invoke fragment="head"/>
+		
+		<c:if test="${! empty script}">
+		<script>
+			<jsp:invoke fragment="script"/>	
+		</script>	
+		</c:if>
+
+		<c:if test="${! empty style}">
+		<style>
+			<jsp:invoke fragment="style"/>	
+		</style>	
+		</c:if>
+		
 	</jsp:attribute>
 	
 	<jsp:attribute name="header_middle">

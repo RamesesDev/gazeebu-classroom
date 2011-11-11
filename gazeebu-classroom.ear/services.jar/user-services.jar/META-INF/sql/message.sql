@@ -17,7 +17,9 @@ order by nf.dtfiled desc
 limit $P{limit}
 
 [conversation]
-select nf.* from message nf where nf.channelid = $P{channelid} 
+select nf.*,u.lastname as senderlastname, u.firstname as senderfirstname from message nf 
+inner join userprofile u on nf.senderid=u.objid 
+where nf.channelid = $P{channelid} 
 and (exists (select * from message_recipient where msgid=nf.objid and userid=$P{userid}) 
 or nf.senderid = $P{userid}) 
 and  

@@ -1,0 +1,10 @@
+import com.rameses.annotations.*;
+
+class SampleService {
+
+	@ProxyMethod
+	public def test(String s) {
+		return "Hello " + s ;
+	}
+
+}

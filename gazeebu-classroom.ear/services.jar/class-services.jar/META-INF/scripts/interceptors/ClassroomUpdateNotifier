@@ -19,7 +19,7 @@ class ClassroomUpdateNotifier {
 	
     @After(pattern="CacheServiceHandler.timeout", eval="args[0].startsWith('CLASS')")
     public def notifyClassroomCacheTimeout( def evt ) {
-		print "cache timeout";
+		
     } 
 
 }

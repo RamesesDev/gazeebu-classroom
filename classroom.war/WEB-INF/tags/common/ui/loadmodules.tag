@@ -18,6 +18,7 @@
 		if( perm!=null && perms!=null ) {
 			isPermitted = ( perms.indexOf( perm)>=0 ); 
 		}
+		
 		if(isPermitted) {
 			Map m = new HashMap();
 			if(o.get("id")!=null ) {

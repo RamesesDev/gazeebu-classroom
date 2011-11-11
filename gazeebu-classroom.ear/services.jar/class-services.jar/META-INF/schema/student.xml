@@ -1,10 +1,9 @@
 <schema>
-	<element name="student" tablename="student">
+	<element name="student" tablename="userprofile">
 		<field name="objid" primary="true" />
 		<field name="firstname" />
 		<field name="lastname" />
 		<field name="birthdate" />
-		<field name="studentno" />
 		<field name="email"/>
 		<field name="gender"/>
 		<field name="profile"/>

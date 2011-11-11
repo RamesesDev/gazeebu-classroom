@@ -1,0 +1,23 @@
+<schema>
+    <element name="activity" tablename="activity">
+    	<field name="objid" primary="true"/>
+    	<field name="title"/>
+	   	<field name="activitydate"/>
+		<field name="totalscore"/>
+		<field name="notes"/>
+		<field name="classid"/>
+		<field name="criteriaid"/>
+		<field name="subcriteriaid"/>
+		<field name="periodid"/>
+    </element> 
+	
+    <element name="grade" tablename="activity_grade">
+		<field name="objid" primary="true"/>
+		<field name="activityid"/>
+		<field name="studentid"/>
+		<field name="score"/>
+		<field name="remarks"/>
+		<field name="grade"/>
+	</element>	
+	
+</schema>

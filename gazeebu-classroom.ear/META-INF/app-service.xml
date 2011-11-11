@@ -12,6 +12,7 @@
   <mbean code="com.rameses.server.session.SessionService" name="rameses:gazeebu-classroom=SessionService">
 	<depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
 	<depends  optional-attribute-name="Cluster" proxy-type="com.rameses.server.cluster.ClusterServiceMBean">rameses:gazeebu-classroom=ClusterService</depends>
+	<attribute name="Timeout">180000</attribute>
   </mbean>
 
   <mbean code="com.rameses.cache.CacheService" name="rameses:gazeebu-classroom=CacheService">
@@ -23,11 +24,12 @@
 	<depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
   </mbean>
 
-   <!--		
-  <mbean code="com.rameses.eserver.CacheService" name="rameses:gazeebu-classroom=CacheService">
-	<depends>rameses:gazeebu-classroom=NotificationServer</depends>
+  <mbean code="com.rameses.scheduler2.SchedulerService" name="rameses:gazeebu-classroom=SchedulerService">
+	<depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
+	<depends>jboss.j2ee:ear=gazeebu-classroom.ear,jar=rameses-server.jar,name=ScriptService,service=EJB3</depends>
+	<depends optional-attribute-name="Session" proxy-type="com.rameses.server.session.SessionServiceMBean">rameses:gazeebu-classroom=SessionService</depends>
+	<depends optional-attribute-name="Cluster" proxy-type="com.rameses.server.cluster.ClusterServiceMBean">rameses:gazeebu-classroom=ClusterService</depends>
   </mbean>
-  -->
   
   <!--
   <mbean code="com.rameses.eserver.ScriptDeployer" name="rameses:gazeebu-classroom=ScriptDeployer">
@@ -49,7 +51,7 @@
         <property name="mail.smtp.port" value="587"/>
         <property name="mail.from" value="gazeebu@gmail.com"/>
         <property name="mail.smtp.auth" value="true"/>  
-        <property name="mail.debug" value="true"/>
+        <property name="mail.debug" value="false"/>
       </configuration>
     </attribute>
     <depends>jboss:service=Naming</depends>

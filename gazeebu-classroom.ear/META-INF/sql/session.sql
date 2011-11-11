@@ -14,3 +14,6 @@ select sessionid from sys_session where username in (${usernames})
 
 [list-session-usernames]
 select username from sys_session where sessionid in (${sessionids})
+
+[list-session-byuser]
+select sessionid from sys_session where username = $P{username}

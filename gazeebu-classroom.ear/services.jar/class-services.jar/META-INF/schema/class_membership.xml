@@ -4,5 +4,6 @@
         <field name="classid" />
         <field name="userid" />
         <field name="usertype" />
+		<complex name="info" serializer="default" merge="true" />
     </element> 
 </schema>

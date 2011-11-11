@@ -37,7 +37,7 @@ var BindingUtils = new function() {
 			var ctxName = R.attr($e,'context');
 			try {
 				var res = expr.evaluate( $ctx(ctxName) );
-				isVisible = (res != 'false' && res != 'null');
+				isVisible = (res && res != 'false' && res != 'null' && res != 'undefined')
 			}
 			catch(e) {
 				if( window.console && R.DEBUG ) console.log('error evaluating visibleWhen: ' + e.message);
@@ -68,9 +68,14 @@ var BindingUtils = new function() {
 				}
 			}
 			
-            var n = elem.tagName.toLowerCase()
-            if(n == "input") n = n + "_" + elem.type ;
-			if( _self.handlers[n] ) _self.handlers[n]( elem, controller, idx );
+            var nodeName = elem.tagName.toLowerCase()
+            if(nodeName == "input") {
+				nodeName = nodeName + "_" + elem.type ;
+			}
+			else if( R.attr(elem, 'type') ) {
+				nodeName = nodeName + "_" + R.attr(elem, 'type');
+			}
+			if( _self.handlers[nodeName] ) _self.handlers[nodeName]( elem, controller, idx );
         }
     };
 
@@ -521,12 +526,13 @@ function Controller( code, pages ) {
 		var name = this.name;
 		var selector;
 		if( this.container && this.container.element ) selector = this.container.element;
-        $('select,input,textarea', selector || document).filter(
+        $('*', selector || document).filter(
             function() {
-                var o = $(this);
+				if( !R.attr(this, 'name') || R.attr(this, 'context') != name ) return;
+				
+				var o = $(this);
                 if( o.is(':hidden') ) return;
 				if( R.attr(this, 'required') != 'true' ) return;
-				if( R.attr(this, 'context') != name ) return;
                 
 				$(this).removeClass('error');
                 var fldName = R.attr(this, 'name');
@@ -589,8 +595,13 @@ var ContextManager = new function() {
 // configure input controls
 //******************************************************************************************************************
 BindingUtils.handlers.input_text = function(elem, controller, idx ) {
-	BindingUtils.initInput(elem, controller, function(elem,controller) {
+	BindingUtils.initInput(elem, controller, function(elem,controller) 
+	{
 		var input = $(elem);
+		var suggExpr = R.attr(input, 'suggestExpression');
+		var suggTpl = R.attr(input, 'suggestTemplate');
+		var suggName = R.attr(input, 'suggestName');
+		
 		if( R.attr(input, 'suggest') && input.autocomplete ) {
 			var src = controller.get(R.attr(input, 'suggest'));
 			if( typeof src ==  'function' ) {
@@ -600,7 +611,55 @@ BindingUtils.handlers.input_text = function(elem, controller, idx ) {
 					if( result ) callback(result);
 				}
 			}
-			input.autocomplete({ source: src });
+			input.autocomplete({ source: src, focus: suggestFocus, select: suggestSelect, change: suggestChange });
+
+			if( suggTpl ) {
+				input.data('autocomplete')._renderItem = suggestItemRenderer;
+			}
+		}
+		
+		//helper functions
+		function suggestItemRenderer(ul, item) {
+			var html = $('#'+suggTpl).html();
+			html = unescape(html).evaluate(item);
+			return $( "<li></li>" )
+				.data( "item.autocomplete", item )
+				.append( html )
+				.appendTo( ul );
+		}
+		
+		function suggestFocus( event, ui ) {
+			if( suggExpr ) {
+				var lbl = suggExpr.evaluate( ui.item );
+				input.val( lbl );
+				return false;
+			}
+		}
+		
+		function suggestSelect( event, ui ) {
+			var value;
+			if( suggExpr ) {
+				value = suggExpr.evaluate( ui.item );
+			}
+			else if( ui.item.value ) {
+				value = ui.item.value;
+			}
+			else {
+				value = $.toJSON( ui.item );
+			}
+			
+			input.val( value );
+			input.trigger('change');
+
+			if( suggName ) {
+				controller.set(suggName, ui.item);
+			}
+			
+			return false;
+		}
+		
+		function suggestChange() {
+			input.trigger('change');
 		}
 	});
 };
@@ -1071,7 +1130,11 @@ BindingUtils.handlers.input_file = function( elem, controller, idx ) {
  * @author jaycverg
  *-----------------------------------*/
 BindingUtils.handlers.table = function( elem, controller, idx ) {
-	if( $(elem).data('_has_model') ) return;
+	if( $(elem).data('_has_model') ) {
+		var model = $(elem).data('_has_model');
+		if( model ) model.refresh(false);
+		return;
+	}
 	if( !window.___table_ctr ) window.___table_ctr = 0;
 
 	var tbl = $(elem);
@@ -1094,7 +1157,7 @@ function DataTable( table, bean, controller ) {
 	}
 	if( R.attr(table, 'model') ) {
 		model.setDataModel( controller.get(R.attr(table, 'model')) );
-		table.data('_has_model', true);
+		table.data('_has_model', model);
 	}
 
 	var status = {prevItem: null, nextItem: null};
@@ -1107,7 +1170,8 @@ function DataTable( table, bean, controller ) {
 	}
 
 	model.onRefresh = doRender;
-	model.onAppend = function(list, type, animate) { 
+	model.onAppend = function(list, type, animate) {
+		checkTableVisibility();
 		renderItemsAdded(list, type, animate, true);
 	};
 	model.load();
@@ -1115,17 +1179,41 @@ function DataTable( table, bean, controller ) {
 	var tabIdx;
 
 	function doRender() {
-		tbody.hide().empty();
-		tabIdx = table.data('index');
-		status.index = 0;
-		
-		var list = model.getList();
-		if(list==null) list = [];
-		
-		var items = renderItemsAdded( list, null, false );
-		$(items).each(function(i,e){ td_mousedown(e, true); });
-		tbody.show();
+		checkTableVisibility();
+	
+		if( !table.is(':hidden') ) {
+			tbody.hide().empty();
+			tabIdx = table.data('index');
+			status.index = 0;
+			
+			var list = model.getList();
+			if(list==null) list = [];
+			
+			var items = renderItemsAdded( list, null, false );
+			$(items).each(function(i,e){ td_mousedown(e, true); });
+			tbody.show();
+		}
+
 		BindingUtils.bind( null, table );
+	}
+	
+	function checkTableVisibility() {
+		var emptyText = R.attr(table,'emptyText');
+		if( emptyText && model.isEmpty() ) {
+			var emptyDiv = table.next('div.emptyText');
+			if( emptyDiv.length == 0 ) {
+				emptyDiv = $('<div class="emptyText"></div>').html(emptyText).insertAfter(table);
+				if( R.attr(table,'emptyTextClass') ) emptyDiv.addClass(R.attr(table,'emptyTextClass'));
+				if( R.attr(table,'emptyTextStyle') ) emptyDiv.attr('style', R.attr(table,'emptyTextStyle'));
+			}
+			emptyDiv.show();
+			table.css('display', 'none');
+		}
+		else {
+			table.css('display', 'table');
+			var emptyDiv = table.next('div.emptyText');
+			if( emptyDiv.length > 0 ) emptyDiv.hide();
+		}
 	}
 	
 	function renderItemsAdded( list, type, animate, bindItems ) {
@@ -1366,7 +1454,7 @@ function DefaultTableModel() {
 	_this.getDataModel = function() { return _dataModel; };
 
 	_this.setList = function( list ) {
-		_list = list;
+		_list = list || [];
 		_selectedItems = [];
 		if( _listParam ) {
 			if( _list.length == _listParam._limit ) {
@@ -1377,11 +1465,16 @@ function DefaultTableModel() {
 				_isLast = true;
 			}
 		}
+		doRefresh(false);
 	};
 
 	_this.getList = function() {
 		if( typeof _list == 'undefined' ) _list = [];
 		return _list;
+	};
+	
+	_this.isEmpty = function() {
+		return !_list || _list.length == 0;
 	};
 
 	_this.load = function() {
@@ -1397,14 +1490,15 @@ function DefaultTableModel() {
 		var len = _selectedItems.length;
 		return len > 0? _selectedItems[len-1] : null;
 	};
+	
+	_this.refresh = doRefresh;
 
 	function doRefresh( fetch ) {
 		if( fetch == true ) {
 			if( _dataModel && $.isFunction( _dataModel.fetchList ) ) {
 				var result = _dataModel.fetchList( _listParam );
-				if( typeof result != 'undefined' ) {
-					_this.setList( result );
-				}
+				_this.setList( result );
+				return;
 			}
 		}
 		if( $.isFunction( _this.onRefresh ) )
@@ -1483,6 +1577,8 @@ function DefaultTableModel() {
 		_listParam = null;
 
 		_dataModel.setList = _this.setList;
+		_dataModel.getList = _this.getList;
+		_dataModel.isEmpty = _this.isEmpty;
 		_dataModel.load = _this.load;
 		_dataModel.fetchNext = fetchNext;
 		_dataModel.refresh = doRefresh;
@@ -1966,6 +2062,7 @@ function PopupOpener( id, params, options )
 						try{ $ctx(n)[key] = p[key]; }catch(e){;}
 					}
 				}
+				$ctx(n)._caller = caller.code;
 				$get(n).container = {
 					element: div,
 					close: function() { div.dialog("close"); if(caller) caller.refresh(); },
@@ -2029,6 +2126,7 @@ function DropdownOpener( id, params )
 						try{ $ctx(n)[key] = p[key]; }catch(e){;}
 					}
 				}
+				$ctx(n)._caller = caller.code;
 				BindingUtils.load( div );
 				$get(n).container = {
 					element: w.getElement(),

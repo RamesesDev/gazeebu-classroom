@@ -5,7 +5,7 @@ class SessionService {
 	@Resource("SessionService")
 	def sessionService;
 	
-	@PersistenceContext("main")
+	@PersistenceContext("java:system")
 	def em;
 	
 	@ProxyMethod 
