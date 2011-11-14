@@ -139,7 +139,7 @@
 					</tr>
 				</table>
 			</div>
-			<!-- feedback panel -->
+			<!-- feedback panel 
 			<script type="text/javascript">
 				$put(
 					'feedback',
@@ -211,6 +211,7 @@
 					</td>
 				</tr>
 			</table>
+			-->
 		</body>
 	</html>	
 </c:if>

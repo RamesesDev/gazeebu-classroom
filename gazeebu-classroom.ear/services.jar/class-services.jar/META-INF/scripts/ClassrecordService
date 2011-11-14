@@ -102,6 +102,10 @@ class ClassrecordService {
 			def m = result.activities.find{ z->z.objid == actid };
 			m.score = it.score;	
 		}
+		def criterias = gradingService.getGradingCriteria( p );
+		result.criteriaTitles = criterias.collect { [objid: it.objid, title: it.title, weight: it.weight ] }
+		result.criteria =  criterias.groupBy{ it.objid }.each {it.value = it.value[0] };
+		result.periods =  gradingService.getGradingPeriods( p ).groupBy { it.objid }.each {it.value = it.value[0] };
 		return result;
 	}
 	

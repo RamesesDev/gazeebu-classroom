@@ -12,11 +12,6 @@
 
 
 <t:popup>
-	<jsp:attribute name="head">
-		<link rel="stylesheet" href="${pageContext.request.contextPath}/js/ext/colorpicker/colorpicker.css"></link>
-		<script src="${pageContext.request.contextPath}/js/ext/colorpicker/colorpicker.js"></script>
-	</jsp:attribute>
-	
 	<jsp:attribute name="script">
 		$put( "edit_criteria",
 			new function() {

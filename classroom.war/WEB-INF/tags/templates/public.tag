@@ -2,6 +2,8 @@
 
 <%@ attribute name="redirect_session" fragment="false" %>
 <%@ attribute name="head" fragment="true" %>
+<%@ attribute name="script" fragment="true"%>
+<%@ attribute name="style" fragment="true"%>
 
 <c:if test="${!empty SESSIONID and redirect_session=='true'}">
 	<%response.sendRedirect("home.jsp");%>
@@ -21,6 +23,17 @@
 			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ui.js"></script>
 			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-proxy.js"></script>
 			<jsp:invoke fragment="head" />
+			<c:if test="${! empty script}">
+			<script>
+				<jsp:invoke fragment="script"/>	
+			</script>	
+			</c:if>
+
+			<c:if test="${! empty style}">
+			<style>
+				<jsp:invoke fragment="style"/>	
+			</style>	
+			</c:if>
 		</head>
 		<body>
 			<table width="100%" height="100%" cellpadding="0" cellspacing="0">

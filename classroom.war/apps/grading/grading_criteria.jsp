@@ -12,6 +12,11 @@
 
 <t:content title="Grading">
 
+	<jsp:attribute name="head">
+		<link rel="stylesheet" href="${pageContext.request.contextPath}/js/ext/colorpicker/colorpicker.css"></link>
+		<script src="${pageContext.request.contextPath}/js/ext/colorpicker/colorpicker.js"></script>
+	</jsp:attribute>
+
    <jsp:attribute name="script">
 		$register({id:"edit_criteria", page:"apps/grading/edit_criteria.jsp", title:"Grading Criteria", context:"edit_criteria", options:{width:500,height:400}});
 		$register({id:"edit_period", page:"apps/grading/edit_period.jsp", title:"Grading Period", context:"edit_period", options:{width:600,height:400}});

@@ -35,7 +35,7 @@ public class ClassService {
 		def userid = (user.userid) ? user.userid : env.userid;
 		if(!userid)
 			throw new Exception( "ClassService.getOpenClasses error. userid must be provided" );
-		return em.sqlContext.createQuery( 'select c.* from class_membership cm inner join class c on cm.classid=c.objid where cm.userid=? and status=0')
+		return em.sqlContext.createQuery( 'select c.*,cm.usertype,cm.userid from class_membership cm inner join class c on cm.classid=c.objid where cm.userid=? and status=0')
 			.setParameter(1, userid ).resultList;
 	}
 

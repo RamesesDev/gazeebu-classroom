@@ -5,13 +5,16 @@ import java.util.concurrent.*;
 /***
 * This service all classroom related functions like adding students, retrieving class info. notifying students, etc.
 */
-public class ClassroomService {
+class ClassroomService {
 
 	@PersistenceContext("main")
 	def em;
 	
 	@Resource("CacheService")
 	def cacheService;
+	
+	@Env
+	def env;
 	
 	@ProxyMethod
 	public def getClassInfo( def classid ) {
@@ -35,6 +38,11 @@ public class ClassroomService {
 				c.teacher = c.members.find{ it.membertype == 'teacher' };
 			}
 		}
+		
+		//determine the role of the requester
+		if(env.userid) {
+			c.usertype = c.members.find{ it.objid == env.userid }?.usertype;
+		}	
 		return c;
 	}
 

@@ -5,6 +5,7 @@
 <%@ tag import="java.util.*" %>
 
 <%@ attribute name="name" %>
+<%@ attribute name="role" %>
 
 <%
 	List perms = (List) request.getAttribute("PERMISSIONS");
@@ -17,6 +18,9 @@
 		Object perm = o.get("permission");
 		if( perm!=null && perms!=null ) {
 			isPermitted = ( perms.indexOf( perm)>=0 ); 
+		}
+		if( role!=null && o.get("role")!=null ) {
+			isPermitted = ( o.get("role").toString().matches( role ) ); 
 		}
 		
 		if(isPermitted) {

@@ -21,5 +21,5 @@
 	<h3>Thank you for taking the time to register. Enjoy and don't forget to give us feedback. </h3>
 	Follow us on facebook, twitter.	
 	<br/>
-	To Login, <a href="/classroom?u=${param['u']}">click here</a>.
+		
 </t:public>

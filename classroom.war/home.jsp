@@ -1,4 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/ui" prefix="common" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
@@ -50,13 +51,16 @@
 				</td>
 				<td style="font-size:11px;padding-left:5px;">
 					${SESSION_INFO.lastname}, ${SESSION_INFO.firstname}<br>
-					<b>${SESSION_INFO.usertype}</b>
 				</td>
 			</tr>
 		</table>
 		<br><br>
 		<br/>
-		<c:if test="${SESSION_INFO.usertype=='teacher'}">
+		<c:if test="${fn:contains(SESSION_INFO.roles,'student')}">
+			
+		</c:if>	
+		
+		<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
 			<button class="button">
 				<div><a r:context="home" r:name="addClass">Add New Class</a></div>
 			</button>
@@ -69,7 +73,7 @@
 			</button>
 		</c:if>
 		
-		<c:if test="${SESSION_INFO.usertype=='student'}">
+		<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
 			<button class="button">
 				<div><a href="">Join Class</a></div>
 			</button>

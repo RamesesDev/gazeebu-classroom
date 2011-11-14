@@ -14,6 +14,7 @@
         <field name="aboutme" />
         <complex name="info" serializer="default"/>
         <field name="profile" />
-        <field name="usertype" />
+		<field name="dtcreated" />
+		<field name="roles" />
     </element>
 </schema>

@@ -1,5 +1,6 @@
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 <%@ page import="java.util.*" %>
 
@@ -46,7 +47,8 @@
 			<table width="80%" cellpadding="0" cellspacing="0" class="classhead">
 				<tr>
 					<td width="150" class="col">Class Name</td>
-					<td class="col" colspan="2">Description</td>
+					<td class="col">Description</td>
+					<td class="col" colspan="2">Role</td>
 				</tr>
 			<c:forEach items="${CLASSES}" var="item">
 				<tr>
@@ -54,8 +56,9 @@
 						<a href="classroom.jsp?classid=${item.objid}">${item.name}</a>
 					</td>
 					<td>${item.description}</td>
+					<td>${item.usertype}</td>
 					<td width="25">
-						<c:if test="${SESSION_INFO.usertype=='teacher'}">
+						<c:if test="${item.userid == SESSION_INFO.userid and item.usertype == 'teacher' }">
 							<a>Edit</a>
 						</c:if>
 					</td>

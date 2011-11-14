@@ -24,7 +24,7 @@ class LoginService {
 		def p = [:];
 		p.username = login.uid;	
 		p.userid = login.objid;	
-		p.usertype = login.usertype;
+		p.roles = profile.roles;
 		
 		p.profile = profile.profile;
 		p.photoversion = profile.info?.photoversion;

@@ -50,7 +50,7 @@
 					</table>
 				</td>
 				<td valign="top" height="100%">
-					<table class="shadowbox" width="100%" height="100%">
+					<table class="shadowbox" width="100%" height="550">
 						<tr>
 							<td id="content" height="100%" valign="top">&nbsp;</td> 
 						</tr>

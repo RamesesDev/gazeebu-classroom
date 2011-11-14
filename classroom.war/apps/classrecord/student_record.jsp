@@ -31,16 +31,38 @@
 		
 	</jsp:attribute>
 		
+	<jsp:attribute name="rightpanel">
+		<h2>TOTALS</h2>
+		<table style="font-size:10px;">
+			<c:forEach items="${INFO.criteriaTitles}" var="item">
+				<tr>
+					<td>${item.title}(${item.weight}%)</td>
+				</tr>
+			</c:forEach>
+		</table>
+	</jsp:attribute>	
+		
 	<jsp:body>
-		<table width="40%">
+		Activities<br>
+		<table width="80%" border="1">
 			<tr>
 				<td><b>Activity</b></td>
+				<td><b>Date</b></td>
 				<td width="100"><b>Score Result</b></td>
+				<td width="100"><b>Max Score</b></td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
 			</tr>
 			<c:forEach items="${INFO.activities}" var="item">
+				<c:set var="criteria" value="${INFO.criteria[item.criteriaid]}"/>
+				<c:set var="period" value="${(empty item.periodid) ? null : INFO.periods[item.periodid]}"/>
 				<tr>
 					<td>${item.title}</td>
-					<td>${empty item.score ? 'NR' : item.score} / ${item.totalscore}</td>
+					<td>${item.activitydate}</td>
+					<td>${empty item.score ? '-' : item.score}</td>
+					<td>${item.totalscore}</td>
+					<td><b>${ criteria.title } (${criteria.weight })</b></td>
+					<td>${(empty period)? 'none' : period.title }</td>
 				</tr>
 			</c:forEach>
 		</table>

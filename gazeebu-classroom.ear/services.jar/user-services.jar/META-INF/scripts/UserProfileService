@@ -11,12 +11,19 @@ class UserProfileService {
 	def df = new java.text.SimpleDateFormat("yyyy-MM-dd");
 
 	
-    @ProxyMethod
-    public def create( def o ) {
-		if(!o.objid) o.objid = "USR:"+new java.rmi.server.UID();
+	@ProxyMethod
+	public def register(def o ) {
+		//create login first
+		o.objid = "USR:"+new java.rmi.server.UID();
+		def u = [:];    	
+    	u.objid = o.objid;
+    	u.uid = o.username;
+    	u.password = o.password;
+		u.usertype = o.role;
+		em.create( "login", u );
 		o.dtcreated = dateSvc.serverDate;
 		return em.create("userprofile", o);
-    }     
+	}
 
     @ProxyMethod
     public def update( def o ) {

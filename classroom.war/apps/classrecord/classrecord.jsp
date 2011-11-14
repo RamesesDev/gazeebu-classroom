@@ -31,12 +31,6 @@
 			white-space: inherit;
 			font-size: 9px;
 		}
-		#odd-col {
-			background-color: lightyellow;
-		}
-		#even-col {
-			background-color: pink;
-		}
 		.students {
 			font-size:12px;
 		}
@@ -68,7 +62,7 @@
 	</jsp:attribute>
 	
 	<jsp:attribute name="actions">
-		<input type="button" r:context="classrecord" r:name="addEntry" value="Add Entry" /> 
+		<input class="button" type="button" r:context="classrecord" r:name="addEntry" value="Add Entry" /> 
 	</jsp:attribute>
 	
 	<jsp:body>
