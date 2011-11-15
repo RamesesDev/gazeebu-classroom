@@ -1,0 +1,30 @@
+import com.rameses.annotations.*;
+
+class InvitationService {
+	
+	@PersistenceContext("main")
+	def em;
+	
+	@Env
+	def env;
+	
+	@Service("ClassroomService")
+	def classroomSvc;
+	
+	@ProxyMethod
+	public def getInvitations( def o ) {
+		def m = [recipientid: env.userid];
+		return em.sqlContext.createNamedQuery( "class_invitation:list" ).setParameters(m).resultList;
+	}
+
+	/***
+	This method is to be performed by the teacher.
+	**/
+	@ProxyMethod
+	public def accept( m ) {
+		def invitation = em.read("class_invitation", m );
+		classroomSvc.addMember( invitation );	
+		em.delete( "class_invitation", invitation );
+	}
+	
+}

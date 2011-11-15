@@ -4,6 +4,7 @@
 <%@ attribute name="head" fragment="true" %>
 <%@ attribute name="script" fragment="true"%>
 <%@ attribute name="style" fragment="true"%>
+<%@ attribute name="sections" fragment="true"%>
 
 <c:if test="${! empty head}">
 <jsp:invoke fragment="head"/>	
@@ -37,3 +38,5 @@
 		</td>
 	</tr>
 </table>
+
+<jsp:invoke fragment="sections"/>	

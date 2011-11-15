@@ -2,6 +2,9 @@
 
 <%@ attribute name="redirect_session" fragment="false" %>
 <%@ attribute name="tab" fragment="false" %>
+<%@ attribute name="script" fragment="true"%>
+<%@ attribute name="style" fragment="true"%>
+
 
 <c:if test="${!empty SESSIONID and redirect_session=='true'}">
 	<%response.sendRedirect("home.jsp");%>
@@ -45,6 +48,18 @@
 					$('#uid').focus();
 				});
 			</script>
+			
+			<c:if test="${! empty script}">
+			<script>
+				<jsp:invoke fragment="script"/>	
+			</script>	
+			</c:if>
+
+			<c:if test="${! empty style}">
+			<style>
+				<jsp:invoke fragment="style"/>	
+			</style>	
+			</c:if>
 		</head>
 		<body>
 			<table width="100%" height="100%" cellpadding="0" cellspacing="0">
@@ -64,7 +79,7 @@
 										<form action="login.jsp" method="post">
 											<table cellspacing="0" cellpadding="1" class="loginform">
 												<tr>
-													<td valign="top" colspan="2">
+													<td valign="top">
 														<input id="uid" type="text" r:name="username" name="username" r:hint="Email" class="logininput" r:context="login"/>
 													</td>	
 													<td valign="top">
@@ -77,14 +92,10 @@
 													</td>
 												</tr>
 												<tr>
-													<td class="loginaid" width="20" align="center">
-														<div>
-														<input type="checkbox" style="margin:0;width:15px;height:13px;float:left;overflow:hidden;">
-														</div>
+													<td class="loginaid" width="20">
+														<a class="loginaid" href="signup.jsp">New User? Sign Up</a>
 													</td>
-													<td class="loginaid">
-														Keep me logged in
-													</td>
+													
 													<td><a class="loginaid">Forgot Password?</a></td>
 													<td valign="top">&nbsp;</td>
 												</tr>

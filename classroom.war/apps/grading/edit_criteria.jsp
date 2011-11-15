@@ -50,24 +50,25 @@
 	</jsp:attribute>
 	
 	<jsp:body>
-		<table r:context="edit_criteria" r:items="entries" r:varName="item" r:varStatus="stat">
+		<table r:context="edit_criteria" r:items="entries" r:varName="item" r:varStatus="stat" width="450">
 			<thead>
 				<tr>
-					<td>Title</td>
-					<td>Weight</td>
-					<td>Color Code</td>
-					<td>&nbsp;</td>
+					<td width="180px">Title</td>
+					<td width="40px">Weight</td>
+					<td width="100px" align="center">Color Code</td>
+					<td align="center">&nbsp;</td>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td><input type="text" r:context="edit_criteria" r:name="entries[#{stat.index}].title"/></td>
-					<td><input type="text" r:context="edit_criteria" r:name="entries[#{stat.index}].weight"/></td>
-					<td>
+					<td><input type="text" r:context="edit_criteria" r:name="entries[#{stat.index}].title" style="width:180px;"/></td>
+					<td><input type="text" r:context="edit_criteria" r:name="entries[#{stat.index}].weight" style="width:40px;"/></td>
+					<td align="center">
 						<span r:type="colorpicker" r:context="edit_criteria" r:name="entries[#{stat.index}].colorcode"></span> 
 					</td>
-					
-					<td><a r:context="edit_criteria" r:name="removeItem" r:params="{removeIndex:#{stat.index}}">Remove</a></td>
+					<td align="center">
+						<a r:context="edit_criteria" r:name="removeItem" r:params="{removeIndex:#{stat.index}}">Remove</a>
+					</td>
 				</tr>
 			</tbody>
 			<tfoot>

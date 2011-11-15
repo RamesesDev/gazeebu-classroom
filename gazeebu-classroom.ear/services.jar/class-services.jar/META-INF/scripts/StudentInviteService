@@ -1,0 +1,32 @@
+import com.rameses.annotations.*;
+
+class StudentInviteService {
+	
+	@PersistenceContext("main")
+	def em;
+	
+	@Service("DateService")
+	def dateSvc;
+	
+	@Env
+	def env;
+	
+	@ProxyMethod
+	public def findStudents( def o ) {
+		o.usertype = "student"; 
+		if(o.name) o.name += "%";
+		return em.sqlContext.createNamedQuery( "finder:personlist" ).setParameters(o).resultList;
+	}
+
+	/***
+	This method is to be performed by the teacher.
+	**/
+	@ProxyMethod
+	public def sendInvites( q ) {
+		q.invitees.each {
+			def m = [userid:it.objid, classid: q.classid, msg: q.msg,dtinvite: dateSvc.serverDate, recipientid: it.objid, usertype:"student", senderid: env.userid];
+			em.save( "class_invitation", m );	
+		}
+	}
+	
+}

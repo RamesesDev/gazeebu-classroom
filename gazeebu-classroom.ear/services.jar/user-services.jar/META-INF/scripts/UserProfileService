@@ -11,8 +11,18 @@ class UserProfileService {
 	def df = new java.text.SimpleDateFormat("yyyy-MM-dd");
 
 	
+	//checks if a name can be used. true = name can be used. false = name cannot be used.
+	@ProxyMethod
+	public def verifyUsername(def username ) {
+		def o = em.sqlContext.createQuery('select 1 from login u where u.uid=?').setParameter(1, username).singleResult;
+		if( !o ) return true;
+		return false;
+	}
+	
 	@ProxyMethod
 	public def register(def o ) {
+		if( !verifyUsername(o.username) )
+			throw new Exception("Invalid username. Name is already taken");
 		//create login first
 		o.objid = "USR:"+new java.rmi.server.UID();
 		def u = [:];    	

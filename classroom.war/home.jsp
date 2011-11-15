@@ -13,6 +13,7 @@
 		$register({id: "main", page:"home/main.jsp", context:"main"});
 		$register({id: "classroom_info", page:"home/classroom_info.jsp", context:"classroom_info"});
 		$register({id: "new_class", page:"new_class.jsp", context:"new_class", title:"New Classroom", options: {width:500,height:400}});
+		$register({id: "join_class", page:"join_class.jsp", context:"join_class", title:"Join a class", options: {width:500,height:400}});
 		$put("home", 
 			new function() {
 				this.onload = function() {
@@ -23,6 +24,10 @@
 				this.addClass = function() {
 					return new PopupOpener( "new_class" );
 				}	
+				this.joinClass = function() {
+					return new PopupOpener( "join_class" );
+				}	
+
 			}
 		);
 	</jsp:attribute>
@@ -75,7 +80,7 @@
 		
 		<c:if test="${fn:contains(SESSION_INFO.roles,'student')}">
 			<button class="button">
-				<div><a href="">Join Class</a></div>
+				<div><a r:context="home" r:name="joinClass">Join Class</a></div>
 			</button>
 		</c:if>
 		

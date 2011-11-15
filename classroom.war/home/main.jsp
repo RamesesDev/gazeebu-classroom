@@ -12,12 +12,7 @@
 
 <t:content title="Home">
 
-	<jsp:attribute name="script">
-		$put("main", 
-			new function() {
-			}
-		);	
-	</jsp:attribute>
+	
 
 	<jsp:attribute name="actions">
 			
@@ -37,6 +32,26 @@
 			font-weight:bolder;
 		}
 	</jsp:attribute>
+	
+	<jsp:attribute name="script">
+		$put("main", 
+			new function() {
+				var svc = ProxyService.lookup( "InvitationService" );
+				this.listModel = {
+					rows: 10,
+					fetchList: function(o) {
+						return svc.getInvitations(o);
+					}
+				};
+				this.selectedInvite;
+				this.accept = function() {
+					svc.accept( {classid: this.selectedInvite.classid, userid: this.selectedInvite.userid, usertype:this.selectedInvite.usertype}  );
+					this.listModel.refresh(true);
+				}	
+			}
+		);	
+	</jsp:attribute>
+	
 	
 	<jsp:body>
 		<c:if test="${empty CLASSES}">
@@ -67,7 +82,15 @@
 			</table>
 		</c:if>
 		
-		
+		<h2>Pending Invitations</h2>
+		<table r:context="main" r:model="listModel" r:varName="item" r:name="selectedInvite">
+			<tr>
+				<td>#{item.msg} send by #{item.sendername}</td>
+				<td>
+					<input type="button" r:context="main" r:name="accept" value="Accept" /> 
+				</td>
+			</tr>
+		</table>
 	</jsp:body>
 	
 </t:content>

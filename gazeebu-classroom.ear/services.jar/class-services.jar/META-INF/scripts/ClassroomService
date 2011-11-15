@@ -89,6 +89,13 @@ class ClassroomService {
 		cacheService.remove( classid );
 	}
 	
+	@ProxyMethod
+	public void addMember(def o) {
+		o.objid = "CLSMMBRS" + new java.rmi.server.UID();
+		em.create( "class_membership", o );
+		cacheService.remove( o.classid );
+	}
+	
 }
 
 class ClassMemberSession implements Runnable {

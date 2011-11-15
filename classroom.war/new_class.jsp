@@ -29,16 +29,12 @@
 				<td><input type="text" r:context="new_class" r:name="class.name" r:caption="Name" r:required="true"/></td>
 			</tr>
 			<tr>
-				<td valign="top">Description</td>
+				<td valign="top">Short Description</td>
 				<td><textarea r:context="new_class" r:name="class.description" style="width:80%;"></textarea></td>
 			</tr>
 			<tr>
 				<td valign="top">School</td>
 				<td><input type="text" r:context="new_class" r:name="class.school" maxlength="50" r:caption="School" r:required="true" style="width:80%;"/></td>
-			</tr>
-			<tr>
-				<td valign="top">Timezone</td>
-				<td><input type="text" r:context="new_class" r:name="class.timezone" r:caption="Timezone" r:required="true"/></td>
 			</tr>
 		</table>
 	</jsp:body>	

@@ -24,7 +24,7 @@ public class ClassService {
 		m.objid = "CLSMMBR" + new java.rmi.server.UID();
 		m.classid = o.objid;
 		m.userid = env.userid;
-		m.usertype = env.usertype;
+		m.usertype = 'teacher';
 		o = em.create("class", o);
 		em.create( "class_membership", m);
 	}

@@ -14,6 +14,7 @@
 		$register({id: "discussion", page:"classroom/discussion.jsp", context:"discussion"});
 		$register({id: "private_messages", page:"classroom/private_messages.jsp", context:"news"});
 		$register({id: "usermessage", page:"classroom/usermessage.jsp", context:"usermessage"});
+		$register( {id:"invite_student", page:"classroom/invite_student.jsp", context:"invite_student", title:"Invite Students", options: {width:500,height:400} } )
 		
 		<common:loadmodules name="apps" role="${CLASS_INFO.usertype}"/>
 		$put("apps", 
@@ -56,8 +57,18 @@
 						}
 					}
 				}
+				
+				this.inviteStudents = function() {
+					return new PopupOpener("invite_student");
+				}
 			}
 		);
+	</jsp:attribute>
+	
+	<jsp:attribute name="style">
+		.menuitem td {
+			padding-left:5px;
+		}
 	</jsp:attribute>
 	
 	<jsp:attribute name="header_middle">
@@ -93,13 +104,13 @@
 		</div>
 		<table class="menuitem" width="100%" cellpadding="0" cellspacing="0">
 			<tr>
-				<td style="padding-left:5px;"><a href="#bulletin">Bulletin</a></td>
+				<td><a href="#bulletin">Bulletin</a></td>
 			</tr>
 			<tr>
-				<td style="padding-left:5px;"><a href="#discussion">Discussion</a></td>
+				<td><a href="#discussion">Discussion</a></td>
 			</tr>
 			<tr>	
-				<td style="padding-left:5px;"><a href="#private_messages">Messages</a></td>
+				<td><a href="#private_messages">Messages</a></td>
 			</tr>
 		</table>
 		
@@ -110,13 +121,21 @@
 		</div>
 		<table class="menuitem" r:context="apps" r:items="items" r:varName="item" width="100%" cellpadding="0" cellspacing="0">
 			<tr>
-				<td valign="top"  style="padding-left:5px;">
-					<a href="##{item.id}" class="menuitem">
+				<td valign="top">
+					<a href="##{item.id}">
 						#{item.caption}
 					</a>
 				</td>
 			</tr>
 		</table>
+		
+		<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+			<br>
+			<span class="menutitle">STUDENTS</span>
+			<span style="padding-left:20px;">
+				<input class="button" type="button" r:context="classroom" r:name="inviteStudents" value="Invite" />
+			</span>
+		</c:if>
 		
 		<br>
 		<table r:context="classroom" r:items="classInfo.members" r:varStatus="stat" r:varName="item" width="95%" cellpadding="0" cellspacing="0">
@@ -138,6 +157,7 @@
 				</tr>
 			</tbody>
 		</table>
+		
 		
 		
 	</jsp:body>

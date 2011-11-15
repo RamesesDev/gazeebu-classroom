@@ -1,0 +1,11 @@
+<schema>
+	<element tablename="class_invitation">
+		<field name="userid" primary="true" />
+		<field name="classid"  primary="true" />
+		<field name="recipientid" />
+		<field name="senderid" />
+		<field name="msg" />
+		<field name="dtinvite" />
+		<field name="usertype" />
+	</element>	
+</schema>
