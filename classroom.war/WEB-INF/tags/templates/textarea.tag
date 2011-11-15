@@ -42,7 +42,7 @@
 	
 	function stopTyping( elm ) {
 		var ta = $(elm).parents('.textarea-tag:first').find('textarea:last');
-		ta.val('').trigger('change');;
+		ta.val('').trigger('change');
 		if( ta.data('orig_height') ) ta.stop().animate({height: ta.data('orig_height')});
 		$('#${id}_close').hide();
 		$('#${id}_controls').hide();
