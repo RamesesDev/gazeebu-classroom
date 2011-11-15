@@ -9,6 +9,7 @@
 	   Registry.add({id:"editemail", page:"profile/editemail.jsp", context:"editemail"});
 	   Registry.add({id:"editaddress", page:"profile/editaddress.jsp", context:"editaddress"});
 	   Registry.add({id:"editinfo", page:"profile/editinfo.jsp", context:"editinfo"});
+	   Registry.add({id:"editrole", page:"profile/editrole.jsp", context:"editrole"});
 	   
       $put("accountsettings", 
          new function() 
@@ -60,6 +61,13 @@
                var popup = new PopupOpener('editcontacts', {handler:handler, user:this.user});
                popup.title="Edit Contacts";
                popup.options={width:500, height:200, resizable:false};
+               return popup;
+            }
+            
+            this.editrole = function() {
+               var popup = new PopupOpener('editrole', {handler:handler, user:this.user});
+               popup.title="Edit Role";
+               popup.options={width:350, height:150, resizable:false};
                return popup;
             }
          }
@@ -182,13 +190,28 @@
          </td>
       </tr>
       <tr class="bottom-border">
-         <td class="caption left padding-bottom">
+         <td class="caption left padding-bottom padding-top">
             About Me
          </td>
          <td class="padding-bottom padding-top" colspan="2">
             <label r:context="accountsettings" style="color:#848284;font-weight:bold;">
                #{!user.aboutme ? '' : user.aboutme}
             </label>
+         </td>
+      </tr>
+      <tr class="bottom-border">
+         <td class="caption left padding-bottom padding-top">
+           Roles
+         </td>
+         <td class="padding-bottom padding-top">
+            <label r:context="accountsettings" style="color:#848284;font-weight:bold;">
+               #{!user.roles ? '' : user.roles}
+            </label>
+         </td>
+         <td class="right padding-bottom padding-top">
+            <a r:context="accountsettings" r:name="editrole">
+               Edit
+            </a>
          </td>
       </tr>
    </table>

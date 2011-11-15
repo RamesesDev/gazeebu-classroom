@@ -35,7 +35,7 @@ class ClassroomService {
 				cacheService.put(classid, c, 30000 );
 				
 				//set the teacher
-				c.teacher = c.members.find{ it.membertype == 'teacher' };
+				c.teacher = c.members.find{ it.usertype == 'teacher' };
 			}
 		}
 		

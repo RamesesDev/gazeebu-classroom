@@ -2,7 +2,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <t:content title="Bulletin">
-
+	<jsp:attribute name="head">
+		<script src="${pageContext.servletContext.contextPath}/js/ext/textarea.js"></script>
+	</jsp:attribute>
 	<jsp:attribute name="style">
 		.removeButton {
 			font-size: 12px;
@@ -36,8 +38,7 @@
 				var self = this;
 				this._controller;
 				this.classid = "${param['classid']}";
-				this.sending = "false";
-				this.message;
+				this.message = {};
 				this.eof = "false";
 				
 				this.listModel = {
@@ -60,15 +61,6 @@
 							self.listModel.prependItem( o );
 						}
 					}
-				}
-				
-				this.postMessage = function() {
-					if(this.sending == "true" && this.message.message) {
-						var f = confirm( "Your message will be discarded. Continue?");
-						if(!f) return;
-					}
-					this.sending = (this.sending=="true") ? "false" : "true";
-					this.message = {}
 				}
 				
 				this.send = function() {
@@ -119,27 +111,22 @@
 	</jsp:attribute>
 	
 	<jsp:body>
-		<div r:context="bulletin" r:visibleWhen="#{sending == 'false'}">
-			<a r:context="bulletin" r:name="postMessage">Post Message</a>
-			<br><br>
+		<div class="post-message" style="width:550px">
+			<div r:context="bulletin" r:type="textarea" r:name="message.message" r:hint="Post message." class="inner">
+				<div class="controls-wrapper">
+					<div class="controls">
+						<div class="left">
+							<button r:context="" r:name="">Attach</button>
+						</div>
+						<div class="right">
+							<button r:context="bulletin" r:name="send">Post</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div style="width:80%;text-align:right;" r:context="bulletin" r:visibleWhen="#{sending == 'true'}">	
-			<a class="bulletin_action" r:context="bulletin" r:name="postMessage">Cancel</a>
-		</div>
-		<div r:context="bulletin" r:visibleWhen="#{sending == 'true'}">
-			<table width="80%" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><textarea style="width:100%;height:50" r:context="bulletin" r:name="message.message" /></td>
-				</tr>
-				<tr>
-					<td>
-						<input type="button" r:context="bulletin" r:name="send" value="Post"/>
-					</td>
-				</tr>
-			</table>
-		</div>
-		<br>
 		
+		<br/>
 		<table width="550" r:context="bulletin" r:model="listModel" r:varName="item" r:varStatus="stat" cellpadding="0" 
 			r:emptyText="No messages posted yet" cellspacing="0" class="bulletin">
 			<tbody>

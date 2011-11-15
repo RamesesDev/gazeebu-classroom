@@ -11,76 +11,76 @@
         }
     </jsp:attribute>
 
+	<jsp:attribute name="script">
+		$put(
+			"usermessage",
+			new function() 
+			{
+				var self = this;
+				var profSvc = ProxyService.lookup("UserProfileService");
+				var svc = ProxyService.lookup("MessageService");
+
+				this.objid;
+				this.user;
+				this.photo;
+				this.text = "";
+				this._controller;
+				this.mobile = '-';
+
+				this.classid = "${param['classid']}";
+				this.sending = "false";
+				this.message = {recipients: [] };
+				this.eof = "false";
+
+				this.listModel = {
+					fetchList : function(o, last) {
+						var m = {userid:self.objid, channelid: self.classid};
+						if(last) m.lastmsgid = last.objid;
+						var list = svc.getConversation( m );	
+						if(list.length==0) self.eof = "true";
+						return list;
+					}
+				}
+
+				this.onload = function() {
+					this.user = profSvc.getInfo({ objid: this.objid });
+					if( this.user && this.user.contacts ) {
+						var mb = this.user.contacts.find(function(it){ return it.type.toLowerCase() == 'mobile' });
+						if( mb ) {
+							this.mobile = mb.value;
+						}
+					}
+					Session.handler = function( o ) {
+						if(o.msgtype && o.channelid == self.classid ) {
+							self.listModel.prependItem( o );
+						}
+					}
+				}
+
+				this.send = function() {
+					this.message = {
+						channelid:this.classid,
+						recipients:[{userid: this.objid }],
+						message: this.text
+					};
+					svc.send( this.message );
+					this.text = '';
+				}
+
+				this.addPerson = function() {
+					alert("Add a Person");
+				}
+
+				this.atestfunction = function() {
+					alert("this is a test function");
+				}
+
+			}
+		);
+	</jsp:attribute>	
+	
     <jsp:body>
-        <script>
-            $put(
-                "usermessage",
-                new function() 
-                {
-                    var self = this;
-                    var profSvc = ProxyService.lookup("UserProfileService");
-                    var svc = ProxyService.lookup("MessageService");
-
-                    this.objid;
-                    this.user;
-                    this.photo;
-                    this.text = "";
-                    this._controller;
-                    this.mobile = '-';
-
-                    this.classid = "${param['classid']}";
-                    this.sending = "false";
-                    this.message = {recipients: [] };
-                    this.eof = "false";
-
-                    this.listModel = {
-                        fetchList : function(o, last) {
-                            var m = {userid:self.objid, channelid: self.classid};
-                            if(last) m.lastmsgid = last.objid;
-                            var list = svc.getConversation( m );	
-                            if(list.length==0) self.eof = "true";
-                            return list;
-                        }
-                    }
-
-                    this.onload = function() {
-                        this.user = profSvc.getInfo({ objid: this.objid });
-                        if( this.user && this.user.contacts ) {
-                            var mb = this.user.contacts.find(function(it){ return it.type.toLowerCase() == 'mobile' });
-                            if( mb ) {
-                                this.mobile = mb.value;
-                            }
-                        }
-                        Session.handler = function( o ) {
-                            if(o.msgtype && o.channelid == self.classid ) {
-                                self.listModel.prependItem( o );
-                            }
-                        }
-                    }
-
-                    this.send = function() {
-                        this.message = {
-                            channelid:this.classid,
-                            recipients:[{userid: this.objid }],
-                            message: this.text
-                        };
-                        svc.send( this.message );
-                        this.text = '';
-                    }
-
-                    this.addPerson = function() {
-                        alert("Add a Person");
-                    }
-
-                    this.atestfunction = function() {
-                        alert("this is a test function");
-                    }
-
-                }
-            );
-        </script>
-
-
+		HELLO
         <table class="page-form-table" width="80%" cellpadding="0" cellspacing="0" border="0">
             <tr>
                 <td rowspan="4" width="60" style="padding-right:10px;">
@@ -108,7 +108,7 @@
             </tr>
             <tr>
                 <td>
-                    <label r:context="usermessage">#{user.usertype}</label>
+                   
                 </td>
                 <td>
                     <img src="img/email.png" style="padding-right:5px;"/>

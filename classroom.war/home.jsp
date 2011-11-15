@@ -73,7 +73,7 @@
 			</button>
 		</c:if>
 		
-		<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
+		<c:if test="${fn:contains(SESSION_INFO.roles,'student')}">
 			<button class="button">
 				<div><a href="">Join Class</a></div>
 			</button>

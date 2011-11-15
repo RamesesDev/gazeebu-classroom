@@ -91,7 +91,9 @@
 					<table cellpadding="0" cellspacing="0" width="930px" height="100%" align="center">
 						<tr>
 							<td width="165">
-								<img src="${pageContext.servletContext.contextPath}/img/biglogo25.png">
+								<a href="${pageContext.servletContext.contextPath}">
+									<img src="${pageContext.servletContext.contextPath}/img/biglogo25.png">
+								</a>
 							</td>
 							<td align="left">
 								<jsp:invoke fragment="header_middle"/>

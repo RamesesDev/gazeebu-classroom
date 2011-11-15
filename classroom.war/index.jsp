@@ -1,6 +1,33 @@
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 
 <t:index redirect_session="true">
+	<style>
+		form.signup input {
+			font-size: 15px;
+			padding: 5px 3px;
+		}
+		
+		.btn { 
+			margin-left: 2px;
+			display: inline-block; 
+			background: rgb(54,160,205) url('img/header-bg.png') repeat-x left center;
+			border:1px solid #777; 
+		}
+		.btn button {
+			background: none;
+			color: #fff;
+			border: none;
+			border-top: solid 1px #bbb;
+			border-left: solid 1px #bbb;
+			display: inline-block;
+			padding: 5px 20px; margin: 0;
+		}
+	</style>
+	<script>
+		$(function(){
+			$('form.signup input').each(function(i,e){ new InputHintDecorator(e); });
+		});
+	</script>
 	<table width="100%">
 		<tr>
 			<td valign="top">
@@ -17,14 +44,21 @@
 				</div>
 			</td>
 			<td valign="top" align="left" id="regcontainer">
-				<b style="font-size:1em;font-family:georgia">New User?</b><br>
-				You must have an invitation to create
-				an account. 
-				<br><a href="teacher_register.jsp">Request an invitation here</a>
-				<br/>
-				<br/>
-				<b style="font-size:1em;font-family:georgia">For Students</b><br>
-				<a href="joinclass.jsp">Join a class here</a>
+				<h3>New User?</h3>
+				<form class="signup" method="post" action="signup.jsp">
+                    <input type="text" class="text" size="40" name="firstname"
+                           r:hint="First name"/>
+					<br/>
+                    <input type="text" class="text" size="40" name="middlename"
+                           r:hint="Middle name"/>
+					<br/>
+                    <input type="text" class="text" size="40" name="lastname"
+                           r:hint="Last name"/>
+					<br/>
+					<span class="btn">
+						<button>Sign up</button>
+					</span>
+				</form>
 			</td>
 		</tr>
 		<tr>

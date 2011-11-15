@@ -17,7 +17,7 @@ img { border: none; }
 	width: 100%;
 	height: 40px;
 	color: #fff;
-	z-index: 999999;
+	z-index: 1000;
 }
 
 .header a {
@@ -154,35 +154,25 @@ img { border: none; }
 
 
 /*-- textarea tag styles ----*/
-.textarea-tag { width: 100%; }
-.textarea-tag .box { border-right:1px solid #ccc; border-bottom:1px solid #ccc }
-.textarea-tag .box-inner { position: relative; border:1px solid #a5aa84; }
-.textarea-tag .close-box {
-	cursor: pointer;
-	position: absolute;right:5px;top:0;
-	margin: 1px; padding: 1px;
-}
-
-.textarea-tag .close-box .close {
-	display: inline-block;
-	width: 12px; height: 12px;
-	background: url('../img/textarea/cancel12.png') center center no-repeat;
-}
-
-.textarea-tag .close-box .close:hover {
-	background: url('../img/textarea/cancel12_color.png') center center no-repeat;
-}
-
-.textarea-tag .controls {
+.post-message { border-right:1px solid #ccc; border-bottom:1px solid #ccc }
+.post-message .inner { border:1px solid #a5aa84; }
+.post-message textarea { border: 0; }
+.post-message .controls-wrapper {
 	background: #f1f1f1;
-	border-top: solid 1px #ccc;
+	border-top: solid 1px #a5aa84;
 }
-
-.textarea-tag .controls .controls-inner { border-top: solid 1px #fff; }
+.post-message .txt-close { text-decoration: none; color: red; font: 14px arial, tahoma; }
+.post-message .txt-close:hover { color: orange; }
+.post-message .controls { overflow: hidden; border-top: solid 1px #fff; }
+.post-message .controls .left { float: left; }
+.post-message .controls .right { float: right; }
 
 
 
 /*-- generic styles --*/
+.box-outer { border-right:1px solid #ccc; border-bottom:1px solid #ccc }
+.box { border:1px solid #a5aa84; }
+
 .vr {
 	display: inline-block;
 	width: 0px;

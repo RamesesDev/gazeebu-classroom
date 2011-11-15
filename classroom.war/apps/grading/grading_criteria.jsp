@@ -9,6 +9,7 @@
 	request.setAttribute( "params", m );
 %>
 <s:invoke service="GradingCriteriaService" method="getAll" params="${params}" var="INFO"/>
+<s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="CLASS_INFO"/>
 
 <t:content title="Grading">
 
@@ -54,7 +55,7 @@
    </jsp:attribute>
    
    <jsp:body>
-		<c:if test="${SESSION_INFO.usertype == 'teacher'}">
+		<c:if test="${CLASS_INFO.usertype == 'teacher'}">
 			<p>
 				Configure the settings that you will need to compute the grades. Click <a>Here</a> to view how this works. 
 			</p>
@@ -64,7 +65,7 @@
 			<tr>
 				<td colspan="2" class="subtitle-font">Criteria</td>
 				<td align="right" class="subtitle">
-					<c:if test="${SESSION_INFO.usertype == 'teacher'}">
+					<c:if test="${CLASS_INFO.usertype == 'teacher'}">
 						<a r:context="grading_criteria" r:name="editCriteria">Edit</a>
 					</c:if>
 				</td>
@@ -96,7 +97,7 @@
 			<tr>
 				<td colspan="3" class="subtitle-font">Grading Period (Optional)</td>
 				<td align="right" class="subtitle">
-					<c:if test="${SESSION_INFO.usertype == 'teacher'}">
+					<c:if test="${CLASS_INFO.usertype == 'teacher'}">
 						<a r:context="grading_criteria" r:name="editPeriod">Edit</a>
 					</c:if>
 				</td>
@@ -120,7 +121,7 @@
 			<tr>
 				<td class="subtitle-font">Grade Equivalents</td>
 				<td align="right" class="subtitle">
-					<c:if test="${SESSION_INFO.usertype == 'teacher'}">
+					<c:if test="${CLASS_INFO.usertype == 'teacher'}">
 						<a r:context="grading_criteria" r:name="editEq">Edit</a>
 					</c:if>
 				</td>

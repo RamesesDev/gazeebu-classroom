@@ -172,123 +172,125 @@ var BindingUtils = new function() {
         this.loadViews(null,selector);
 	};
 
-	/**---------------------------------------------------*
-	 * input hint support (InputHintDecorator class)
-	 *
-	 * @author jaycverg
-	 *----------------------------------------------------*/
-	function InputHintDecorator( inp ) {
-		var input = $(inp);
-		if( input.data('hint_decorator') ) {
-			input.data('hint_decorator').refresh();
-			return;
-		}
-
-		//find or create the wrapper
-		var wrapper;
-		if( input.parent('.hint-wrapper').length > 0 )
-			wrapper = input.parent('.hint-wrapper');
-		else
-			wrapper = input.wrap('<span class="hint-wrapper"></span>').parent();
-		
-		wrapper.css({display:'inline-block', position:'relative'});
-		
-		input.keyup(input_keyup)
-		 .keypress(input_keypress)
-		 .focus(input_focus)
-		 .blur(input_blur)
-		 .change(input_change)
-		 .bind('paste', hideHint)
-		 .data('hint_decorator', this);
-
-		var span;
-		if( wrapper.find('span.hint:first').length > 0 )
-			span = wrapper.find('span.hint:first');
-		else
-			span =  $('<span class="hint"></span>').insertBefore( input );
-		
-		span.html( R.attr(input, 'hint') )
-		 .css({position:'absolute', 'z-index':100, overflow:'hidden', top:'0', left:'0'})
-		 .hide()
-		 .disableSelection()
-		 .click(onClick);
-
-		this.refresh = refresh;
-
-		//refresh
-		refresh();
-		
-		if( document.activeElement == input[0] ) input_focus();
-
-		function refresh(){
-			if( !input.val() )
-				showHint();
-			else
-				hideHint();
-		}
-
-		function position() {
-			var pos = input.position();
-			var css = {};
-			css.left = parseValue(input.css('padding-left')) + parseValue(input.css('margin-left')) + parseValue(input.css('border-left-width'))+2;
-			css.top = parseValue(input.css('padding-top')) + parseValue(input.css('margin-top')) + parseValue(input.css('border-top-width'));
-			css.width = span[0].offsetWidth > input.width() ? input.width() : span[0].offsetWidth;
-			span.css( css );
-		}
-		
-		function parseValue( value ) {
-			return value=='auto'? 0 : parseInt( value );
-		}
-
-		function showHint() {
-			span.show();
-			position();
-		}
-
-		function hideHint() {
-			span.hide();
-		}
-
-		function onClick(){
-			input.focus();
-		}
-
-		function input_focus() {
-			if(!span.hasClass('hint-hover')) span.addClass('hint-hover');
-		}
-
-		function input_blur() {
-			if(span.hasClass('hint-hover')) span.removeClass('hint-hover');
-			refresh();
-		}
-
-		function input_keyup() {
-			if( !input.val() ) showHint();
-		}
-
-		function input_keypress(evt) {
-			if( isCharacterPressed(evt) ) hideHint();
-		}
-		
-		function input_change(evt) {
-			if( !input.val() )
-				showHint();
-			else
-				hideHint();
-		}
-		
-		function isCharacterPressed(evt) {
-			if (typeof evt.which == "undefined") {
-				return true;
-			} else if (typeof evt.which == "number" && evt.which > 0) {
-				return !evt.ctrlKey && !evt.metaKey && !evt.altKey && evt.which != 8 && evt.which != 13;
-			}
-			return false;
-		}
-
-	}//-- end of InputHintDecorator class
-
 } //-- end of BindingUtils class
+
+/**---------------------------------------------------*
+ * input hint support (InputHintDecorator class)
+ *
+ * @author jaycverg
+ *----------------------------------------------------*/
+function InputHintDecorator( inp, hint ) {
+	var input = $(inp);
+	if( input.data('hint_decorator') ) {
+		input.data('hint_decorator').refresh();
+		return;
+	}
+
+	//find or create the wrapper
+	var wrapper;
+	if( input.parent('.hint-wrapper').length > 0 )
+		wrapper = input.parent('.hint-wrapper');
+	else
+		wrapper = input.wrap('<span class="hint-wrapper"></span>').parent();
+	
+	wrapper.css({display:'inline-block', position:'relative'});
+	
+	input.keyup(input_keyup)
+	 .keypress(input_keypress)
+	 .focus(input_focus)
+	 .blur(input_blur)
+	 .change(input_change)
+	 .bind('paste', hideHint)
+	 .data('hint_decorator', this);
+
+	var span;
+	if( wrapper.find('span.hint:first').length > 0 )
+		span = wrapper.find('span.hint:first');
+	else
+		span =  $('<span class="hint"></span>').insertBefore( input );
+	
+	span.html( hint? hint : R.attr(input, 'hint') )
+	 .css({position:'absolute', 'z-index':100, overflow:'hidden', top:'0', left:'0'})
+	 .hide()
+	 .disableSelection()
+	 .click(onClick);
+
+	this.refresh = refresh;
+
+	//refresh
+	refresh();
+	
+	if( document.activeElement == input[0] ) input_focus();
+
+	function refresh(){
+		if( !input.val() )
+			showHint();
+		else
+			hideHint();
+	}
+
+	function position() {
+		var pos = input.position();
+		var css = {};
+		css.left = parseValue(input.css('padding-left')) + parseValue(input.css('margin-left')) + parseValue(input.css('border-left-width'))+2;
+		css.top = parseValue(input.css('padding-top')) + parseValue(input.css('margin-top')) + parseValue(input.css('border-top-width'));
+		css.width = span[0].offsetWidth > input.width() ? input.width() : span[0].offsetWidth;
+		span.css( css );
+	}
+	
+	function parseValue( value ) {
+		return value=='auto'? 0 : parseInt( value );
+	}
+
+	function showHint() {
+		span.show();
+		position();
+	}
+
+	function hideHint() {
+		span.hide();
+	}
+
+	function onClick(){
+		input.focus();
+	}
+
+	function input_focus() {
+		if(!span.hasClass('hint-hover')) span.addClass('hint-hover');
+	}
+
+	function input_blur() {
+		if(span.hasClass('hint-hover')) span.removeClass('hint-hover');
+		refresh();
+	}
+
+	function input_keyup() {
+		if( !input.val() ) showHint();
+	}
+
+	function input_keypress(evt) {
+		if( isCharacterPressed(evt) ) hideHint();
+	}
+	
+	function input_change(evt) {
+		if( !input.val() )
+			showHint();
+		else
+			hideHint();
+	}
+	
+	function isCharacterPressed(evt) {
+		if (typeof evt.which == "undefined") {
+			return true;
+		} else if (typeof evt.which == "number" && evt.which > 0) {
+			return !evt.ctrlKey && !evt.metaKey && !evt.altKey && evt.which != 8 && evt.which != 13;
+		}
+		return false;
+	}
+
+}//-- end of InputHintDecorator class
+	
+	
 
 //BeanUtils is for managing nested beans
 var BeanUtils = new function(){

@@ -2,6 +2,9 @@
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 
 <t:content>
+	<jsp:attribute name="head">
+		<script src="${pageContext.servletContext.contextPath}/js/ext/textarea.js"></script>
+	</jsp:attribute>
     <jsp:attribute name="style">
         .message {
             font-size:11px;font-family:arial;padding:6px;
@@ -130,7 +133,7 @@
             </tr>
             <tr>
                 <td>
-                    <label r:context="usermessage">#{user.usertype}</label>
+                    
                 </td>
                 <td>
                     <img src="img/email.png" style="padding-right:5px;"/>
@@ -140,16 +143,23 @@
         </table>
 
         <!-- POSTING A COMMENT HERE -->
-        <div style="float:left;width:500px;">
-            <t:textarea id="message" context="usermessage" name="text" hint="Write a message">
-				<jsp:attribute name="leftcontrols">
-					<a href="#" title="Attach a link"><img src="img/post-icons/doc-attach.png"/></a>
-					<a href="#" title="Add another recipient"><img src="img/post-icons/doc-add.png"/></a>
-				</jsp:attribute>
-                <jsp:attribute name="rightcontrols">
-                    <input type="button" value="Send" r:context="usermessage" r:name="send"/>
-                </jsp:attribute>
-            </t:textarea>
+        <div style="width:500px;">
+			<div class="post-message">
+				<div r:context="usermessage" r:type="textarea" r:name="text" r:hint="Write a message" class="inner">
+					<div class="controls-wrapper">
+						<div class="controls">
+							<div class="left">
+								<a href="#" title="Attach a link"><img src="img/post-icons/doc-attach.png"/></a>
+								<a href="#" title="Add another recipient"><img src="img/post-icons/doc-add.png"/></a>
+							</div>
+							<div class="right">
+								<button r:context="usermessage" r:name="send">Send</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<br/>
 
             <!-- POSTED MESSAGES ARE SHOW HERE -->
             <table width="100%" r:context="usermessage" r:model="listModel" r:varName="item" cellpadding="0" cellspacing="0">

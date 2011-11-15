@@ -1,6 +1,7 @@
+html, body { height: 100%; margin:0; }
+
 body {
 	font-family: arial, verdana, tahoma;
-	margin:0;
 	font-size: 12px;
 	background-color: white;
 }
@@ -19,12 +20,6 @@ img { border: none; }
 #footmenu {
 	font-family: tahoma, verdana, arial;
 	font-size: 12px;
-}
-
-h2 { 
-	color:darkslateblue;
-	font-family:tahoma;
-	font-size:15px;
 }
 
 .error {

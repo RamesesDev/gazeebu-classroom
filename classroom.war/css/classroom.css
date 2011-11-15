@@ -36,3 +36,5 @@
 	font-weight:bolder;
 	padding:5px;
 }
+.button:hover { border-color: #aaa; }
+.button:active { border-color: #333; }

@@ -23,7 +23,7 @@ class ClassrecordService {
 		summary.gradingPeriods = gradingService.getGradingPeriods( p );
 		summary.gradingCriteria = gradingService.getGradingCriteria( p );
 		summary.activities = em.sqlContext.createNamedQuery('classrecord:activitylist').setParameters(p).resultList;
-		summary.students = classInfo.members.findAll{ it.membertype == "student" };
+		summary.students = classInfo.members.findAll{ it.usertype == "student" };
 		summary.activities.each {
 			if(it.activitydate) it.activitydate = dtformat.format(it.activitydate);
 			it.totalscore = new java.math.BigDecimal( it.totalscore );
@@ -62,7 +62,7 @@ class ClassrecordService {
 	public def getActivityResult(def activityid) {
 		def e = em.read( "classrecord:activity", [objid:activityid] );
 		def classInfo = classroomService.getClassInfo(e.classid);
-		def students = classInfo.members.findAll{ it.membertype == "student" };
+		def students = classInfo.members.findAll{ it.usertype == "student" };
 		def activityResults = em.sqlContext.createNamedQuery("classrecord:results-byactivity").setParameters([activityid:e.objid]).resultList;
 		def results = [];
 		students.each { stud->

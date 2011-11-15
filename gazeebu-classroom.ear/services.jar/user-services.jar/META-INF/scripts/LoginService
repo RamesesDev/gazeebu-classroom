@@ -33,6 +33,13 @@ class LoginService {
 		def sessionid =  sessionService.register([username:p.userid, info:p]);
 		p.sessionid = sessionid;
 		return p;
-    }     
-
+    }
+    
+    
+    @ProxyMethod
+    public def checkAvailability(def o) {
+      def qry = em.sqlContext.createNamedQuery("login:checkavailability");
+      qry.setParameter("username", o);
+	   return qry.singleResult;
+    }
 }
