@@ -143,7 +143,7 @@
                 <td>
                     <input type="text" class="text" size="40"
                            r:context="signup" 
-                           r:name="account.email"
+                           r:name="entity.email"
 						   r:required="true"
                            r:caption="Your Email"/>
 					<em>*</em>

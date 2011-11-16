@@ -2077,9 +2077,9 @@ function PopupOpener( id, params, options )
 				};	
 			}
 			catch(e) {;}
-            BindingUtils.load( div );
             //make into a dialog after the content is loaded.
             div.dialog(options);
+			BindingUtils.load( div );
 		}
     }
 }

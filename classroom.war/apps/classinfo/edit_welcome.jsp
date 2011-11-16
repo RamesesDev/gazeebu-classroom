@@ -10,28 +10,29 @@
 			new function() 
 			{
 				this.handler;
-				this.classInfo;
+				this.classinfo;
 				
 				this.onload = function() {
-					if( !this.classInfo.info )
-						this.classInfo.info = {};
+					if( !this.classinfo.info )
+						this.classinfo.info = {};
 				}
 				
 				this.save = function() {
 					var svc = ProxyService.lookup('ClassService');
-					svc.update(this.classInfo);
+					svc.update(this.classinfo);
 					if( this.handler ) this.handler();
+					return '_close';
 				}
 			}
 		);	
 	</jsp:attribute>
 	
-	<jsp:attribute name="leftactions">
+	<jsp:attribute name="rightactions">
 		<input type="button" r:context="edit_welcome" r:name="save" value="Save"/>
 	</jsp:attribute>
 	
 	<jsp:body>
-		<div r:type="richtext" r:context="edit_welcome" r:name="classInfo.info.welcome_message" style="width:600px;height:400px;"></div>
+		<div r:type="richtext" r:context="edit_welcome" r:name="classinfo.info.welcome_message" style="width:600px;height:400px;"></div>
 	</jsp:body>
 	
 </t:popup>

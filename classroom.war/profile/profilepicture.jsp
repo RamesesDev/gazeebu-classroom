@@ -3,7 +3,7 @@
 
 <t:content title="Edit Profile">
    <script>
-      $put("profilepicture",
+	   $put("profilepicture",
          new function() 
 		 {
             var svc = ProxyService.lookup("UserProfileService");
@@ -62,7 +62,7 @@
                       r:context="profilepicture" 
                       r:caption="Choose File"
                       r:oncomplete="doneupload"
-                      r:url="profile/submit.jsp"/>
+                      r:url="profile/upload_photo.jsp"/>
             </div>
             <input type="button" 
                    r:context="profilepicture" 

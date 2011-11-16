@@ -3,7 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 
-<s:invoke service="ClassrecordService" method="getActivityResult" params="${param['activityid']}" var="INFO"/>
 
 <t:popup>
 
@@ -15,13 +14,14 @@
 	
 	<jsp:attribute name="script">
 		$put("edit_info",
-			new function() {
-				
+			new function() 
+			{
+				this.classinfo;
 			}
 		);	
 	</jsp:attribute>
 	
-	<jsp:attribute name="leftactions">
+	<jsp:attribute name="rightactions">
 		<input type="button" r:context="edit_info" r:name="save" value="Save"/>
 	</jsp:attribute>
 	
@@ -29,14 +29,13 @@
 		<table>
 			<tr>
 				<td valign="top" width="100">Name</td>
-				<td>${INFO.name}</td>
+				<td><label r:context="edit_info">#{classinfo.name}</label></td>
 			</tr>
 			<tr>
 				<td valign="top">Description</td>
-				<td>${INFO.description}</td>
-			</tr>			
+				<td><label r:context="edit_info">#{classinfo.description}</label></td>
+			</tr>				
 		</table>
-		<br/>
 	</jsp:body>
 	
 </t:popup>

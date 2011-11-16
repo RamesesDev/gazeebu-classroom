@@ -15,6 +15,8 @@
 		$register({id: "new_class", page:"new_class.jsp", context:"new_class", title:"New Classroom", options: {width:500,height:400}});
 		$register({id: "join_class", page:"join_class.jsp", context:"join_class", title:"Join a class", options: {width:500,height:400}});
 		$register({id: "#classmenu", context:"home", options: {position:{at:"right bottom", my:"right top"}} });
+		$register({id: "getting_started", page:"home/getting_started.jsp", context:"getting_started", title:"Getting Started with Gazeebu",options:{width:650,height:450}});
+
 		$put("home", 
 			new function() {
 				var svc = ProxyService.lookup("ClassService");
@@ -23,7 +25,18 @@
 				this.onload = function() {
 					if(! window.location.hash ) {
 						window.location.hash = "main";
-					}							
+					}
+					
+					var userid = '${SESSION_INFO.userid}';
+					var hasSet = '${SESSION_INFO.has_set_security}';
+					if( hasSet != '1' && !$.cookie(userid) ) {				
+						this._controller.navigate( new PopupOpener('getting_started',{userid: userid}) );
+					}
+					
+					//clean cookie if hasSet value is set
+					if( hasSet == '1' && $.cookie(userid) ) {
+						$.cookie(userid, '');
+					}
 				}
 				this.addClass = function() {
 					var saveHandler = function() {

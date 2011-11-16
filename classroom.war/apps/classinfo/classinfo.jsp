@@ -4,7 +4,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 <%@ page import="java.util.*" %>
 
-<s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="INFO"/>
+<s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="CLASS_INFO"/>
 
 <t:content title="Class Profile">
 	<jsp:attribute name="head">
@@ -27,7 +27,7 @@
 			font-size:14px;
 			font-weight:bold;
 		}
-	</jsp:attribute>
+		</jsp:attribute>
 	
 	<jsp:attribute name="script">
 		$put(
@@ -37,10 +37,10 @@
 			
 				var svc = ProxyService.lookup('ClassService');
 				var self = this;
-				this.classInfo;
+				this.classinfo;
 				
 				this.onload = function() {
-					this.classInfo = svc.read({objid: '${INFO.objid}'});
+					this.classinfo = svc.read({objid: '${CLASS_INFO.objid}'});
 				}
 				
 				this.inviteStudents = function() {
@@ -48,15 +48,22 @@
 				}
 				
 				this.edit = function() {
-					var o = new PopupOpener('classinfo:edit_info');
+					var o = new PopupOpener('classinfo:edit_info',{classinfo: this.classinfo});
 					o.title = 'Class Information';
 					return o;
 				}
 				
 				this.editWelcome = function() {
-					var o = new PopupOpener('classinfo:edit_welcome',{classInfo: this.classInfo, handler:function(){ self.onload(); }});
+					var o = new PopupOpener('classinfo:edit_welcome',{classinfo: this.classinfo, handler:function(){ self.onload(); }});
 					o.title = 'Welcome Message';
 					o.options = {width: 650, height: 500};
+					return o;
+				}
+				
+				this.attach = function() {
+					var o = new PopupOpener('classinfo:attach_syllabus',{classinfo: this.classinfo, handler:function(){ self.onload(); }});
+					o.title = 'Attach Syllabus';
+					o.options = {width: 400, height: 200};
 					return o;
 				}
 			}
@@ -73,18 +80,20 @@
 				<span class="sectiontitle">
 					Class Information
 				</span>
-				<span class="controls">
-					<a r:context="classinfo" r:name="edit">Edit</a>
-				</span>
+				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+					<span class="controls">
+						<a r:context="classinfo" r:name="edit">Edit</a>
+					</span>
+				</c:if>
 			</div>
 			<table style="margin-left:20px;">
 				<tr>
 					<td valign="top" width="100">Name</td>
-					<td><label r:context="classinfo">#{classInfo.name}</label></td>
+					<td><label r:context="classinfo">#{classinfo.name}</label></td>
 				</tr>
 				<tr>
 					<td valign="top">Description</td>
-					<td><label r:context="classinfo">#{classInfo.description}</label></td>
+					<td><label r:context="classinfo">#{classinfo.description}</label></td>
 				</tr>			
 			</table>
 			<br/>
@@ -93,33 +102,44 @@
 				<span class="sectiontitle">
 					Welcome Message
 				</span>
-				<span class="controls">
-					<a r:context="classinfo" r:name="editWelcome">Edit</a>
-				</span>
+				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+					<span class="controls">
+						<a r:context="classinfo" r:name="editWelcome">Edit</a>
+					</span>
+				</c:if>
 			</div>
 			<div style="padding-left:20px;">
-			<p>
-				Write a welcome message for your students.
-			</p>
-			<div class="box-outer">
-				<table width="100%" height="200" class="box">
-					<tr>
-						<td valign="top">
-							<label r:context="classinfo" style="display:block;">
-								#{classInfo.info.welcome_message? classInfo.info.welcome_message : '<i>No welcome message yet</i>.'}
-							</label>
-						</td>
-					</tr>
-				</table>
+				<p>
+					Write a welcome message for your students.
+				</p>
+				<div class="box-outer">
+					<table width="100%" height="200" class="box">
+						<tr>
+							<td valign="top">
+								<label r:context="classinfo" style="display:block;">
+									#{classinfo.info.welcome_message? classinfo.info.welcome_message : '<i>No welcome message yet</i>.'}
+								</label>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<br/>				
 			</div>
-			<br/>
-			
 			<div class="section">
 				<span class="sectiontitle">
 					Course Syllabus
 				</span>
+				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+					<span class="controls">
+						<a r:context="classinfo" r:name="attach">Attach</a>
+					</span>
+				</c:if>
 			</div>
-			<button r:context="classinfo" r:name="attach">Attach</button>
+			<div style="margin-left:20px;">
+				<label r:context="classinfo" r:visibleWhen="#{classinfo.info.syllabus}">
+					#{classinfo.info.syllabus.description}
+				</label>
+			</div>
 		</div>
 	</jsp:body>
 	
