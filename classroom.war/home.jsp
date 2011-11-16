@@ -12,11 +12,11 @@
 	<jsp:attribute name="script">
 		$register({id: "main", page:"home/main.jsp", context:"main"});
 		$register({id: "classroom_info", page:"home/classroom_info.jsp", context:"classroom_info"});
-		$register({id: "new_class", page:"new_class.jsp", context:"new_class", title:"New Classroom", options: {width:500,height:400}});
+		$register({id: "new_class", page:"new_class/new_class.jsp", context:"new_class", title:"New Classroom", options: {width:500,height:400}});
 		$register({id: "join_class", page:"join_class.jsp", context:"join_class", title:"Join a class", options: {width:500,height:400}});
 		$register({id: "#classmenu", context:"home", options: {position:{at:"right bottom", my:"right top"}} });
 		$register({id: "getting_started", page:"home/getting_started.jsp", context:"getting_started", title:"Getting Started with Gazeebu",options:{width:650,height:450}});
-
+		
 		$put("home", 
 			new function() {
 				var svc = ProxyService.lookup("ClassService");
@@ -26,7 +26,7 @@
 					if(! window.location.hash ) {
 						window.location.hash = "main";
 					}
-					
+
 					var userid = '${SESSION_INFO.userid}';
 					var hasSet = '${SESSION_INFO.has_set_security}';
 					if( hasSet != '1' && !$.cookie(userid) ) {				
@@ -138,7 +138,7 @@
 				<td style="font-size:10px;">#{item.schedules}</td>
 			</tr>
 			<tr>	
-				<td style="font-size:11px;padding-bottom:10px;"><b>#{item.usertype}</b></td>
+				<td style="font-size:11px;padding-bottom:10px;"><b>as #{item.usertype}</b></td>
 			</tr>
 		</table>
 		

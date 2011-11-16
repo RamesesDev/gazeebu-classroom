@@ -11,7 +11,7 @@ class SessionNotifierMessageHandler {
     @After(pattern="MessageService.send*")
     public def broadcastMessage( def evt ) {
 		def r = evt.result;
-		if(r.recipients) {
+		if( r.msgtype == "private") {
 			sessionService.notifyUser( r.senderid, r );
 			r.recipients.each {
 				sessionService.notifyUser( it.userid, r );

@@ -1,7 +1,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<t:content title="Bulletin">
+<t:content title="Bulletin Board" subtitle="Post announcements and important news">
 	<jsp:attribute name="head">
 		<script src="${pageContext.servletContext.contextPath}/js/ext/textarea.js"></script>
 	</jsp:attribute>
@@ -28,6 +28,31 @@
 			color:blue;
 			font-weight:bold;
 		}
+		.actionbutton {
+			border:1px solid lightgrey;
+			font-family:verdana;
+			padding:5px;
+			font-weight:bold;
+		}
+		#sendername {
+			color: darkslateblue;
+			font-size:12px;
+			font-weight:bold;
+		}
+		.msg-divider {
+			padding-top:2px;
+			border-top:1px solid lightgrey;
+		}
+		.notifycount {
+			background-color: yellow;
+			color:red;
+			font-size:11px;
+			font-weight:bold;
+			padding:2px;
+			font-family: verdana, arial;
+			text-align:center;
+			border: 1px solid orange;
+		}
 	</jsp:attribute>
 	<jsp:attribute name="script">
 		$put(
@@ -40,7 +65,6 @@
 				this.classid = "${param['classid']}";
 				this.message = {};
 				this.eof = "false";
-				
 				this.listModel = {
 					fetchList: function( p, last ){
 						var m = {channelid: self.classid};
@@ -59,8 +83,18 @@
 					Session.handler = function( o ) {
 						if(o.scope == "public" && o.channelid == self.classid && o.msgtype == 'bulletin') {
 							if( o.parentid ) {
-								self.viewComments();
-								self.listModel.refresh(true);
+								var msgid = o.parentid;
+								var thread = self.listModel.getList().find(function(x) { return x.objid == msgid } );
+								if(thread) {
+									self.comments[msgid] = svc.getResponses( {parentid: msgid } );
+									thread.replies = self.comments[msgid].length;
+									if(thread.expanded != "true" ) {
+										self.comments[msgid] = null;
+										if(thread.notifycount==null) thread.notifycount = 0;
+										thread.notifycount = thread.notifycount+1;
+									}
+									self.listModel.refresh();
+								}	
 							}
 							else {
 								self.listModel.prependItem( o );
@@ -81,39 +115,52 @@
 					this.message = {}
 				}
 				
-				this.comment = function(msg) {
-					var o = prompt("Enter comment");
-					if( o ) {
+				this.comment = function() {
+					var saveHandler = function(o) {
 						var m = {};
-						m.parentid = msg[0];
+						m.parentid = self.selectedMessage.objid;
 						m.message = o;
-						m.recipients = [{userid: msg[1]}];
-						m.channelid = this.classid;
+						m.recipients = [{userid:self.selectedMessage.senderid}];
+						m.channelid = self.classid;
 						m.scope = "public";
 						m.msgtype = "bulletin";
 						svc.send( m );
 					}
+					return new PopupOpener("comment", {saveHandler: saveHandler} );
 				}
 				
-				this.msgid;
+				this.selectedMessage;
 				this.comments = {}
 				
 				this.viewComments = function() {
-					if( !this.comments[this.msgid] ) {
-						this.comments[this.msgid] = svc.getResponses( {parentid: this.msgid } );
+					var msgid = this.selectedMessage.objid;
+					this.selectedMessage.expanded = "true";
+					this.selectedMessage.notifycount = null;
+					if( !this.comments[msgid] ) {
+						this.comments[msgid] = svc.getResponses( {parentid: msgid } );
 					}
+				}
+				this.hideComments = function() {
+					this.selectedMessage.expanded = null;
+					this.comments[this.selectedMessage.objid] = null;
+				}
+				
+				this.subscribeSMS = function() {
+					return new PopupOpener( "subscribe_sms", {msgtype: "Bulletin Board"}); 
 				}
 			}
 		);	
 	</jsp:attribute>
 
+	<jsp:attribute name="actions">
+		<input type="button" r:context="bulletin" r:name="subscribeSMS" value="Subscribe SMS" class="actionbutton"/>
+	</jsp:attribute>
+	
 	<jsp:attribute name="rightpanel">
 		<table style="font-size:11px;">
 			<tr>
 				<td style="font-size:12px;">
-					Go Mobile!<br>
-					<a r:context="bulletin" r:name="subscribe">Subscribe to SMS</a> 
-					to receive messages on your cellphone. 	
+					Sponsored Ads<br>
 				</td>
 			</tr>
 		</table>
@@ -124,13 +171,13 @@
 			<br/>
 			<table class="comments" r:context="bulletin" r:items="comments[params.objid]" r:varName="comment" cellpadding="0" cellspacing="0" width="100%">
 				<tr>
-					<td valign="top" width="50" rowspan="2" style="border-top:1px dashed lightgrey">
+					<td valign="top" width="50" rowspan="2" class="msg-divider">
 						<img src="${!comment.profile ? 'blank.jpg' : comment.profile + '/thumbnail.jpg'}" width="60%"/>
 					</td>
-					<td valign="top" style="border-top:1px dashed lightgrey">
+					<td valign="top"  id="sendername" class="msg-divider">
 						#{comment.lastname}, #{comment.firstname} 
 					</td>
-					<td valign="top" align="right" style="border-top:1px dashed lightgrey">
+					<td valign="top" align="right" class="msg-divider">
 						posted #{comment.dtfiled}
 					</td>
 				</tr>
@@ -161,16 +208,16 @@
 		
 		<br/>
 		<table width="550" r:context="bulletin" r:model="listModel" r:varName="item" r:varStatus="stat" cellpadding="0" 
-			r:emptyText="No messages posted yet" cellspacing="0" class="bulletin">
+			r:emptyText="No messages posted yet" cellspacing="0" class="bulletin" r:name="selectedMessage">
 			<tbody>
 				<tr>
-					<td valign="top" align="center" width="70" style="padding-bottom:10px;padding-top:2px;border-top:1px solid lightgrey" rowspan="3">
+					<td valign="top" align="center" width="70"  class="msg-divider" rowspan="3">
 						<img src="${pageContext.servletContext.contextPath}/#{item.senderprofile ?  item.senderprofile + '/thumbnail.jpg' : 'blank.jpg'}"></img>
 					</td>
-					<td valign="top"   style="border-top:1px solid lightgrey;color:darkslateblue;font-size:12px;font-weight:bold;">
+					<td valign="top" id="sendername"  class="msg-divider">
 						#{item.lastname}, #{item.firstname}	
 					</td>
-					<td valign="top" align="right"  style="border-top:1px solid lightgrey">
+					<td valign="top" align="right"  class="msg-divider">
 						<span style="font-size:11px;color:gray;">posted on #{item.dtfiled}</span>
 					</td>
 				</tr>
@@ -181,9 +228,12 @@
 				</tr>
 				<tr>
 					<td colspan="2" valign="bottom">
-						<a class="inquireAction" href="javascript:$get('bulletin').invoke(this, 'comment', ['#{item.objid}','#{item.senderid}'] );">Comment</a>
+						<a r:context="bulletin" r:name="comment">Comment</a>
 						&nbsp;&nbsp;&nbsp;&nbsp;
-						<a r:context="bulletin" r:name="viewComments" r:params="{msgid: '#{item.objid}' }">View Comments (#{item.replies})</a>&nbsp;&nbsp;
+						<a r:context="bulletin" r:name="viewComments" r:visibleWhen="#{item.expanded != 'true'}">View Comments (#{item.replies})</a>
+						<a r:context="bulletin" r:name="hideComments" r:visibleWhen="#{item.expanded == 'true'}">Hide Comments (#{item.replies})</a>
+						&nbsp;
+						<label r:context="bulletin" class="notifycount" title="New comments unread" r:visibleWhen="#{item.notifycount}">#{item.notifycount}</label>
 						<br>
 						<template r:context="bulletin" r:id="comment_tpl" r:params="{objid:'#{item.objid}'}" />
 					</td>

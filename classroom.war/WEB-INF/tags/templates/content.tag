@@ -2,6 +2,8 @@
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 
 <%@ attribute name="title" %>
+<%@ attribute name="subtitle" %>
+
 <%@ attribute name="contenthead" fragment="true"%>
 <%@ attribute name="actions" fragment="true" %>
 
@@ -41,6 +43,9 @@
 	<tr>
 		<td align="left" style="font-size:20px; color:darkslateblue;">
 			<b>${title}</b>
+			<c:if test="${!empty subtitle}">
+				<br><i style="font-size:12px;color:darkslateblue;font-family:verdana,arial">${subtitle}</i>
+			</c:if>
 		</td>
 		<td align="right">
 			<jsp:invoke fragment="actions"/>
