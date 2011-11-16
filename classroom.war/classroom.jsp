@@ -69,6 +69,9 @@
 		.menuitem td {
 			padding-left:5px;
 		}
+		.menuitem {
+			font-color: 
+		}
 	</jsp:attribute>
 	
 	<jsp:attribute name="header_middle">
@@ -79,7 +82,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td style="font-size:10px;font-weight:bold;">${CLASS_INFO.description}</td>	
+				<td style="font-size:10px;font-weight:bold;">${CLASS_INFO.schedules}</td>	
 			</tr>	
 		</table>	
 	</jsp:attribute>
@@ -114,10 +117,8 @@
 			</tr>
 		</table>
 		
-		
-		
 		<div class="menutitle">
-			CLASSROOM
+			CLASS
 		</div>
 		<table class="menuitem" r:context="apps" r:items="items" r:varName="item" width="100%" cellpadding="0" cellspacing="0">
 			<tr>
@@ -130,11 +131,7 @@
 		</table>
 		
 		<c:if test="${CLASS_INFO.usertype == 'teacher'}">
-			<br>
-			<span class="menutitle">STUDENTS</span>
-			<span style="padding-left:20px;">
-				<input class="button" type="button" r:context="classroom" r:name="inviteStudents" value="Invite" />
-			</span>
+			<input class="button" type="button" r:context="classroom" r:name="inviteStudents" value="Invite" />
 		</c:if>
 		
 		<br>

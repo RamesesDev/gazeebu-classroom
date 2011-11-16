@@ -1,6 +1,9 @@
 [members]
-select u.objid,u.lastname,u.firstname,u.profile,cs.usertype as usertype 
-from userprofile u 
-inner join class_membership cs on cs.userid = u.objid 
-where cs.classid = $P{classid}
-order by cs.usertype, u.lastname, u.firstname
+select a.objid,a.lastname,a.firstname,a.profile,a.usertype 
+from( 
+select u.objid,u.lastname,u.firstname,u.profile,cs.usertype as usertype, 
+	IF( cs.usertype = 'teacher', 0, 1 ) as sortorder 
+from userprofile u  
+inner join class_membership cs on cs.userid = u.objid  
+where cs.classid = $P{classid} ) a 
+order by a.sortorder, a.lastname, a.firstname 

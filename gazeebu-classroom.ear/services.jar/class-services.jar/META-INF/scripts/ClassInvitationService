@@ -1,0 +1,82 @@
+import com.rameses.annotations.*;
+
+class ClassInvitationService {
+	
+	@PersistenceContext("main")
+	def em;
+	
+	@Service("DateService")
+	def dateSvc;
+	
+	@Env
+	def env;
+	
+	@Service("ClassroomService")
+	def classroomSvc;
+	
+	/***
+	Actions to be performed by the teacher.
+	**/
+	@ProxyMethod
+	public def findStudents( def o ) {
+		o.usertype = "student"; 
+		if(o.name) o.name += "%";
+		return em.sqlContext.createNamedQuery( "class_invitation:find-invitees" ).setParameters(o).resultList;
+	}
+
+	@ProxyMethod
+	public def sendStudentInvitation( q ) {
+		q.invitees.each {
+			def m = [userid:it.objid, classid: q.classid, msg: q.msg,dtinvite: dateSvc.serverDate, recipientid: it.objid, usertype:"student", senderid: env.userid];
+			em.save( "class_invitation", m );	
+		}
+	}
+	
+	/***
+	Actions to be performed by the student.
+	**/
+	@ProxyMethod
+	public def findTeacherClass( def o ) {
+		if(o.name) o.name += "%";
+		o.userid = env.userid;
+		return em.sqlContext.createNamedQuery( "class_invitation:teacher-class" ).setParameters(o).resultList;
+	}
+
+	@ProxyMethod
+	public def sendRequestToJoin( q ) {
+		q.classes.each {
+			def m = [:];
+			m.userid = env.userid;
+			m.classid = it.classid;
+			m.msg = q.msg;
+			m.dtinvite = dateSvc.serverDate;
+			m.usertype = "student";
+			m.senderid = env.userid;
+			m.recipientid = it.teacherid;
+			em.save( "class_invitation", m );	
+		}
+	}
+	
+	@ProxyMethod
+	public def getInvitations( def o ) {
+		def m = [recipientid: env.userid];
+		return em.sqlContext.createNamedQuery( "class_invitation:list" ).setParameters(m).resultList;
+	}
+
+	/***
+	This method is to be performed by the teacher.
+	**/
+	@ProxyMethod
+	public def accept( m ) {
+		def invitation = em.read("class_invitation", m );
+		classroomSvc.addMember( invitation );	
+		em.delete( "class_invitation", invitation );
+	}
+	
+	@ProxyMethod
+	public def ignore( m ) {
+		def invitation = em.read("class_invitation", m );
+		em.delete( "class_invitation", invitation );
+	}
+	
+}

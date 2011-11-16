@@ -18,7 +18,7 @@
 	<jsp:attribute name="script">
 		$put("invite_student",
 			new function() {
-				var svc = ProxyService.lookup( "StudentInviteService" );
+				var svc = ProxyService.lookup( "ClassInvitationService" );
 				this.keyword;
 				var self = this;
 				this.selected;
@@ -45,15 +45,11 @@
 				
 				this.submit = function() {
 					this.data.classid = "${param['classid']}";
-					svc.sendInvites( this.data );
+					svc.sendStudentInvitation( this.data );
 					return "_close";
 				}
 			}
 		);
-	</jsp:attribute>
-	
-	<jsp:attribute name="leftactions">
-		<input type="button" r:context="invite_student" r:name="submit" value="Submit" />
 	</jsp:attribute>
 	
 	<jsp:attribute name="sections">
@@ -62,7 +58,7 @@
 				<table>
 					<tr>
 						<td valign="top">
-							<img src="#{profile + '/thumbnail.jpg'}"/>
+							<img src="#{!profile ? 'blank.jpg' : profile +  '/thumbnail.jpg'}"/>
 						</td>
 						<td valign="top">
 							#{name}<br/>
@@ -75,32 +71,49 @@
 	</jsp:attribute>
 	
 	<jsp:body>
-		<b>Invitees</b>
-		<br>
-		 Add Invitee : 
-		 <input type="text" r:context="invite_student" r:name="keyword" 
-			   r:suggest="search" r:suggestName="selected"
-			   r:suggestExpression="#{name}"
-			   r:suggestTemplate="suggest-tpl"
-			   style="width:350px"/>
-		
-		<br>
-		<table r:context="invite_student" r:items="data.invitees" r:varName="item" r:name="invitee">
+		<table width="100%">
 			<tr>
-				<td valign="top">
-					<img src="#{item.profile}/thumbnail.jpg"/>
+				<td align="right">
+					Add Invitee 
 				</td>
-				<td valign="top">#{item.name}</td>
-				<td valign="top" align="right"><a r:context="invite_student" r:name="removeInvitee">x</a></td>
+				<td>
+					 
+					 <input type="text" r:context="invite_student" r:name="keyword" 
+						   r:suggest="search" r:suggestName="selected"
+						   r:suggestExpression="#{name}"
+						   r:suggestTemplate="suggest-tpl"
+						   style="width:350px"/>
+				</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td valign="top">
+					<table r:context="invite_student" r:items="data.invitees" r:varName="item" r:name="invitee" width="40%">
+						<tr>
+							<td valign="top" width="50">
+								<img src="#{!item.profile ? 'blank.jpg' : item.profile + '/thumbnail.jpg'}"/>
+							</td>
+							<td valign="top">#{item.name}</td>
+							<td valign="top" align="right">
+								<a r:context="invite_student" r:name="removeInvitee" style="border:1px solid lightgrey;" title="Remove Invite">x</a>
+							</td>
+						</tr>
+					</table>				
+				</td>
+			</tr>
+			<tr>
+				<td valign="top" align="right">Message</td>
+				<td valign="top">
+					<textarea r:context="invite_student" r:name="data.msg" style="width:350px;" />		
+				</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>
+					<input type="button" r:context="invite_student" r:name="submit" value="Submit" />
+				</td>
 			</tr>
 		</table>
-		<br>
-		<br>
-		<br>
-		<br>
-		<b>Message to Invitees</b><br>
-		<textarea r:context="invite_student" r:name="data.msg" style="width:250px;" />
-		
 	</jsp:body>
 	
 </t:popup>

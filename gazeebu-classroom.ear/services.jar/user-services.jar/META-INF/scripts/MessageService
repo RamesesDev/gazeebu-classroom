@@ -98,7 +98,6 @@ class MessageService {
 	
 	@ProxyMethod
 	public def getResponses(o) {
-		print o.parentid;
 		def m = [parentid: o.parentid];
 		def list = em.sqlContext.createNamedQuery("message:responses").setParameters(m).resultList;
 		return formatMessages(list);
@@ -107,20 +106,17 @@ class MessageService {
 	@ProxyMethod
 	public def send(o) {
 		o.objid = "MSGFD:" + new java.rmi.server.UID();
-		if(o.recipients) {
-			o.scope = 'private';
-			if(!o.msgtype) o.msgtype = 'private';
-		}
-		else {
-			o.scope = 'public';
-			if(!o.msgtype) o.msgtype = "announcement";
-		}
+		if(!o.scope) throw new Exception("Please provide a scope");
+		if(!o.msgtype) throw new Exception("Please provide a message type");
 		o.dtfiled = dateSvc.serverDate;
 		o.replies = 0;
-		if(!o.sendername) o.sendername = env.username;
-		if(!o.senderid) o.senderid = env.userid;
-		if(!o.sendertype) o.sendertype = env.usertype;
-		if(!o.senderprofile) o.senderprofile = env.profile;
+		if(!o.senderid) {
+			o.senderid = env.userid;
+			o.firstname = env.firstname;
+			o.lastname = env.lastname;
+			o.profile = env.profile;
+		}	
+		
 		em.create( "message", o );	
 		o.dtfiled = df.format( o.dtfiled );
 		
@@ -144,12 +140,9 @@ class MessageService {
 	
 	@ProxyMethod
 	public def sendResponse(o) {
-		if(!o.sendername) o.sendername = env.username;
 		if(!o.senderid) o.senderid = env.userid;
-		if(!o.sendertype) o.sendertype = env.usertype;
-		
-		o.scope = 'private';
-		o.msgtype = "response";
+		if(!o.scope) throw new Exception("Please provide a scope");
+		if(!o.msgtype) throw new Exception("Please provide a message type");
 		o.dtfiled = dateSvc.serverDate;
 		def recipients = [];
 		def origMsg = em.read( "message", [objid: o.parentid] );

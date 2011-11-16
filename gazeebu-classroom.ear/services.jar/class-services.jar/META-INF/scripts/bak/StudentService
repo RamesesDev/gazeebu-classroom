@@ -1,24 +1,26 @@
 import com.rameses.annotations.*;
 
-class StudentService {
 
+public class StudentService 
+{
 	@PersistenceContext("main")
 	def em;
 	
-	@Service("ClassService")
-	def classService;
+	@Resource("CacheService")
+	def cacheService;
 	
-    @ProxyMethod
-	public def getListByClass( def o ){
-		return classService.getClassInfo( o.classid).students;
-	}
-	
+
 	@ProxyMethod
-	public def getInfo( def o ){
-		def z = em.read("student", [objid:o.objid]);
-		z.status = "online";
-		if(z.birthdate) z.birthdate = z.birthdate.toString();
-		return z;
+	public def findStudents( text ) {
+		text = text.replaceAll(/[^\w]+/, '%') + '%';
+		return em.sqlContext.createQuery('''
+		            select objid,firstname,lastname,middlename from userprofile 
+					where concat(firstname, ifnull(middlename,''), lastname) like ? and usertype = 'student'
+					limit 100
+				  ''')
+		         .setParameter(1, text)
+				 .resultList;
 	}
 	
 }
+

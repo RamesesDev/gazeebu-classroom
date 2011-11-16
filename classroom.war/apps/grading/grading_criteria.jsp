@@ -11,7 +11,7 @@
 <s:invoke service="GradingCriteriaService" method="getAll" params="${params}" var="INFO"/>
 <s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="CLASS_INFO"/>
 
-<t:content title="Grading">
+<t:content title="Grade Settings">
 
 	<jsp:attribute name="head">
 		<link rel="stylesheet" href="${pageContext.request.contextPath}/js/ext/colorpicker/colorpicker.css"></link>
@@ -63,7 +63,7 @@
 		
 		<table width="80%" cellspacing="0" cellpadding="0">
 			<tr>
-				<td colspan="2" class="subtitle-font">Criteria</td>
+				<td colspan="2" class="subtitle-font">Grading Criteria</td>
 				<td align="right" class="subtitle">
 					<c:if test="${CLASS_INFO.usertype == 'teacher'}">
 						<a r:context="grading_criteria" r:name="editCriteria">Edit</a>

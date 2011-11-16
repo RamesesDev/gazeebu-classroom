@@ -16,57 +16,62 @@
 	</jsp:attribute>
 	
 	<jsp:attribute name="script">
-		$put(" join_class",
+		$put("join_class",
 			new function() {
-				var svc = ProxyService.lookup( "JoinClassService" );
+				var svc = ProxyService.lookup( "ClassInvitationService" );
 				this.keyword;
 				var self = this;
 				this.selected;
-				this.data = { invitees: [] }
+				this.data = { classes: [] }
 				this._controller;
 				this.search = function(txt) {
-					return svc.findTeachers( {name:txt, classid: "${param['classid']}"} );
+					return svc.findTeacherClass( {name:txt, classid: "${param['classid']}"} );
 				}
 				this.propertyChangeListener = {
 					'selected' : function(o) {
-						self.data.invitees.push(o);
+						self.data.classes.push(o);
 						self.keyword = "";
 						self._controller.refresh();						
 					}
 				}
-				this.invitee;
+				this.class;
 				
-				this.removeInvitee = function() {
-					if(self.invitee) {
-						self.data.invitees.removeAll( function(o) {  return o.objid == self.invitee.objid }   );
+				this.removeClass = function() {
+					if(self.class) {
+						self.data.classes.removeAll( function(o) {  return o.objid == self.class.objid }   );
 						self._controller.refresh();						
 					}
 				}
 				
 				this.submit = function() {
-					this.data.classid = "${param['classid']}";
-					//svc.sendInvites( this.data );
+					svc.sendRequestToJoin( this.data );
 					return "_close";
 				}
 			}
 		);
 	</jsp:attribute>
 	
-	<jsp:attribute name="leftactions">
-		<input type="button" r:context=" join_class" r:name="submit" value="OK" />
-	</jsp:attribute>
 	
 	<jsp:attribute name="sections">
 		<div id="suggest-tpl" style="display:none">
 			<a href="#">
 				<table>
 					<tr>
-						<td valign="top">
-							<img src="#{profile + '/thumbnail.jpg'}"/>
+						<td valign="top" rowspan="3">
+							<img src="#{!profile ? 'blank.jpg' : profile + '/thumbnail.jpg'}"/>
 						</td>
 						<td valign="top">
-							#{name}<br/>
-							<span style="color:#aaa">#{name}</span>
+							#{name}
+						</td>
+					</tr>
+					<tr>	
+						<td valign="top">
+							#{classname}
+						</td>
+					</tr>
+					<tr>	
+						<td valign="top" style="font-size:10px;">
+							#{schedules}
 						</td>
 					</tr>
 				</table>
@@ -75,32 +80,58 @@
 	</jsp:attribute>
 	
 	<jsp:body>
-		<b>Join Class</b>
-		<br>
-		 Join Class: 
-		 <input type="text" r:context=" join_class" r:name="keyword" 
-			   r:suggest="search" r:suggestName="selected"
-			   r:suggestExpression="#{name}"
-			   r:suggestTemplate="suggest-tpl"
-			   style="width:350px"/>
-		
-		<br>
-		<table r:context=" join_class" r:items="data.invitees" r:varName="item" r:name="invitee">
+		<table>
 			<tr>
-				<td valign="top">
-					<img src="#{item.profile}/thumbnail.jpg"/>
+				<td align="right">Find class</td>
+				<td>
+				   <input type="text" r:context="join_class" r:name="keyword" 
+				   r:suggest="search" r:suggestName="selected"
+				   r:suggestExpression="#{name}"
+				   r:suggestTemplate="suggest-tpl"
+				   style="width:320px"/>
 				</td>
-				<td valign="top">#{item.name}</td>
-				<td valign="top" align="right"><a r:context=" join_class" r:name="removeInvitee">x</a></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>
+					<table r:context="join_class" r:items="data.classes" r:varName="item" r:name="class" width="50%">
+						<tr>
+							<td valign="top" rowspan="3" width="40">
+								<img src="#{!item.profile ? 'blank.jpg' : item.profile + '/thumbnail.jpg'}"/>
+							</td>
+							<td valign="top">
+								#{item.name}
+							</td>
+							<td valign="top" align="right" rowspan="3">
+								<a r:context="join_class" r:name="removeClass" title="Remove">x</a>
+							</td>
+						</tr>
+						<tr>	
+							<td valign="top">
+								#{item.classname}
+							</td>
+						</tr>
+						<tr>	
+							<td valign="top" style="font-size:10px;">
+								#{item.schedules}
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td valign="top" align="right">Message</td>
+				<td valign="top">
+					<textarea r:context="join_class" r:name="data.msg" style="width:320px" />		
+				</td>
+			</tr>
+			<tr>	
+				<td>&nbsp;</td>
+				<td>
+					<input type="button" r:context="join_class" r:name="submit" value="Submit" />
+				</td>
 			</tr>
 		</table>
-		<br>
-		<br>
-		<br>
-		<br>
-		<b>Message</b><br>
-		<textarea r:context=" join_class" r:name="data.msg" style="width:250px;" />
-		
 	</jsp:body>
 	
 </t:popup>

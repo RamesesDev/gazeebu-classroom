@@ -3,9 +3,6 @@
         <field name="objid" primary="true"/>
 		<field name="dtfiled"/>
 		<field name="senderid"/>
-		<field name="sendername"/>
-		<field name="sendertype"/>
-		<field name="senderprofile"/>
 		<field name="subject"/>
 		<field name="message"/>
 		<field name="msgtype"/>

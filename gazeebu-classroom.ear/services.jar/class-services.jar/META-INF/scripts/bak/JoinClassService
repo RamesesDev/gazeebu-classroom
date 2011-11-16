@@ -12,15 +12,10 @@ class JoinClassService {
 	def env;
 	
 	@ProxyMethod
-	public def findTeachers( def o ) {
-		o.usertype = "teacher"; 
+	public def findTeacherClass( def o ) {
 		if(o.name) o.name += "%";
-		return em.sqlContext.createNamedQuery( "finder:personlist" ).setParameters(o).resultList;
-	}
-	
-	@ProxyMethod
-	public def findClass( def teacherid ) {
-		em.sqlContext.createNamedQuery( 'class_invitation:find-classes').setParameter("userid", teacherid ).resultList;
+		o.userid = env.userid;
+		return em.sqlContext.createNamedQuery( "class_invitation:teacherclass" ).setParameters(o).resultList;
 	}
 	
 
