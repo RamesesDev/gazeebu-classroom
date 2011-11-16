@@ -58,7 +58,13 @@
 					if(!this.classid) this.classid = null;
 					Session.handler = function( o ) {
 						if(o.scope == "public" && o.channelid == self.classid && o.msgtype == 'bulletin') {
-							self.listModel.prependItem( o );
+							if( o.parentid ) {
+								self.viewComments();
+								self.listModel.refresh(true);
+							}
+							else {
+								self.listModel.prependItem( o );
+							}	
 						}
 					}
 				}
@@ -68,6 +74,7 @@
 						alert( "Please write a message");
 						return;
 					}
+					this.message.scope = "public";
 					this.message.msgtype = "bulletin";
 					this.message.channelid = this.classid;
 					svc.send( this.message );
@@ -82,6 +89,8 @@
 						m.message = o;
 						m.recipients = [{userid: msg[1]}];
 						m.channelid = this.classid;
+						m.scope = "public";
+						m.msgtype = "bulletin";
 						svc.send( m );
 					}
 				}
@@ -110,6 +119,30 @@
 		</table>
 	</jsp:attribute>
 	
+	<jsp:attribute name="sections">
+		<div id="comment_tpl" style="display:none;">
+			<br/>
+			<table class="comments" r:context="bulletin" r:items="comments[params.objid]" r:varName="comment" cellpadding="0" cellspacing="0" width="100%">
+				<tr>
+					<td valign="top" width="50" rowspan="2" style="border-top:1px dashed lightgrey">
+						<img src="${!comment.profile ? 'blank.jpg' : comment.profile + '/thumbnail.jpg'}" width="60%"/>
+					</td>
+					<td valign="top" style="border-top:1px dashed lightgrey">
+						#{comment.lastname}, #{comment.firstname} 
+					</td>
+					<td valign="top" align="right" style="border-top:1px dashed lightgrey">
+						posted #{comment.dtfiled}
+					</td>
+				</tr>
+				</tr>	
+					<td valign="top" colspan="2">
+						#{comment.message}
+					</td>
+				</tr>		
+			</table>
+		</div>
+	</jsp:attribute>
+	
 	<jsp:body>
 		<div class="post-message" style="width:550px">
 			<div r:context="bulletin" r:type="textarea" r:name="message.message" r:hint="Post message." class="inner">
@@ -131,14 +164,19 @@
 			r:emptyText="No messages posted yet" cellspacing="0" class="bulletin">
 			<tbody>
 				<tr>
-					<td valign="top" align="center" width="70" style="padding-bottom:10px;padding-top:2px;border-top:1px solid lightgrey" rowspan="2">
+					<td valign="top" align="center" width="70" style="padding-bottom:10px;padding-top:2px;border-top:1px solid lightgrey" rowspan="3">
 						<img src="${pageContext.servletContext.contextPath}/#{item.senderprofile ?  item.senderprofile + '/thumbnail.jpg' : 'blank.jpg'}"></img>
 					</td>
-					<td valign="top"  style="border-top:1px solid lightgrey" >
-						#{item.message}	
+					<td valign="top"   style="border-top:1px solid lightgrey;color:darkslateblue;font-size:12px;font-weight:bold;">
+						#{item.lastname}, #{item.firstname}	
 					</td>
 					<td valign="top" align="right"  style="border-top:1px solid lightgrey">
 						<span style="font-size:11px;color:gray;">posted on #{item.dtfiled}</span>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top" colspan="2">
+						#{item.message}	
 					</td>
 				</tr>
 				<tr>
@@ -152,15 +190,6 @@
 				</tr>
 			</tbody>
 		</table>
-		
-		<!-- this is called by the template tag -->
-		<div id="comment_tpl" style="display:none;">
-			<ul r:context="bulletin" r:items="comments[params.objid]" r:varName="comment">
-				<li>#{comment.message}</li>		
-			</ul>
-		</div>
-		
-		<br/>
 		
 		<a r:context="bulletin" r:name="listModel.fetchNext" r:visibleWhen="#{eof=='false'}">View More</a>
 	</jsp:body>

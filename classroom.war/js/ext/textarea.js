@@ -79,7 +79,7 @@ BindingUtils.handlers.div_textarea = function( elem, controller, idx )
 	}
 	
 	function a_click(){ 
-		resize(textarea[0], 10);
+		resize(textarea[0], 0);
 		textarea.val('').trigger('change');
 		$(this).stop().animate({opacity:0},50);
 		if( controls ) controls.hide();
