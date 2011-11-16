@@ -8,5 +8,6 @@
     	<field name="classurl"/>
 		<field name="msgcount"/>
 		<field name="status"/>
+		<complex name="info" serializer="default"/>
     </element>
 </schema>

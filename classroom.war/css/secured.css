@@ -24,9 +24,10 @@ img { border: none; }
 	color: #fff;
 	text-decoration: none;
 	font-weight: bold;
+	outline: none;
 }
 
-.header a:hover { text-shadow: 0 0 20px #fff; }
+.header a:hover { color: #ffb; }
 
 .main-container {
 	margin-top: 60px;

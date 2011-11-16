@@ -45,12 +45,11 @@
 			Map env = new HashMap();
 			if(request.getAttribute("SESSIONID")!=null) {
 				env.put("sessionid", request.getAttribute("SESSIONID"));
-			}	
+			}
 			Map conf = new HashMap();
 			conf.put("app.host", host );
 			conf.put("app.context", appcontext );
 		
-			
 			ScriptServiceContext svc = new ScriptServiceContext(conf);
 			ServiceProxy ac = (ServiceProxy) svc.create("UserProfileService", env );
 			
@@ -79,6 +78,7 @@
 		}
 		catch(Exception e) 
 		{
+			e.printStackTrace();
 			out.write( e.getMessage() );
 		}
 	}

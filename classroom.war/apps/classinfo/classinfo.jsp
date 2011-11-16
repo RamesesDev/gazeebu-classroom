@@ -30,9 +30,19 @@
 	</jsp:attribute>
 	
 	<jsp:attribute name="script">
-		$register( {id:"invite_student", page:"apps/classinfo/invite_student.jsp", context:"invite_student", title:"Invite Students", options: {width:500,height:400} } )
-		$put("classinfo",
-			new function() {
+		$put(
+			"classinfo",
+			new function() 
+			{
+			
+				var svc = ProxyService.lookup('ClassService');
+				var self = this;
+				this.classInfo;
+				
+				this.onload = function() {
+					this.classInfo = svc.read({objid: '${INFO.objid}'});
+				}
+				
 				this.inviteStudents = function() {
 					return new PopupOpener("invite_student");
 				}
@@ -44,7 +54,7 @@
 				}
 				
 				this.editWelcome = function() {
-					var o = new PopupOpener('classinfo:edit_welcome');
+					var o = new PopupOpener('classinfo:edit_welcome',{classInfo: this.classInfo, handler:function(){ self.onload(); }});
 					o.title = 'Welcome Message';
 					o.options = {width: 650, height: 500};
 					return o;
@@ -67,14 +77,14 @@
 					<a r:context="classinfo" r:name="edit">Edit</a>
 				</span>
 			</div>
-			<table>
+			<table style="margin-left:20px;">
 				<tr>
 					<td valign="top" width="100">Name</td>
-					<td>${INFO.name}</td>
+					<td><label r:context="classinfo">#{classInfo.name}</label></td>
 				</tr>
 				<tr>
 					<td valign="top">Description</td>
-					<td>${INFO.description}</td>
+					<td><label r:context="classinfo">#{classInfo.description}</label></td>
 				</tr>			
 			</table>
 			<br/>
@@ -87,6 +97,7 @@
 					<a r:context="classinfo" r:name="editWelcome">Edit</a>
 				</span>
 			</div>
+			<div style="padding-left:20px;">
 			<p>
 				Write a welcome message for your students.
 			</p>
@@ -95,7 +106,7 @@
 					<tr>
 						<td valign="top">
 							<label r:context="classinfo" style="display:block;">
-								<i>No welcome message yet</i>.
+								#{classInfo.info.welcome_message? classInfo.info.welcome_message : '<i>No welcome message yet</i>.'}
 							</label>
 						</td>
 					</tr>

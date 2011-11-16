@@ -2,13 +2,16 @@
 
 <t:index redirect_session="true">
 	<style>
-		form.signup input {
+		form.signup input,
+		form.singup button {
 			font-size: 15px;
-			padding: 5px 3px;
+			padding: 8px 3px;
+			margin: 2px 0px;
+			border: solid 1px #999;
 		}
 		
 		.btn { 
-			margin-left: 2px;
+			margin-top: 5px;
 			display: inline-block; 
 			background: rgb(54,160,205) url('img/header-bg.png') repeat-x left center;
 			border:1px solid #777; 
@@ -20,7 +23,7 @@
 			border-top: solid 1px #bbb;
 			border-left: solid 1px #bbb;
 			display: inline-block;
-			padding: 5px 20px; margin: 0;
+			padding: 8px 40px; margin: 0;
 		}
 	</style>
 	<script>

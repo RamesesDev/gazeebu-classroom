@@ -3,14 +3,25 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 
-<s:invoke service="ClassrecordService" method="getActivityResult" params="${param['activityid']}" var="INFO"/>
-
 <t:popup>
 
 	<jsp:attribute name="script">
 		$put("edit_welcome",
-			new function() {
+			new function() 
+			{
+				this.handler;
+				this.classInfo;
 				
+				this.onload = function() {
+					if( !this.classInfo.info )
+						this.classInfo.info = {};
+				}
+				
+				this.save = function() {
+					var svc = ProxyService.lookup('ClassService');
+					svc.update(this.classInfo);
+					if( this.handler ) this.handler();
+				}
 			}
 		);	
 	</jsp:attribute>
@@ -20,7 +31,7 @@
 	</jsp:attribute>
 	
 	<jsp:body>
-		<div r:type="richtext" r:context="edit_welcome" r:name="message" style="width:600px;height:400px;"></div>
+		<div r:type="richtext" r:context="edit_welcome" r:name="classInfo.info.welcome_message" style="width:600px;height:400px;"></div>
 	</jsp:body>
 	
 </t:popup>

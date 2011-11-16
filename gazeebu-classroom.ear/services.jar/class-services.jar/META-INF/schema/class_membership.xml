@@ -5,5 +5,6 @@
         <field name="userid" />
         <field name="usertype" />
 		<complex name="info" serializer="default" merge="true" />
+		<field name="state" />
     </element> 
 </schema>

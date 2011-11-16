@@ -9,7 +9,7 @@ class UserProfileService {
 	def dateSvc;
 	
 	def df = new java.text.SimpleDateFormat("yyyy-MM-dd");
-
+	
 	
 	//checks if a name can be used. true = name can be used. false = name cannot be used.
 	@ProxyMethod
@@ -44,6 +44,7 @@ class UserProfileService {
 	public def getInfo( def o ){
 		def info = em.read("userprofile", [objid:o.objid]);
 		if(info.birthdate) info.birthdate = df.format( info.birthdate );
+		if(info.dtcreated) info.dtcreated = info.dtcreated.toString();
 		return info;
 	}
 	

@@ -98,7 +98,8 @@ class ClassroomService {
 	
 }
 
-class ClassMemberSession implements Runnable {
+class ClassMemberSession implements Runnable 
+{
 	def em;
 	def member;
 	public void run() {

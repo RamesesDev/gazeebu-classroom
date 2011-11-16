@@ -30,16 +30,27 @@ class LoginService {
 		p.photoversion = profile.info?.photoversion;
 		p.lastname = profile.lastname;
 		p.firstname = profile.firstname;
+		p.has_set_security = profile.info?.has_set_security;
+		
 		def sessionid =  sessionService.register([username:p.userid, info:p]);
 		p.sessionid = sessionid;
+		
 		return p;
     }
-    
-    
-    @ProxyMethod
-    public def checkAvailability(def o) {
-      def qry = em.sqlContext.createNamedQuery("login:checkavailability");
-      qry.setParameter("username", o);
-	   return qry.singleResult;
-    }
+	
+	@ProxyMethod
+	public void changePassword( def o ) {
+		def login = em.sqlContext.createQuery('select * from login where uid=$P{username}').setParameters(o).singleResult;
+		
+		if(!login) {
+			throw new Exception("Login account not found.");
+		}
+		
+		if(login.password != o.oldpassword) {
+			throw new Exception("Invalid current password provided.");
+		}
+		
+		em.sqlContext.createExecutor('update login set password = $P{newpassword} where uid=$P{username}')
+		  .setParameters(o).execute();
+	}	
 }

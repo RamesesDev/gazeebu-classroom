@@ -10,13 +10,13 @@
 			<tr>
 				<td>Email: </td>
 				<td>
-					<input id="uid" type="text" name="username" hint="Email" />
+					<input id="uid" type="text" name="username" value="${param['username']}" />
 				</td>	
 			</tr>
 			<tr>
 				<td>Password: </td>
 				<td>
-					<input id="pwd" type="password" name="password" hint="Password" />
+					<input id="pwd" type="password" name="password" />
 				</td>	
 			<tr>
 				<td>&nbsp;</td>

@@ -91,12 +91,6 @@
         <filter-name>SessionFilter</filter-name>
         <filter-class>com.rameses.web.support.SessionFilter</filter-class>
     </filter>
-	
-	<!-- ResourceFilter Configuration  -->
-    <filter>
-        <filter-name>ResourceFilter</filter-name>
-        <filter-class>com.rameses.web.support.ResourceFilter</filter-class>
-    </filter>
     
 	
     <filter-mapping>
@@ -112,12 +106,5 @@
 		<dispatcher>REQUEST</dispatcher> 
 		<dispatcher>FORWARD</dispatcher>
     </filter-mapping> 
-	
-    <filter-mapping>
-        <filter-name>ResourceFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-		<dispatcher>REQUEST</dispatcher> 
-		<dispatcher>FORWARD</dispatcher>
-    </filter-mapping>
  
 </web-app>

@@ -47,8 +47,12 @@ public class ClassService {
 	
 	@ProxyMethod
 	public def update( def o){
-		return em.create("class", o);
+		return em.update("class", o);
 	}
 	
+	@ProxyMethod
+	public def read( def o ) {
+		return em.read('class', o);
+	}
 	
 }
