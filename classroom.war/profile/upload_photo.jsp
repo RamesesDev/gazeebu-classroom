@@ -27,8 +27,7 @@
 			String ext = "jpg";
 			if( sessInfo == null ) throw new Exception("You are no longer logged in. Please re-login to perform this task.");
 			
-			String p = (String) sessInfo.get("profile");
-			String target = resUrl + "/profile/" + p.substring(p.lastIndexOf("/")+1) + "/";
+			String target = resUrl + "/profile/" + sessInfo.get("userid").hashCode();
 			File dest = new File(new URL(target).toURI());
 			if( !dest.exists() ) dest.mkdirs();
 			
@@ -39,16 +38,12 @@
 			iu.createThumbnail( dest.getPath()+"/large."+ext, dest.getPath()+"/thumbnail."+ext, ext, 50);
 			
 			//---- update user profile picture version -----
-			String host = application.getInitParameter("app.host");
-			String appcontext = application.getInitParameter("app.context");
-			
 			Map env = new HashMap();
-			if(request.getAttribute("SESSIONID")!=null) {
-				env.put("sessionid", request.getAttribute("SESSIONID"));
-			}
+			env.put("sessionid", sessInfo.get("sessionid"));
+
 			Map conf = new HashMap();
-			conf.put("app.host", host );
-			conf.put("app.context", appcontext );
+			conf.put("app.host", application.getInitParameter("app.host") );
+			conf.put("app.context", application.getInitParameter("app.context") );
 		
 			ScriptServiceContext svc = new ScriptServiceContext(conf);
 			ServiceProxy ac = (ServiceProxy) svc.create("UserProfileService", env );

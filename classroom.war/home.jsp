@@ -91,8 +91,7 @@
 		<table cellpadding="0" cellspacing="0">
 			<tr>
 				<td>
-					<c:if test="${empty SESSION_INFO.profile}"><img src="blank.jpg"/></c:if>
-					<c:if test="${!empty SESSION_INFO.profile}"><img src="${SESSION_INFO.profile}/thumbnail.jpg"/></c:if>
+					<img src="profile/photo.jsp?id=${SESSION_INFO.userid}&t=thumbnail&v=${SESSION_INFO.info.photoversion}"/>
 				</td>
 				<td style="font-size:11px;padding-left:5px;">
 					${SESSION_INFO.lastname}, ${SESSION_INFO.firstname}<br>

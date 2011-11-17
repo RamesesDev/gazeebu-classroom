@@ -22,7 +22,6 @@
 		<td valign="top">Short Description</td>
 		<td><textarea r:context="new_class" r:name="class.description" style="width:80%;"></textarea></td>
 	</tr>
-	
 </table>
 	
 	<input type="button" r:context="new_class" r:name="_page2" value="Next"/>

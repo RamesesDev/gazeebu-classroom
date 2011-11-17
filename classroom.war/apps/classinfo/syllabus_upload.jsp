@@ -7,7 +7,7 @@
 <%@ page import="com.rameses.web.fileupload.*" %>
 <%@ page import="org.apache.commons.fileupload.*" %>
 <%@ page import="java.io.*" %>
-
+<%@ page import="java.net.*" %>
 
 <%
 	try {
@@ -19,9 +19,12 @@
 			String objid = "SLB"+("FILE-" + new java.rmi.server.UID()).hashCode();
 			resp.put("filename", fi.getName());
 			resp.put("fileid", objid);
+			resp.put("content_type", fi.getContentType());
 			
-			File f = new File(System.getProperty("jboss.server.home.dir") + "/apps/classroom.war/apps/classinfo/uploads/" + objid);
-			System.out.println( f );
+			String resUrl = application.getInitParameter("res-url");
+			File dest = new File(new URL(resUrl).toURI());
+			File f = new File(dest, "syllabus/" + objid);
+			if( !f.getParentFile().exists() ) f.getParentFile().mkdirs();
 			fi.write(f);
 		}
 		out.write( JsonUtil.toString( resp ) );

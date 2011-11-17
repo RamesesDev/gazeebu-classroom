@@ -16,7 +16,15 @@
 		$put("edit_info",
 			new function() 
 			{
+				this.handler;
 				this.classinfo;
+				
+				this.save = function() {
+					var svc = ProxyService.lookup('ClassService');
+					svc.update(this.classinfo);
+					if( this.handler ) this.handler();
+					return '_close';
+				}
 			}
 		);	
 	</jsp:attribute>
@@ -28,13 +36,25 @@
 	<jsp:body>
 		<table>
 			<tr>
-				<td valign="top" width="100">Name</td>
-				<td><label r:context="edit_info">#{classinfo.name}</label></td>
+				<td width="100">Class name</td>
+				<td><input type="text" r:context="edit_info" r:name="classinfo.name" maxlength="50" style="width:250px" r:caption="Name" r:required="true"/></td>
 			</tr>
 			<tr>
-				<td valign="top">Description</td>
-				<td><label r:context="edit_info">#{classinfo.description}</label></td>
-			</tr>				
+				<td valign="top">Short Description</td>
+				<td><textarea r:context="edit_info" r:name="classinfo.description" style="width:250px;height:50px;"></textarea></td>
+			</tr>
+			<tr>
+				<td valign="top">Room Schedule</td>
+				<td><input type="text" r:context="edit_info" r:name="classinfo.schedules" style="width:250px" r:caption="Schedule" r:required="true"></td>
+			</tr>
+			<tr>
+				<td valign="top">&nbsp;</td>
+				<td><i style="font-size:11px;">Ex. 8:30-9:30 MWF Rm 101</i></td>
+			</tr>
+			<tr>
+				<td valign="top">School</td>
+				<td><input type="text" r:context="edit_info" r:name="classinfo.school" maxlength="50" r:caption="School" style="width:250px;"/></td>
+			</tr>
 		</table>
 	</jsp:body>
 	

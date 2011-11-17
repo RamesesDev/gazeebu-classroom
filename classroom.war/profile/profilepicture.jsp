@@ -43,7 +43,7 @@
                <tr>
                   <td align="center">
                      <label r:context="profilepicture">
-                        <img src="${pageContext.servletContext.contextPath}/#{user.info.photoversion == null? 'img/profilephoto.png' : user.profile+'/medium.jpg?v='+user.info.photoversion}"/>
+                        <img src="${pageContext.servletContext.contextPath}/profile/photo.jsp?id=#{user.objid}&t=medium&v=#{user.info.photoversion}"/>
                      </label>
                   </td>
                </tr>

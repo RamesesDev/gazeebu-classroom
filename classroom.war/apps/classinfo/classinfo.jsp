@@ -5,6 +5,7 @@
 <%@ page import="java.util.*" %>
 
 <s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="CLASS_INFO"/>
+<c:set var="RES_PATH" value="${pageContext.servletContext.contextPath}/apps/classinfo/syllabus_resource.jsp"/>
 
 <t:content title="Class Profile">
 	<jsp:attribute name="head">
@@ -12,22 +13,26 @@
 		<script src="${pageContext.servletContext.contextPath}/js/ext/richtext/richtext.js"></script>
 	</jsp:attribute>
 	<jsp:attribute name="style">
+		.row, .section { overflow: hidden; }
+
 		.section {
-			overflow: hidden;
 			background-color: lightgrey;		
 			margin-bottom: 10px;
 			padding:5px;
 		}
+		
+		.row .controls,
 		.section .controls {
 			display: inline-block;
 			float: right;
 		}
+		
 		.sectiontitle {
 			display: inline-block;
 			font-size:14px;
 			font-weight:bold;
 		}
-		</jsp:attribute>
+	</jsp:attribute>
 	
 	<jsp:attribute name="script">
 		$put(
@@ -37,10 +42,20 @@
 			
 				var svc = ProxyService.lookup('ClassService');
 				var self = this;
+				
 				this.classinfo;
+				this.syllabus;
+				this._controller;
 				
 				this.onload = function() {
 					this.classinfo = svc.read({objid: '${CLASS_INFO.objid}'});
+					if( !this.classinfo.info ) this.classinfo.info = {};
+					this.syllabus = this.classinfo.info.syllabus;
+				}
+				
+				var afterUpdate = function() {
+					self.onload();
+					self._controller.refresh();
 				}
 				
 				this.inviteStudents = function() {
@@ -48,23 +63,45 @@
 				}
 				
 				this.edit = function() {
-					var o = new PopupOpener('classinfo:edit_info',{classinfo: this.classinfo});
+					var o = new PopupOpener('classinfo:edit_info',{classinfo:this.classinfo, handler:afterUpdate});
+					o.options = {width: 500, height: 300};
 					o.title = 'Class Information';
 					return o;
 				}
 				
 				this.editWelcome = function() {
-					var o = new PopupOpener('classinfo:edit_welcome',{classinfo: this.classinfo, handler:function(){ self.onload(); }});
+					var o = new PopupOpener('classinfo:edit_welcome',{classinfo:this.classinfo, handler:afterUpdate});
 					o.title = 'Welcome Message';
 					o.options = {width: 650, height: 500};
 					return o;
 				}
 				
-				this.attach = function() {
-					var o = new PopupOpener('classinfo:attach_syllabus',{classinfo: this.classinfo, handler:function(){ self.onload(); }});
-					o.title = 'Attach Syllabus';
-					o.options = {width: 400, height: 200};
-					return o;
+				this.afterAttach = function(o) {
+					this.classinfo.info.syllabus = o;
+					svc.update( this.classinfo );
+					this.onload();
+					this._controller.refresh();
+				}
+				
+				this.remove = function() {
+					$.ajax({
+						url: '${RES_PATH}',
+						type: 'GET',
+						data: {
+							t:'rm',
+							id: self.classinfo.info.syllabus.fileid, 
+							objid: self.classinfo.objid,
+							sessid: '${SESSION_INFO.sessionid}'
+						},
+						async: false,
+						success: function() {
+							self.onload();
+							self._controller.refresh();
+						},
+						error: function() {
+							alert('An error has occured while performing this action.');
+						}
+					});
 				}
 			}
 		);
@@ -93,9 +130,51 @@
 				</tr>
 				<tr>
 					<td valign="top">Description</td>
-					<td><label r:context="classinfo">#{classinfo.description}</label></td>
-				</tr>			
+					<td><label r:context="classinfo">#{classinfo.description? classinfo.description : '-'}</label></td>
+				</tr>
+				<tr>
+					<td valign="top">Room Schedule</td>
+					<td><label r:context="classinfo">#{classinfo.schedules? classinfo.schedules : '-'}</label></td>
+				</tr>
+				<tr>
+					<td valign="top">School</td>
+					<td><label r:context="classinfo">#{classinfo.school? classinfo.school : '-'}</label></td>
+				</tr>
 			</table>
+			<br/>
+			
+			<div class="section">
+				<span class="sectiontitle">
+					Course Syllabus
+				</span>
+			</div>
+			<div class="row" style="margin-left:20px;">
+				<label r:context="classinfo" r:visibleWhen="#{classinfo.info.syllabus}">
+					#{classinfo.info.syllabus.filename}
+				</label>
+				<span class="controls" r:context="classinfo" r:visibleWhen="#{classinfo.info.syllabus}">
+					<label r:context="classinfo">
+						<a href="${RES_PATH}?t=dl&id=#{syllabus.fileid}&fn=#{syllabus.filename}&ct=#{syllabus.content_type}" target="_blank">
+							Download
+						</a> |
+						<a href="${RES_PATH}?t=vw&id=#{syllabus.fileid}&fn=#{syllabus.filename}&ct=#{syllabus.content_type}" target="_blank">
+							View
+						</a>
+					</label>
+					<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+						| <a r:context="classinfo" r:name="remove">Remove</a>
+					</c:if>
+				</span>
+				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+					<div r:context="classinfo" r:visibleWhen="#{!syllabus}">
+						<input type="file"
+							  r:context="classinfo" 
+							  r:caption="Upload Syllabus"
+							  r:oncomplete="afterAttach"
+							  r:url="apps/classinfo/syllabus_upload.jsp"/>
+					</div>
+				</c:if>
+			</div>
 			<br/>
 			
 			<div class="section">
@@ -124,21 +203,6 @@
 					</table>
 				</div>
 				<br/>				
-			</div>
-			<div class="section">
-				<span class="sectiontitle">
-					Course Syllabus
-				</span>
-				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
-					<span class="controls">
-						<a r:context="classinfo" r:name="attach">Attach</a>
-					</span>
-				</c:if>
-			</div>
-			<div style="margin-left:20px;">
-				<label r:context="classinfo" r:visibleWhen="#{classinfo.info.syllabus}">
-					#{classinfo.info.syllabus.description}
-				</label>
 			</div>
 		</div>
 	</jsp:body>
