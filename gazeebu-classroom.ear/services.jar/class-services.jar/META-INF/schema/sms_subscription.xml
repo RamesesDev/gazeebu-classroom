@@ -2,6 +2,8 @@
     <element tablename="sms_subscription">
     	<field name="userid" primary="true"/>    	
 		<field name="msgtype" primary="true"/>    	
+		<field name="classid" primary="true"/>    	
     	<field name="phone"/>
+		<field name="keyword"/>
     </element>
 </schema>

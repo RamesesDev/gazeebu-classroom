@@ -16,7 +16,7 @@
 		$register({id: "usermessage", page:"classroom/usermessage.jsp", context:"usermessage"});
 		$register( {id:"invite_student", page:"classroom/invite_student.jsp", context:"invite_student", title:"Invite Students", options: {width:500,height:400} } )
 		$register({id: "comment", page:"classroom/comment.jsp", context:"comment", title:"Post a comment", options: {width:400, height:200}});
-		$register({id: "subscribe_sms", page:"classroom/subscribe_sms.jsp", context:"subscribe_sms", title:"Subscribe SMS", options: {width:400, height:200}});
+		$register({id: "subscribe_sms", page:"classroom/subscribe_sms.jsp", context:"subscribe_sms", title:"Subscribe SMS", options: {width:400, height:300}});
 		
 		<common:loadmodules name="apps" role="${CLASS_INFO.usertype}"/>
 		$put("apps", 

@@ -80,7 +80,7 @@
 											<table cellspacing="0" cellpadding="1" class="loginform">
 												<tr>
 													<td valign="top">
-														<input id="uid" type="text" r:name="username" name="username" r:hint="Email" class="logininput" r:context="login"/>
+														<input id="uid" type="text" r:name="username" name="username" r:hint="User Name" class="logininput" r:context="login"/>
 													</td>	
 													<td valign="top">
 														<input id="pwd" type="password" r:name="password" name="password"  r:hint="Password" class="logininput"  r:context="login"/>

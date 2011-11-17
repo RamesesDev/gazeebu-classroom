@@ -2,7 +2,8 @@
 select dtfiled from message where objid = ?
 
 [public-messages]
-select nf.*, u.lastname, u.firstname, u.profile from message nf 
+select nf.*, u.lastname, u.firstname, u.profile 
+from message nf 
 inner join userprofile u on nf.senderid = u.objid 
 where nf.channelid = $P{channelid} 
 and nf.scope = 'public' and nf.parentid is null 
@@ -11,8 +12,10 @@ order by nf.dtfiled desc
 limit $P{limit}
 
 [incoming-private-messages]
-select nf.* from message nf where 
-exists (select * from message_recipient where msgid=nf.objid and userid=$P{userid}) 
+select nf.*,u.lastname, u.firstname, u.profile 
+from message nf  
+inner join userprofile u on nf.senderid = u.objid 
+where exists (select * from message_recipient where msgid=nf.objid and userid=$P{userid}) 
 and nf.channelid = $P{channelid}  
 and nf.dtfiled < $P{lastdtfiled} 
 and nf.msgtype = 'private' 

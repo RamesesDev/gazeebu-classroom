@@ -1,0 +1,38 @@
+import com.rameses.annotations.*;
+
+/***
+* This class handles management of classes.
+*/
+public class SMSSubscriptionService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Env
+	def env;
+	
+	@ProxyMethod
+	public def subscribe( def o ){
+		if(!o.userid) o.userid = env.userid;
+		em.create( "sms_subscription", o);
+	}
+	
+	//this method depends on whatever is passed, either userid or sessionid. If session id, retrieve the userid first
+	@ProxyMethod
+	public def getSubscription(def o) {
+		if(!o.userid) o.userid = env.userid;
+		return em.read( "sms_subscription", o );
+	}
+
+	@ProxyMethod
+	public def unsubscribe(def o){
+		print "removing " + o;
+		em.delete( "sms_subscription", o);
+	}
+	
+	@ProxyMethod
+	public def update( def o){
+		return em.update("sms_subscription", o);
+	}
+	
+}

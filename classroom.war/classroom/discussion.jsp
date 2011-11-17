@@ -43,6 +43,12 @@
 			font-size:12px;
 			font-weight:bold;
 		}
+		.actionbutton {
+			border:1px solid lightgrey;
+			font-family:verdana;
+			padding:5px;
+			font-weight:bold;
+		}
 		.msg-divider {
 			padding-top:2px;
 			border-top:1px solid lightgrey;
@@ -151,6 +157,10 @@
 					this.selectedMessage.expanded = null;
 					this.comments[this.selectedMessage.objid] = null;
 				}
+				
+				this.subscribeSMS = function() {
+					return new PopupOpener( "subscribe_sms", {msgtype: "discussion"}); 
+				}
 			}
 		);	
 	</jsp:attribute>
@@ -188,6 +198,10 @@
 				</tr>		
 			</table>
 		</div>
+	</jsp:attribute>
+	
+	<jsp:attribute name="actions">
+		<input type="button" r:context="discussion" r:name="subscribeSMS" value="Subscribe SMS" class="actionbutton"/>
 	</jsp:attribute>
 	
 	<jsp:body>

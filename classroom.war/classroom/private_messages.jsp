@@ -1,9 +1,8 @@
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<t:content title="Incoming Messages">
+<t:content title="Incoming Messages" subtitle="View your private messages">
 	<jsp:attribute name="style">
-		
 		.removeButton {
 			font-size: 12px;
 			font-weight:bold;
@@ -19,6 +18,26 @@
 		.news_action {
 			font-size:11px;
 		}
+		
+		#sendername {
+			color: darkslateblue;
+			font-size:12px;
+			font-weight:bold;
+		}
+		.msg-divider {
+			padding-top:2px;
+			border-top:1px solid lightgrey;
+		}
+		.notifycount {
+			background-color: yellow;
+			color:red;
+			font-size:11px;
+			font-weight:bold;
+			padding:2px;
+			font-family: verdana, arial;
+			text-align:center;
+			border: 1px solid orange;
+		}
 	</jsp:attribute>
 
 	<jsp:attribute name="script">
@@ -28,15 +47,16 @@
 				var self = this;
 				this._controller;
 				this.classid = "${param['classid']}";
-				this.sending = "false";
 				this.message;
-				this.sendMode = 0;
 				this.eof = "false";
+				this.comments = {};
+				this.selectedMessage;
 				
 				this.listModel = {
 					fetchList: function( p, last ){
 						var m = {channelid: self.classid};
 						if(last) m.lastmsgid = last.objid; 
+						m.msgtype = "news";
 						var list =  svc.getIncomingPrivateMessages( m );
 						if(list.length==0) self.eof = "true";
 						return list;
@@ -47,49 +67,54 @@
 					if(!this.classid) this.classid = null;
 					Session.handler = function( o ) {
 						if(o.scope=='private' && o.channelid == self.classid && o.senderid != "${SESSION_INFO.userid}" ) {
-							self.listModel.prependItem( o );
+							if( o.parentid ) {
+								var msgid = o.parentid;
+								var thread = self.listModel.getList().find(function(x) { return x.objid == msgid } );
+								if(thread) {
+									self.comments[msgid] = svc.getResponses( {parentid: msgid } );
+									thread.replies = self.comments[msgid].length;
+									if(thread.expanded != "true" ) {
+										self.comments[msgid] = null;
+										if(thread.notifycount==null) thread.notifycount = 0;
+										thread.notifycount = thread.notifycount+1;
+									}
+									self.listModel.refresh();
+								}	
+							}
+							else {
+								self.listModel.prependItem( o );
+							}	
 						}
 					}
 				}
 				
-				this.sendModes = [{id:0, title:"This class only"}, {id:1,title:"To All"} ];
-				
-				this.postMessage = function() {
-					if(this.sending == "true" && this.message.message) {
-						var f = confirm( "Your message will be discarded. Continue?");
-						if(!f) return;
-					}
-					this.sending = (this.sending=="true") ? "false" : "true";
-					this.message = {}
-				}
-				
-				this.send = function() {
-					if(!this.message.message) {
-						alert( "Please write a message");
-						return;
-					}
-					if(this.sendMode == 0) this.message.channelid = this.classid;
-					this.message.msgtype = "announcement";
-					svc.send( this.message );
-					this.message = {}
-					this.sendMode = 0;
-				}
-				
-				this.hideMessage = function(msgid) {
-					alert( "hide message " + msgid );
-				}
-				
-				this.reply = function(p) {
-					var o = prompt("Reply");
-					if( o ) {
+				this.reply = function() {
+					var saveHandler = function(o) {
 						var m = {};
-						m.parentid = p[0];
+						m.parentid = self.selectedMessage.objid;
 						m.message = o;
-						m.recipients = [{userid: p[1]}];
-						m.channelid = this.classid;
+						m.recipients = [{userid:self.selectedMessage.senderid}];
+						m.channelid = self.classid;
+						m.scope = "private";
+						m.msgtype = "private";
 						svc.send( m );
 					}
-
+					return new PopupOpener("comment", {saveHandler: saveHandler} );
+				}
+				
+				
+				
+				this.viewComments = function() {
+					var msgid = this.selectedMessage.objid;
+					this.selectedMessage.expanded = "true";
+					this.selectedMessage.notifycount = null;
+					if( !this.comments[msgid] ) {
+						this.comments[msgid] = svc.getResponses( {parentid: msgid } );
+					}
+				}
+				this.hideComments = function() {
+					this.selectedMessage.expanded = null;
+					this.comments[this.selectedMessage.objid] = null;
 				}
 			}
 		);	
@@ -99,55 +124,73 @@
 		<table style="font-size:11px;">
 			<tr>
 				<td style="font-size:12px;">
-					Go Mobile!<br>
-					<a r:context="news" r:name="subscribe">Subscribe to SMS</a> 
-					to receive messages on your cellphone. 	
+					Sponsored Ads<br>
 				</td>
 			</tr>
 		</table>
 	</jsp:attribute>
 	
-	<jsp:body>
-		<div style="width:80%;text-align:right;" r:context="news" r:visibleWhen="#{sending == 'true'}">	
-			<a class="news_action" r:context="news" r:name="postMessage">Cancel</a>
-		</div>
-		<div r:context="news" r:visibleWhen="#{sending == 'true'}">
-			<table width="80%" cellpadding="0" cellspacing="0">
+	<jsp:attribute name="sections">
+		<!-- this is called by the template tag -->
+		<div id="comment_tpl" style="display:none;">
+			<br/>
+			<table class="comments" r:context="news" r:items="comments[params.objid]" r:varName="comment" cellpadding="0" cellspacing="0" width="100%">
 				<tr>
-					<td><textarea style="width:100%;height:50" r:context="news" r:name="message.message" /></td>
-				</tr>
-				<tr>
-					<td>
-						<select r:context="news" r:items="sendModes" r:name="sendMode" r:itemLabel="title" r:itemKey="id" ></select>
-						<input type="button" r:context="news" r:name="send" value="Send"/>
+					<td valign="top" width="50" rowspan="2"  class="msg-divider">
+						<img src="${!comment.profile ? 'blank.jpg' : comment.profile + '/thumbnail.jpg'}" width="60%"/>
+					</td>
+					<td valign="top" id="sendername" class="msg-divider">
+						#{comment.lastname}, #{comment.firstname} 
+					</td>
+					<td valign="top" align="right"  class="msg-divider">
+						posted #{comment.dtfiled}
 					</td>
 				</tr>
+				</tr>	
+					<td valign="top" colspan="2">
+						#{comment.message}
+					</td>
+				</tr>		
 			</table>
 		</div>
-		<br>
-
-		<table width="550" r:context="news" r:model="listModel" r:varName="item" cellpadding="0" cellspacing="0" class="bulletin">
+	</jsp:attribute>
+	
+	<jsp:body>
+		<table width="550" r:context="news" r:model="listModel" r:varName="item" r:varStatus="stat" 
+			r:emptyText="No messages posted yet" cellpadding="0" cellspacing="0" class="news" r:name="selectedMessage">
+			
 			<tbody>
 				<tr>
-					<td valign="top" align="left" width="60" style="padding-bottom:10px;padding-top:2px;border-bottom:1px solid lightgrey" rowspan="2">
-						<img src="${pageContext.servletContext.contextPath}/#{item.senderprofile ?  item.senderprofile + '/thumbnail.jpg' : 'blank.jpg'}"></img>
+					<td valign="top" align="center" width="70" style="padding-bottom:10px;"  class="msg-divider" rowspan="3">
+						<img src="${pageContext.servletContext.contextPath}/#{item.profile ?  item.profile + '/thumbnail.jpg' : 'blank.jpg'}"></img>
 					</td>
-					<td valign="top" style="padding-top:2px;">
-						#{item.message}	
+					<td valign="top" id="sendername" class="msg-divider">
+						#{item.lastname}, #{item.firstname}	
 					</td>
-					<td valign="top" align="right"  style="padding-top:2px;">
-						<a class="removeButton" href="javascript:$get('news').invoke(this, 'hideMessage', '#{item.objid}')">x</a> 
+					<td valign="top" align="right" class="msg-divider">
+						<span style="font-size:11px;color:gray;">posted on #{item.dtfiled}</span>
 					</td>
 				</tr>
 				<tr>
-					<td style="border-bottom:1px solid lightgrey" colspan="2">
-						<a href="javascript:$get('news').invoke(this, 'reply', ['#{item.parentid}','#{item.senderid}'] );">Reply</a>
-						&nbsp;&nbsp;&nbsp;
-						<span style="font-size:11px;color:gray;">posted on #{item.dtfiled}</span> 
+					<td valign="top" colspan="2">
+						#{item.message}	
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<a r:context="news" r:name="reply">Reply</a>
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<a r:context="news" r:name="viewComments" r:visibleWhen="#{item.expanded != 'true'}">View replies (#{item.replies})</a>
+						<a r:context="news" r:name="hideComments" r:visibleWhen="#{item.expanded == 'true'}">Hide replies (#{item.replies})</a>
+						&nbsp;
+						<label r:context="news" class="notifycount" title="New replies unread" r:visibleWhen="#{item.notifycount}">#{item.notifycount}</label>
+						<br>
+						<template r:context="news" r:id="comment_tpl" r:params="{objid:'#{item.objid}'}" />
 					</td>
 				</tr>
 			</tbody>
 		</table>
+	
 		<br/>
 		<a r:context="news" r:name="listModel.fetchNext" r:visibleWhen="#{eof=='false'}">View More</a>
 

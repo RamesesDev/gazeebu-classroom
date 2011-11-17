@@ -146,7 +146,7 @@
 				}
 				
 				this.subscribeSMS = function() {
-					return new PopupOpener( "subscribe_sms", {msgtype: "Bulletin Board"}); 
+					return new PopupOpener( "subscribe_sms", {msgtype: "bulletin"}); 
 				}
 			}
 		);	
