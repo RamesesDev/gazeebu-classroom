@@ -17,20 +17,17 @@ class LoginService {
 		if(login.password != o.password) {
 			throw new Exception("Invalid username and password");
 		}
-		//retrieve the associated entity for this login
-		def profile = em.read( "userprofile", [objid: login.objid] );
-		if(!profile) profile = [:];
+
 		//test first adding the roles.
 		def p = [:];
 		p.username = login.uid;	
 		p.userid = login.objid;	
-		p.roles = profile.roles;
 		
-		p.profile = profile.profile;
-		p.photoversion = profile.info?.photoversion;
-		p.lastname = profile.lastname;
-		p.firstname = profile.firstname;
-		p.has_set_security = profile.info?.has_set_security;
+		p.handler = [
+			servicename : 'UserProfileService',
+			method:       'getUserInfo',
+			params:       [[objid: login.objid]] as Object[]
+		];
 		
 		def sessionid =  sessionService.register([username:p.userid, info:p]);
 		p.sessionid = sessionid;

@@ -1,5 +1,6 @@
 import com.rameses.annotations.*;
 
+
 class SessionService {
 
 	@Resource("SessionService")
@@ -7,6 +8,13 @@ class SessionService {
 	
 	@PersistenceContext("java:system")
 	def em;
+	
+	@Resource("ScriptService/local")
+	def svc;
+	
+	@Env
+	def env;
+	
 	
 	@ProxyMethod 
 	public String register(def o ) {
@@ -22,7 +30,13 @@ class SessionService {
 
 	@ProxyMethod 
 	public def getInfo(def sessionid ) {
-		return sessionService.getInfo( sessionid );
+		def sessinfo = sessionService.getInfo( sessionid );
+		if( !sessinfo ) return null;
+		
+		def h = sessinfo.handler;
+		def user = svc.invoke( h.servicename, h.method, h.params, env );
+		sessinfo.putAll( user );		
+		return sessinfo;
 	}
 	
 	@ProxyMethod 

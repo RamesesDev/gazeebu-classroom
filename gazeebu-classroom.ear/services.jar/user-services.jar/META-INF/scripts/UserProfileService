@@ -8,6 +8,9 @@ class UserProfileService {
 	@Service("DateService")
 	def dateSvc;
 	
+	@Resource("CacheService")
+	def cacheService;
+	
 	def df = new java.text.SimpleDateFormat("yyyy-MM-dd");
 	
 	
@@ -37,7 +40,9 @@ class UserProfileService {
 
     @ProxyMethod
     public def update( def o ) {
-		return em.update("userprofile", o);
+		def user = em.update("userprofile", o);
+		cacheService.remove( o.objid );
+		return user;
     }
 	
    @ProxyMethod
@@ -46,6 +51,25 @@ class UserProfileService {
 		if(info.birthdate) info.birthdate = df.format( info.birthdate );
 		if(info.dtcreated) info.dtcreated = info.dtcreated.toString();
 		return info;
+	}
+	
+	/*
+	 * This is marked as local to avoid interceptors
+	 * This is used to retrieve the user info from the SessionService
+	 * @see LoginService
+	 */
+	@ProxyMethod(local=true)
+	public def getUserInfo( def o ) {
+		def user = cacheService.get( o.objid );
+		if( !user ) {
+			user = getInfo( o );
+			cacheService.put(o.objid, user, 30000 );
+		}
+		
+		user.photoversion = user.info?.photoversion;
+		user.has_set_security = user.info?.has_set_security;
+		
+		return user;
 	}
 	
 }
