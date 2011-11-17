@@ -172,7 +172,7 @@
 			<table class="comments" r:context="bulletin" r:items="comments[params.objid]" r:varName="comment" cellpadding="0" cellspacing="0" width="100%">
 				<tr>
 					<td valign="top" width="50" rowspan="2" class="msg-divider">
-						<img src="${!comment.profile ? 'blank.jpg' : comment.profile + '/thumbnail.jpg'}" width="60%"/>
+						<img src="profile/photo.jsp?id=#{comment.senderid}&t=thumbnail" width="60%"/>
 					</td>
 					<td valign="top"  id="sendername" class="msg-divider">
 						#{comment.lastname}, #{comment.firstname} 
@@ -212,7 +212,7 @@
 			<tbody>
 				<tr>
 					<td valign="top" align="center" width="70"  class="msg-divider" rowspan="3">
-						<img src="${pageContext.servletContext.contextPath}/#{item.senderprofile ?  item.senderprofile + '/thumbnail.jpg' : 'blank.jpg'}"></img>
+						<img src="profile/photo.jsp?id=#{item.senderid}&t=thumbnail"/>
 					</td>
 					<td valign="top" id="sendername"  class="msg-divider">
 						#{item.lastname}, #{item.firstname}	

@@ -5,6 +5,7 @@
 	<jsp:attribute name="head">
 		<script src="${pageContext.servletContext.contextPath}/js/ext/textarea.js"></script>
 	</jsp:attribute>
+	
     <jsp:attribute name="style">
         .message {
             font-size:11px;font-family:arial;padding:6px;
@@ -12,6 +13,15 @@
         .news_action {
             font-size:11px;
         }
+		#sendername {
+			color: darkslateblue;
+			font-size:12px;
+			font-weight:bold;
+		}
+		.msg-divider {
+			padding-top:2px;
+			border-top:1px solid lightgrey;
+		}
     </jsp:attribute>
 
 	<jsp:attribute name="script">
@@ -83,43 +93,17 @@
 	</jsp:attribute>
 	
 	<jsp:attribute name="rightpanel">
-		<table class="page-form-table" width="100%" cellpadding="0" cellspacing="0" border="0">
-			<tr>
-				<th class="center" colspan="2">Recent Activities</th>
-			</tr>
-			<tr>
-				<td rowspan="2" valign="top">
-					picture here
-				</td>
-				<td>
-					activity title here
-				</td>
-			</tr>
-			<tr>
-				<td>
-					activity details here
-				</td>
-			</tr>
-		</table>
-		<br>
+		
 		<a href="#classrecord:student_record?studentid=${param['objid']}">View Class Record</a>
 	</jsp:attribute>
 	
-    <jsp:body>
-        <table class="page-form-table" width="80%" cellpadding="0" cellspacing="0" border="0">
+	<jsp:attribute name="title">
+		<table class="page-form-table" width="80%" cellpadding="0" cellspacing="0" border="0">
             <tr>
                 <td rowspan="4" width="60" style="padding-right:10px;">
                     <label r:context="usermessage">
-                        <img src="${pageContext.servletContext.contextPath}/#{user.info.photoversion == null? 'img/profilephoto.png' : user.profile+'/thumbnail.jpg?v='+user.info.photoversion}"/>
+						<img src="profile/photo.jsp?id=#{objid}&t=thumbnail"/>
                     </label>
-					<!--
-					<c:if test="${empty SESSION_INFO.photoversion}">
-						<img src="${pageContext.servletContext.contextPath}/img/profilephoto.png"/>
-					</c:if>
-					<c:if test="${!empty SESSION_INFO.photoversion}">
-						<img src="${pageContext.servletContext.contextPath}/${SESSION_INFO.profile}/thumbnail.jpg?v=${SESSION_INFO.photoversion}"/>
-					</c:if>
-					-->
                 </td>
             </tr>
             <tr>
@@ -141,7 +125,9 @@
                 </td>
             </tr>
         </table>
-
+	</jsp:attribute>
+	
+    <jsp:body>
         <!-- POSTING A COMMENT HERE -->
         <div style="width:500px;">
 			<div class="post-message">
@@ -164,21 +150,23 @@
             <!-- POSTED MESSAGES ARE SHOW HERE -->
             <table width="100%" r:context="usermessage" r:model="listModel" r:varName="item" cellpadding="0" cellspacing="0">
                 <tbody>
-                    <tr>
-                        <td valign="top" align="left" width="50" style="padding-top:10px;border-bottom:1px solid lightgrey" rowspan="2">
-                            <img src="${pageContext.servletContext.contextPath}/#{item.senderprofile ?  item.senderprofile + '/thumbnail.jpg' : 'img/profilephoto.jpg'}"></img>
-                        </td>
-                        <td valign="top" class="message">
-                            #{item.message}	
-                        </td>
-                        <td valign="top" align="right">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="border-bottom:1px solid lightgrey" colspan="2">
-                            <div style="font-size:11px;color:gray;padding-left:6px;">posted on #{item.dtfiled} by #{item.sendername}</div> 
-                        </td>
-                    </tr>
+					<tr>
+						<td valign="top" align="center" width="70" style="padding-bottom:10px;"  class="msg-divider" rowspan="2">
+							<img src="profile/photo.jsp?id=#{item.senderid}&t=thumbnail"/>
+						</td>
+						<td valign="top" id="sendername" class="msg-divider">
+							#{item.lastname}, #{item.firstname}	
+						</td>
+						<td valign="top" align="right" class="msg-divider">
+							<span style="font-size:11px;color:gray;">posted on #{item.dtfiled}</span>
+						</td>
+					</tr>
+					<tr>
+						<td valign="top" colspan="2">
+							#{item.message}	
+						</td>
+					</tr>
+				
                 </tbody>
             </table>
         </div>
