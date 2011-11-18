@@ -24,5 +24,3 @@
 	</tr>
 	
 </table>
-	
-	<input type="button" r:context="new_class" r:name="_page2" value="Next"/>

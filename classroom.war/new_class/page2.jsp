@@ -4,10 +4,10 @@
 <p>
 Write a welcome message for your students.
 </p>
-<div r:type="richtext" r:context="new_class" r:name="class.info.welcome_message" ></div>
+<div r:type="richtext" r:context="classinfo" r:name="class.info.welcome_message" ></div>
 <p>Upload Course Syllabus</p>
 <input type="file"
-	  r:context="new_class" 
+	  r:context="classinfo" 
 	  r:caption="Upload Syllabus"
 	  r:oncomplete="afterAttach"
 	  r:expression="#{filename}"
