@@ -11,26 +11,26 @@
 				var self = this;
 				
 				this.saveHandler;
-				this.class = {}	
+				this.classinfo = {}	
 				this.editmode = "new";
 				this._controller;
 				
 				this.save = function() {
 					if( this.page == 'page2' ) {
-						svc.update( this.class );
+						svc.update( this.classinfo );
 						return "_close";
 					}
 					else {
-						this.class = svc.create( this.class );
-						if( !this.class.info ) this.class.info = {};
+						this.classinfo = svc.create( this.classinfo );
+						if( !this.classinfo.info ) this.classinfo.info = {};
 						if(this.saveHandler) this.saveHandler();
 						return (this.page="page2");
 					}
 				}
 				
 				this.afterAttach = function(o) {
-					this.class.info.syllabus = o;
-					svc.update( this.class );
+					this.classinfo.info.syllabus = o;
+					svc.update( this.classinfo );
 				}
 				
 				this.removeSyllabus = function() {
@@ -39,8 +39,8 @@
 						type: 'GET',
 						data: {
 							t:'rm',
-							id: self.class.info.syllabus.fileid, 
-							objid: self.class.objid
+							id: self.classinfo.info.syllabus.fileid, 
+							objid: self.classinfo.objid
 						},
 						async: false,
 						success: function() {
@@ -63,7 +63,7 @@
 		<input type="button" value="Skip" r:context="new_class" r:name="_close" r:visibleWhen="#{page=='page2'}"/>	
 	</jsp:attribute>
 
-	<jsp:attribute name="leftactions">
+	<jsp:attribute name="rightactions">
 		<input type="button" value="Save" r:context="new_class" r:name="save"/>	
 	</jsp:attribute>
 	

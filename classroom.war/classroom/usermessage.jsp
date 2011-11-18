@@ -74,6 +74,8 @@
 					this.message = {
 						channelid:this.classid,
 						recipients:[{userid: this.objid }],
+						scope: 'private',
+						msgtype: 'private',
 						message: this.text
 					};
 					svc.send( this.message );

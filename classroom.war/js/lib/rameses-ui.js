@@ -1954,25 +1954,35 @@ var Hash = new function() {
 		//load the page into the target content
 		var content = $('#'+this.target);
 		content.css('opacity',0).load(inv.page, qryParams, function() {
+			var controller;
+			
+			try{ controller = $get(inv.context); }
+			catch(e){ 
+				if(window.console && R.DEBUG)
+					console.log(e); 
+			}
+			
 			//attach the bookmark;
-			$get(inv.context).bookmark = self;
-			if(params!=null) {
-				for( var key in params ) {
-					try{ $ctx(inv.context)[key] = params[key]; }catch(e){;}
+			if( controller ) {
+				controller.bookmark = self;
+				if(params!=null) {
+					for( var key in params ) {
+						try{ $ctx(inv.context)[key] = params[key]; }catch(e){;}
+					}
 				}
-			}
-			if( inv.parent ) {
-				$get(inv.context).container = {
-					close :  function() { self.navigate(inv.parent); },
-					refresh: function() { $get(inv.context).refresh(); },
-					reload : function() { self.reload(); }
+				if( inv.parent ) {
+					controller.container = {
+						close :  function() { self.navigate(inv.parent); },
+						refresh: function() { controller.refresh(); },
+						reload : function() { self.reload(); }
+					}
 				}
-			}
-			else {
-				$get(inv.context).container = {
-					close :  function() { },
-					refresh: function() {$get(inv.context).refresh(); },
-					reload : function() { self.reload(); }
+				else {
+					controller.container = {
+						close :  function() { },
+						refresh: function() { controller.refresh(); },
+						reload : function() { self.reload(); }
+					}
 				}
 			}
 
