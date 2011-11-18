@@ -44,7 +44,7 @@ img { border: none; }
 }
 .shadowbox {
 	border-radius: 5px; -webkit-border-radius:5px; -moz-border-radius:5px; 
-	background:white; 
+	background:white url(../img/loading.gif) no-repeat 15px 15px; 
 	border:1px solid lightgrey;
 	-moz-box-shadow: 5px 5px 5px #ccc;
 	-webkit-box-shadow: 5px 5px 5px #ccc;
@@ -52,6 +52,8 @@ img { border: none; }
 	padding:10px;
 	padding-bottom: 50px;
 }
+
+.shadowbox #content { opacity: 0; background: #fff; }
 
 /*-- usermenu styles ----*/
 .mainmenu {

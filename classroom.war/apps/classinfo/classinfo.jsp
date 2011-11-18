@@ -188,9 +188,11 @@
 				</c:if>
 			</div>
 			<div style="padding-left:20px;">
-				<p>
-					Write a welcome message for your students.
-				</p>
+				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+					<p>
+						Write a welcome message for your students.
+					</p>
+				</c:if>
 				<div class="box-outer">
 					<table width="100%" class="box">
 						<tr>

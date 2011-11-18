@@ -39,6 +39,14 @@
 				this.accept = function() {
 					svc.accept( {classid: this.selectedInvite.classid, userid: this.selectedInvite.userid, usertype:this.selectedInvite.usertype}  );
 					this._controller.reload();
+					
+					try {
+						var homeController = $get('home');
+						homeController.code.classListModel.load();
+					}
+					catch(e) {
+						if(window.console) console.log(e);
+					}
 				}	
 				this.ignore = function() {
 					if(confirm("You are about to discard this invitation. Continue?")) {

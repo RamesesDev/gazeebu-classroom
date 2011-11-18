@@ -1,0 +1,33 @@
+import com.rameses.annotations.*;
+
+class SMSInboxService 
+{
+	
+	@PersistenceContext("main")
+	def em;
+	
+	@Service('ClassService')
+	def classSvc;
+	
+
+	@ProxyMethod
+	public def receive(def data ) {
+		print "data passed is " + data;
+		
+		def param = [:];
+		param.phone = data.from;
+		param.keyword = 'q1';
+		
+		def result = em.sqlContext.createQuery('select classid from sms_incoming where phone = $P{phone} and keyword = $P{keyword}')
+		               .setParameters( param ).singleResult;
+
+		result.msgtype = 'announcement';
+		result.message = data.msg;
+		classSvc.publishNews( result );
+
+		return "ok you typed " + data.msg;
+	}
+	
+	
+}
+

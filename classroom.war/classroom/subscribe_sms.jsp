@@ -65,8 +65,8 @@
 	
     <jsp:body>
 		<div>
-			<input type="checkbox" r:context="subscribe_sms" r:name="subscribed" r:checkedValue="1"/>
-			<label r:context="subscribe_sms">I want to receive messages from the <b>#{msgtype} feed<b></label>
+			<input id="subscribe_sms" type="checkbox" r:context="subscribe_sms" r:name="subscribed" r:checkedValue="1"/>
+			<label for="subscribe_sms" r:context="subscribe_sms">I want to receive messages from the <b>#{msgtype} feed<b></label>
 		</div>
 		<br>
 		<br>

@@ -74,7 +74,7 @@
 		<table width="100%">
 			<tr>
 				<td align="right">
-					Add Invitee ss
+					Add Invitee
 				</td>
 				<td>
 					 

@@ -51,11 +51,11 @@
                     <input type="text" class="text" size="40" name="firstname"
                            r:hint="First name"/>
 					<br/>
-                    <input type="text" class="text" size="40" name="middlename"
-                           r:hint="Middle name"/>
-					<br/>
                     <input type="text" class="text" size="40" name="lastname"
                            r:hint="Last name"/>
+					<br/>
+                    <input type="text" class="text" size="40" name="middlename"
+                           r:hint="Middle name"/>
 					<br/>
 					<span class="btn">
 						<button>Sign up</button>

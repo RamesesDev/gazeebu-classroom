@@ -5,7 +5,8 @@ import com.rameses.http.*;
 class SMSService 
 {
 	
-	static def SMS_HOST = 'http://mcpro2.sun-solutions.ph/mc';
+	//static def SMS_HOST = 'http://mcpro2.sun-solutions.ph/mc';
+	static def SMS_HOST = 'mcpro2.sun-solutions.ph/mc';
 	static def USER = 'ENazareno';
 	static def PASS = 'C0ERHaet';
 	static def SENDER = 'Gazeebu';
@@ -62,7 +63,7 @@ class SMSService
 	 * parameter fields:
 	 *   to, message
 	 */
-	/* 
+	/*
 	@ProxyMethod
 	public def send( msg ) 
 	{
@@ -74,8 +75,9 @@ class SMSService
 				session: getSession(),
 				from:    SENDER,
 				to:      msg.to,
-				msg:     msg.message
+				msg:     msg.msg
 			];
+
 			def result = shc.post('send.aspx', param);
 			
 			if( !result || !result.startsWith('20300') ) 
@@ -92,8 +94,9 @@ class SMSService
 	*/
 	
 	@ProxyMethod
-	public def send( msg ) {
-		print "sending from SMSService" + msg;
+	public def send( msg ) 
+	{
+		println "sending sms: $msg";
 	}
 	
 	@ProxyMethod
