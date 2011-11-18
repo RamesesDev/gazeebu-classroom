@@ -1058,7 +1058,7 @@ BindingUtils.handlers.input_file = function( elem, controller, idx ) {
 		var fibox = $('<div class="file"></div>').appendTo( listBox );
 		if( frame ) fibox.append( frame );
 		if( form )  fibox.append( form );
-		fibox.append('<div class="label">' + getCaption( value ) + '</div>')
+		fibox.append('<div class="label">' + (pBar && input? input.val() : getCaption( value )) + '</div>')
 		if( pBar )  fibox.append( pBar );
 	}
 
@@ -1953,7 +1953,7 @@ var Hash = new function() {
 		
 		//load the page into the target content
 		var content = $('#'+this.target);
-		content.load(inv.page, qryParams, function() {
+		content.css('opacity',0).load(inv.page, qryParams, function() {
 			//attach the bookmark;
 			$get(inv.context).bookmark = self;
 			if(params!=null) {
@@ -1977,6 +1977,7 @@ var Hash = new function() {
 			}
 
 			BindingUtils.load( content );
+			content.css('opacity',1);
 		});
 		
 		//pass the registered object (based on hashkey) and the parameters passed

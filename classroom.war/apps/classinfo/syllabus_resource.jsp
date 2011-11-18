@@ -21,7 +21,11 @@
 		}
 		else if( "rm".equals(type) ) {
 			Map env = new HashMap();
-			env.put("sessionid", request.getParameter("sessid"));
+			String sessid = (String) request.getAttribute("SESSIONID");
+			if( sessid == null || "".equals(sessid) )
+				throw new Exception("Your session has expired.");
+			
+			env.put("sessionid", sessid);
 
 			Map conf = new HashMap();
 			conf.put("app.host", application.getInitParameter("app.host") );

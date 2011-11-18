@@ -90,8 +90,7 @@
 						data: {
 							t:'rm',
 							id: self.classinfo.info.syllabus.fileid, 
-							objid: self.classinfo.objid,
-							sessid: '${SESSION_INFO.sessionid}'
+							objid: self.classinfo.objid
 						},
 						async: false,
 						success: function() {
@@ -149,10 +148,10 @@
 				</span>
 			</div>
 			<div class="row" style="margin-left:20px;">
-				<label r:context="classinfo" r:visibleWhen="#{classinfo.info.syllabus}">
-					#{classinfo.info.syllabus.filename}
+				<label r:context="classinfo" r:visibleWhen="#{syllabus}">
+					#{syllabus.filename}
 				</label>
-				<span class="controls" r:context="classinfo" r:visibleWhen="#{classinfo.info.syllabus}">
+				<span class="controls" r:context="classinfo" r:visibleWhen="#{syllabus}">
 					<label r:context="classinfo">
 						<a href="${RES_PATH}?t=dl&id=#{syllabus.fileid}&fn=#{syllabus.filename}&ct=#{syllabus.content_type}" target="_blank">
 							Download
@@ -192,12 +191,14 @@
 					Write a welcome message for your students.
 				</p>
 				<div class="box-outer">
-					<table width="100%" height="200" class="box">
+					<table width="100%" class="box">
 						<tr>
 							<td valign="top">
-								<label r:context="classinfo" style="display:block;">
-									#{classinfo.info.welcome_message? classinfo.info.welcome_message : '<i>No welcome message yet</i>.'}
-								</label>
+								<div style="height:200px;overflow:auto;">
+									<label r:context="classinfo" style="display:block;">
+										#{classinfo.info.welcome_message? classinfo.info.welcome_message : '<i>No welcome message yet</i>.'}
+									</label>
+								</div>
 							</td>
 						</tr>
 					</table>

@@ -26,7 +26,7 @@ class ClassroomService {
 				ExecutorService exec = Executors.newCachedThreadPool();
 				c.members = em.sqlContext.createNamedQuery( "classroom:members").setParameters([classid:classid]).resultList;
 				c.members.each {
-					it.messages = 0;	
+					it.messages = 0;
 					threads.add(  exec.submit(new ClassMemberSession(member:it, em:em)) );	
 				}	
 				
@@ -59,6 +59,25 @@ class ClassroomService {
 				[userid:userid, status: status]  ]
 			);
 		}	
+	}
+	
+	@ProxyMethod
+	public void activateMembership( def classid, def userid ) {
+		def user = em.sqlContext.createNamedQuery('classroom:find-member').setParameters([classid: classid, userid: userid]).singleResult;
+		user.state = 'ACTIVE';
+		em.update('class_membership', user);
+		
+		def clz = getClassInfo(classid);
+		if(clz!=null) {
+			cacheService.update( classid, 
+				[ '''
+					{o,v->
+						o.members.find{x->x.objid==v.userid}?.state=v.state;
+					};
+					''', 
+				[userid:userid, state: user.state]  ]
+			);
+		}
 	}
 	
 	@ProxyMethod

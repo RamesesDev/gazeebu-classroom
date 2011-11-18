@@ -34,8 +34,13 @@
 					new function() {
 
 						this.logout = function() {
-							var svc = ProxyService.lookup('LogoutService');
-							svc.logout( Env.sessionid ); 
+							try {
+								var svc = ProxyService.lookup('LogoutService');
+								svc.logout( Env.sessionid ); 
+							}
+							catch(e) {
+								if( window.console ) console.log( e );
+							}
 						}
 						this.showProfileMenu = function() {
 							var popup = new DropdownOpener( '#usermenu' );

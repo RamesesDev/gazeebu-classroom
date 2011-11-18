@@ -73,25 +73,25 @@
       <tr>
          <td class="right caption">Available Credits: &nbsp&nbsp</td>
          <td >
-            <label r:context="credits">#{credits.availablecredits}</label>
+            <label r:context="credits">#{credits.availablecredits? credits.availablecredits : 0}</label>
          </td>
       </tr>
       <tr>
          <td class="right caption">Total Consumed: &nbsp&nbsp</td>
          <td>
-            <label r:context="credits">#{credits.totalconsumed}</label>
+            <label r:context="credits">#{credits.totalconsumed? credits.totalconsumed : 0}</label>
          </td>
       </tr>
       <tr>
          <td class="right caption">Total Shared: &nbsp&nbsp</td>
          <td>
-            <label r:context="credits">#{credits.totalshared}</label>
+            <label r:context="credits">#{credits.totalshared? credits.totalshared : 0}</label>
          </td>
       </tr>
       <tr>
          <td class="right caption">Total Donated: &nbsp&nbsp</td>
          <td>
-            <label r:context="credits">#{credits.totaldonated}</label>
+            <label r:context="credits">#{credits.totaldonated? credits.totaldonated : 0}</label>
          </td>
       </tr>
    </table>

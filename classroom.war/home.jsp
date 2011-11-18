@@ -7,12 +7,14 @@
 <t:secured-master>
 	<jsp:attribute name="head">
 		<link href="${pageContext.servletContext.contextPath}/css/home.css" type="text/css" rel="stylesheet" />
+		<link href="${pageContext.servletContext.contextPath}/js/ext/richtext/richtext.css" rel="stylesheet" />
+		<script src="${pageContext.servletContext.contextPath}/js/ext/richtext/richtext.js"></script>
 	</jsp:attribute>
 	
 	<jsp:attribute name="script">
 		$register({id: "main", page:"home/main.jsp", context:"main"});
 		$register({id: "classroom_info", page:"home/classroom_info.jsp", context:"classroom_info"});
-		$register({id: "new_class", page:"new_class/new_class.jsp", context:"new_class", title:"New Classroom", options: {width:500,height:400}});
+		$register({id: "new_class", page:"new_class/new_class.jsp", context:"new_class", title:"New Classroom", options: {width:520,height:430}});
 		$register({id: "join_class", page:"join_class.jsp", context:"join_class", title:"Join a class", options: {width:500,height:400}});
 		$register({id: "#classmenu", context:"home", options: {position:{at:"right bottom", my:"right top"}} });
 		$register({id: "getting_started", page:"home/getting_started.jsp", context:"getting_started", title:"Getting Started with Gazeebu",options:{width:650,height:450}});
@@ -29,13 +31,8 @@
 
 					var userid = '${SESSION_INFO.userid}';
 					var hasSet = '${SESSION_INFO.has_set_security}';
-					if( hasSet != '1' && !$.cookie(userid) ) {				
+					if( hasSet != '1' ) {				
 						this._controller.navigate( new PopupOpener('getting_started',{userid: userid}) );
-					}
-					
-					//clean cookie if hasSet value is set
-					if( hasSet == '1' && $.cookie(userid) ) {
-						$.cookie(userid, '');
 					}
 				}
 				this.addClass = function() {

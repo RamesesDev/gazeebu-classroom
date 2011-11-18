@@ -30,8 +30,6 @@
 				this.skip = function() {
 					usrinfo.info.has_set_security = 1;
 					svc.update( usrinfo );
-					
-					$.cookie(this.userid, true);
 					return '_close';
 				}
 				

@@ -51,7 +51,7 @@
 				</span>
 				<span class="controls">
 					<a r:context="personal" r:name="editinfo">
-					   <b>Edit</b>
+					   Edit
 					</a>
 				</span>
 			</div>
@@ -124,7 +124,7 @@
 				</span>
 				<span class="controls">
 					<a r:context="personal" r:name="editaddress">
-					   <b>Edit</b>
+					   Edit
 					</a>
 				</span>
 			</div>

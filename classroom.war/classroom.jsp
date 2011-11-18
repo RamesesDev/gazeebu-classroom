@@ -17,6 +17,7 @@
 		$register( {id:"invite_student", page:"classroom/invite_student.jsp", context:"invite_student", title:"Invite Students", options: {width:500,height:400} } )
 		$register({id: "comment", page:"classroom/comment.jsp", context:"comment", title:"Post a comment", options: {width:400, height:200}});
 		$register({id: "subscribe_sms", page:"classroom/subscribe_sms.jsp", context:"subscribe_sms", title:"Subscribe SMS", options: {width:400, height:300}});
+		$register({id: "class_welcome", page:"classroom/class_welcome.jsp", context:"class_welcome", title:"Welcome", options: {width:650, height:500}});
 		
 		<common:loadmodules name="apps" role="${CLASS_INFO.usertype}"/>
 		$put("apps", 
@@ -29,7 +30,8 @@
 		);
 		
 		$put("classroom",
-			new function() {
+			new function() 
+			{
 				var svc = ProxyService.lookup("ClassroomService");
 				var classid = "${param['classid']}";
 				this.classInfo;
@@ -38,10 +40,37 @@
 				
 				var loadMembers = function() {
 					self.classInfo = svc.getClassInfo( classid );
-					//remove yourself from the list
+					
+					//get yourself and remove from the list
+					var me;
 					self.classInfo.members.removeAll(
-						function(o) { return o.objid == "${SESSION_INFO.userid}" }
+						function(o) { 
+							if( o.objid == "${SESSION_INFO.userid}" ) {
+								me = o;
+								return true;
+							}
+							return false;
+						}
 					);
+					
+					//if first time to open the class
+					if( me.state != 'ACTIVE' && me.usertype != 'teacher' ) {
+						var cinfo = ProxyService.lookup('ClassService').read({objid: classid});
+						
+						//show welcome message or syllabus if specified
+						var info = cinfo && cinfo.info;
+						if( info && (info.syllabus || info.welcome_message) ) {
+							var op = new PopupOpener('class_welcome',{
+								classid: "${param['classid']}",
+								classinfo: cinfo,
+								userid: me.objid
+							})
+							self._controller.navigate(op);
+						}
+						else {
+							svc.activateMembership( classid, me.objid );
+						}
+					}
 				}
 				
 				this.onload = function() {

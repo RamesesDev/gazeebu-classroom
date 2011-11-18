@@ -6,27 +6,10 @@
 	   $put("profilepicture",
          new function() 
 		 {
-            var svc = ProxyService.lookup("UserProfileService");
             this._controller;
-            this.upload = false;
-			this.user;
-			
-			this.imgversion = 0;
-            
-            this.onload = function() {
-               this.user = svc.getInfo( { objid:"${SESSION_INFO.userid}" } );
-            }
-            
+
             this.doneupload = function() {
                this._controller.reload();
-            }
-            
-            this.change = function() {
-               this.upload = true;
-            }
-            
-            this.removepic = function() {
-               this._controller.refresh();
             }
          }
       );
@@ -42,33 +25,17 @@
             <table align="center">
                <tr>
                   <td align="center">
-                     <label r:context="profilepicture">
-                        <img src="${pageContext.servletContext.contextPath}/profile/photo.jsp?id=#{user.objid}&t=medium&v=#{user.info.photoversion}"/>
-                     </label>
-                  </td>
-               </tr>
-               <tr>
-                  <td align="center">
-					<!--
-                     <a href="#" r:context="profilepicture" r:name="removepic">Remove Your Picture</a>
-					-->
+                    <img src="profile/photo.jsp?id=${SESSION_INFO.userid}&t=medium&v=${SESSION_INFO.photoversion}"/>
                   </td>
                </tr>
             </table>
          </td>
          <td class="img-control" valign="top" width="60%">
-            <div r:context="profilepicture" r:visibleWhen="#{upload}">
-               <input type="file" 
-                      r:context="profilepicture" 
-                      r:caption="Choose File"
-                      r:oncomplete="doneupload"
-                      r:url="profile/upload_photo.jsp"/>
-            </div>
-            <input type="button" 
-                   r:context="profilepicture" 
-                   value="Change Photo" 
-                   r:name="change" 
-                   r:visibleWhen="#{!upload}">
+			<input type="file" 
+				  r:context="profilepicture" 
+				  r:caption="Change Photo"
+				  r:oncomplete="doneupload"
+				  r:url="profile/upload_photo.jsp"/>
          </td>
       </tr>
    </table>
