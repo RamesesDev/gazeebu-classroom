@@ -5,42 +5,33 @@ class SMSMessageHandler {
 	@PersistenceContext("main")
 	def em;
 	
-	//@Service('SMSService')
-	//def smsService;
+	@Service('SMSSubscriptionService')
+	def smsSubscriptionSvc;
 	
 	@Service("ClassroomService")
 	def classroomService;
 	
-	public void sendSMS(userid,classid,msgtype,msg) {
-		def o = [userid:userid, classid:classid,msgtype:msgtype ];
-		def x = em.read( "sms_subscription", o );
-		if(x) {
-			print "sms to ->" + x.phone + "=" + msg;
-		}	
-	}
 	
     @After(pattern="MessageService.send*")
     public def sendSMS( def evt ) {
 		def r = evt.result;
-		if(!r.parentid) {
-			if( r.msgtype == "private") {
-				r.recipients.each {
-					sendSMS( it.userid, r.channelid, r.msgtype,  r.message );
-				}
-			}
-			else {
-				if(r.channelid) {
-					def classroom = classroomService.getClassInfo( r.channelid );		
-					classroom.members.each {
-						//do not include self
-						if(it.objid != r.senderid ) {
-							sendSMS( it.objid, r.channelid, r.msgtype,  r.message );
-						}	
-					}
-				}
+		if( r.msgtype == "private") {
+			r.recipients.each {
+				def o = [userid: it.userid, classid: r.channelid, msgtype:r.msgtype,msg:r.message];
+				smsSubscriptionSvc.sendSubscribed( o );
+			}	
+		}
+		else if( r.channelid ) {
+			def classroom = classroomService.getClassInfo( r.channelid );		
+			classroom.members.each {
+				//do not include self
+				if(it.objid != r.senderid ) {
+					def o = [userid: it.objid, classid: r.channelid, msgtype:r.msgtype,msg:r.message];
+					smsSubscriptionSvc.sendSubscribed( o );
+				}	
 			}
 		}
-    } 	
-    
+    } 		
 }
+
 

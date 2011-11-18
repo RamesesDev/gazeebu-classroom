@@ -11,9 +11,13 @@ public class SMSSubscriptionService {
 	@Env
 	def env;
 	
+	@Service("SMSService")
+	def smsService;
+	
 	@ProxyMethod
 	public def subscribe( def o ){
 		if(!o.userid) o.userid = env.userid;
+		if( o.phone ) o.phone = o.phone.replace('+', '');
 		em.create( "sms_subscription", o);
 	}
 	
@@ -36,11 +40,24 @@ public class SMSSubscriptionService {
 	}
 	
 	@ProxyMethod
+	public def sendSubscribed( def o ){
+		//check if there is a subscription and send message
+		assert o.msgtype;
+		assert o.userid;
+		assert o.classid;
+		assert o.msg;
+		def x = em.read( "sms_subscription", o );
+		if(x) {
+			//print "sms sender to ->" + x.phone + "=" + o.msg;
+			smsService.send( [to:x.phone, msg: o.msg ] );
+		}	
+	}
+	
+	@ProxyMethod
 	public def getSubscriptions( param ) {
 		assert param.userid;
 		
 		return em.sqlContext.createQuery('select * from sms_subscription where userid=?')
 		         .setParameter(1, param.userid).resultList;
 	}
-	
 }

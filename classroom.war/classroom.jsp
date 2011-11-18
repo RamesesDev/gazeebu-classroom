@@ -17,6 +17,7 @@
 		$register( {id:"invite_student", page:"classroom/invite_student.jsp", context:"invite_student", title:"Invite Students", options: {width:500,height:400} } )
 		$register({id: "comment", page:"classroom/comment.jsp", context:"comment", title:"Post a comment", options: {width:400, height:200}});
 		$register({id: "subscribe_sms", page:"classroom/subscribe_sms.jsp", context:"subscribe_sms", title:"Subscribe SMS", options: {width:400, height:300}});
+		$register({id: "add_award", page:"classroom/add_award.jsp", context:"add_award", title:"Add an Award", options: {width:400, height:300}});
 		$register({id: "class_welcome", page:"classroom/class_welcome.jsp", context:"class_welcome", title:"Welcome", options: {width:650, height:500}});
 		
 		<common:loadmodules name="apps" role="${CLASS_INFO.usertype}"/>
@@ -30,8 +31,7 @@
 		);
 		
 		$put("classroom",
-			new function() 
-			{
+			new function() {
 				var svc = ProxyService.lookup("ClassroomService");
 				var classid = "${param['classid']}";
 				this.classInfo;

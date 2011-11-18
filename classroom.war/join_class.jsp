@@ -34,11 +34,11 @@
 						self._controller.refresh();						
 					}
 				}
-				this.class;
+				this.classinfo;
 				
 				this.removeClass = function() {
-					if(self.class) {
-						self.data.classes.removeAll( function(o) {  return o.objid == self.class.objid }   );
+					if(self.classinfo) {
+						self.data.classes.removeAll( function(o) {  return o.objid == self.classinfo.objid }   );
 						self._controller.refresh();						
 					}
 				}
@@ -58,7 +58,7 @@
 				<table>
 					<tr>
 						<td valign="top" rowspan="3">
-							<img src="#{!profile ? 'blank.jpg' : profile + '/thumbnail.jpg'}"/>
+							<img src="${pageContext.request.contextPath}/profile/photo.jsp?id=#{teacherid}&t=thumbnail"/>
 						</td>
 						<td valign="top">
 							#{name}
@@ -94,10 +94,10 @@
 			<tr>
 				<td>&nbsp;</td>
 				<td>
-					<table r:context="join_class" r:items="data.classes" r:varName="item" r:name="class" width="50%">
+					<table r:context="join_class" r:items="data.classes" r:varName="item" r:name="classinfo" width="50%">
 						<tr>
 							<td valign="top" rowspan="3" width="40">
-								<img src="#{!item.profile ? 'blank.jpg' : item.profile + '/thumbnail.jpg'}"/>
+								<img src="profile/photo.jsp?id=#{item.teacherid}&t=thumbnail"/>
 							</td>
 							<td valign="top">
 								#{item.name}

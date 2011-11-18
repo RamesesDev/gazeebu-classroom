@@ -161,6 +161,10 @@
 				this.subscribeSMS = function() {
 					return new PopupOpener( "subscribe_sms", {msgtype: "discussion"}); 
 				}
+				
+				this.addAward = function() {
+					return new PopupOpener( "add_award", {userid: this.selectedMessage.senderid } );
+				}
 			}
 		);	
 	</jsp:attribute>
@@ -179,9 +183,9 @@
 		<!-- this is called by the template tag -->
 		<div id="comment_tpl" style="display:none;">
 			<br/>
-			<table class="comments" r:context="discussion" r:items="comments[params.objid]" r:varName="comment" cellpadding="0" cellspacing="0" width="100%">
+			<table class="comments" r:context="discussion" r:items="comments[params.objid]" r:varName="comment" cellpadding="0" cellspacing="0" width="100%" r:name="selectedMessage">
 				<tr>
-					<td valign="top" width="50" rowspan="2"  class="msg-divider">
+					<td valign="top" width="50" rowspan="3"  class="msg-divider">
 						<img src="profile/photo.jsp?id=#{comment.senderid}&t=thumbnail" width="60%"/>
 					</td>
 					<td valign="top" id="sendername" class="msg-divider">
@@ -195,7 +199,12 @@
 					<td valign="top" colspan="2">
 						#{comment.message}
 					</td>
-				</tr>		
+				</tr>	
+				</tr>	
+					<td valign="top" colspan="2">
+						<a r:context="discussion" r:name="addAward">Award</a>
+					</td>
+				</tr>	
 			</table>
 		</div>
 	</jsp:attribute>

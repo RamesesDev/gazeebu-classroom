@@ -34,9 +34,8 @@
 	<table width="100%">
 		<tr>
 			<td valign="top">
-				<div id="description">
-					Gazeebu classroom helps teachers  
-					connect with students
+				<div id="description" style="font-family:georgia;font-size:1.8em;color:black">
+					Gazeebu classroom connects teachers  and students
 				</div>
 				<div>
 					<ul>

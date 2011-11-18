@@ -58,7 +58,7 @@
 				<table>
 					<tr>
 						<td valign="top">
-							<img src="#{!profile ? 'blank.jpg' : profile +  '/thumbnail.jpg'}"/>
+							<img src="${pageContext.request.contextPath}/profile/photo.jsp?id=#{objid}&t=thumbnail"/>
 						</td>
 						<td valign="top">
 							#{name}<br/>
@@ -74,7 +74,7 @@
 		<table width="100%">
 			<tr>
 				<td align="right">
-					Add Invitee 
+					Add Invitee ss
 				</td>
 				<td>
 					 
@@ -91,7 +91,7 @@
 					<table r:context="invite_student" r:items="data.invitees" r:varName="item" r:name="invitee" width="40%">
 						<tr>
 							<td valign="top" width="50">
-								<img src="#{!item.profile ? 'blank.jpg' : item.profile + '/thumbnail.jpg'}"/>
+								<img src="${pageContext.request.contextPath}/profile/photo.jsp?id=#{item.objid}&t=thumbnail"/>
 							</td>
 							<td valign="top">#{item.name}</td>
 							<td valign="top" align="right">
