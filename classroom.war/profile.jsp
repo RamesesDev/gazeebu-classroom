@@ -37,6 +37,7 @@
 			$register({id:"sharecredit", page:"profile/sharecredit.jsp", context:"sharecredit"});
 			$register({id:"donate", page:"profile/donate.jsp", context:"donate"});
 			$register({id:"buycredits", page:"profile/buycredits.jsp", context:"buycredits"});
+			$register({id:"editmobile", page:"profile/editmobile.jsp", context:"editmobile"});
 			
 			$put( "profile", 
 				new function() {

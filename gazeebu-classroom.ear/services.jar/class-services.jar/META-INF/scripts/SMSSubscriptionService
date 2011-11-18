@@ -35,4 +35,12 @@ public class SMSSubscriptionService {
 		return em.update("sms_subscription", o);
 	}
 	
+	@ProxyMethod
+	public def getSubscriptions( param ) {
+		assert param.userid;
+		
+		return em.sqlContext.createQuery('select * from sms_subscription where userid=?')
+		         .setParameter(1, param.userid).resultList;
+	}
+	
 }

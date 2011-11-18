@@ -84,6 +84,7 @@
 				}
 				
 				this.remove = function() {
+					if( !confirm('Are you sure you want to remove this syllabus?') ) return;
 					$.ajax({
 						url: '${RES_PATH}',
 						type: 'GET',
