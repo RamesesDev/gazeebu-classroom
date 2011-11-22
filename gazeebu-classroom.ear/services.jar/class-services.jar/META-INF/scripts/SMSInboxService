@@ -6,26 +6,60 @@ class SMSInboxService
 	@PersistenceContext("main")
 	def em;
 	
-	@Service('ClassService')
-	def classSvc;
+	@Service('MessageService')
+	def messageSvc;
 	
+	@Service('UserProfileService')
+	def profileSvc;
 
 	@ProxyMethod
 	public def receive(def data ) {
-		print "data passed is " + data;
-		
-		def param = [:];
-		param.phone = data.from;
-		param.keyword = 'q1';
-		
-		def result = em.sqlContext.createQuery('select classid from sms_incoming where phone = $P{phone} and keyword = $P{keyword}')
-		               .setParameters( param ).singleResult;
+		try {
+			print "data passed is " + data;
+			
+			def param = [:];
+			param.phone = data.from;
+			
+			def msg = data.msg;
+			if( !msg ) {
+				println "SMSInboxService: $data.from, message is empty.";
+				return;
+			}
+			
+			param.keyword = msg.trim()[0..(msg.indexOf(' '))].trim();
+			msg = msg.replace(param.keyword, '').trim();
+			
+			//get the phone number's subscription
+			def result = em.sqlContext.createQuery('select * from sms_subscription where phone = $P{phone} and keyword = $P{keyword}')
+						   .setParameters( param ).singleResult;
+						   
+			if( !result ) {
+				println "SMSInboxService: $data.from has no sms subscription.";
+				return;
+			}
 
-		result.msgtype = 'announcement';
-		result.message = data.msg;
-		classSvc.publishNews( result );
+			def message = [:];
+			message.message = msg;
+			message.scope = 'public';
+			message.msgtype = result.msgtype;
+			message.senderid = result.userid;
+			message.channelid = result.classid;
+			
+			def user = profileSvc.getUserInfo( [objid: result.userid] );
+			if( user ) {
+				message.firstname = user.firstname;
+				message.lastname = user.lastname;
+			}
+			
+			println "sending message $message";
+			messageSvc.send( message );
 
-		return "ok you typed " + data.msg;
+			return "SMSInboxService: ok you typed " + data.msg;
+		}
+		catch(e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 	
 	

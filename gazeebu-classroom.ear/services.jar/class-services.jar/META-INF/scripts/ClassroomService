@@ -46,7 +46,13 @@ class ClassroomService {
 		c.members.each {
 			it.putAll(  userService.getInfo( [objid: it.objid] ) );
 		}
-		c.members.sort{ it.lastname };
+		
+		c.members.sort{ a,b ->
+			if( a.usertype == 'teacher' ) return -1;
+			if( b.usertype == 'teacher' ) return 1;
+			return (a.lastname+'').compareTo(b.lastname);
+		};
+
 		//determine the role of the requester
 		if(env.userid) {
 			c.usertype = c.members.find{ it.objid == env.userid }?.usertype;
