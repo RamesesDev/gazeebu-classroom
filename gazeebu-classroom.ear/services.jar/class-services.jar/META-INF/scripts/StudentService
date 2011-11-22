@@ -1,0 +1,20 @@
+import com.rameses.annotations.*;
+
+/***
+* This class handles management of classes.
+*/
+public class StudentService {
+
+	@Env
+	def env;
+	
+	@Service("ClassroomService")
+	def classroomSvc;
+
+	@ProxyMethod
+	public def getUserInfo(o) {
+		def classroom = classroomSvc.getClassInfo( o.classid );
+		return classroom.members.find{ it.objid == o.userid };
+	}
+	
+}

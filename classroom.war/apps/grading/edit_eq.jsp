@@ -13,83 +13,182 @@
 
 <t:popup>
 	<jsp:attribute name="script">
+		$register( {id:"#showbuild",context:"showbuild"} );
 		$put( "edit_eq",
 			new function() {
 				var svc = ProxyService.lookup( "GradingCriteriaService" );
 				this.saveHandler;
-				this.listorder = "${INFO.sortorder}";
-				this._controller;
-				this.listorders = ["ascending", "descending"];
-				
 				this.entries = [];
-				<c:forEach items="${INFO.list}" var="item">
-				this.entries.push( {objid:"${item.objid}", classid:"${param['classid']}", title:"${item.title}", score: ${item.toscore} } );
-				</c:forEach>
+				this.selectedItem;
+				this.selectedIndex;
+				var self = this;
+				this.min;
+				this.max;
+				this._controller;
+				this.listorder;
 				
+				this.onload = function() {
+					this.entries = svc.getGradingEquivalents({classid: "${param['classid']}"});
+					if(this.entries.length > 0) {
+						this.min = this.entries[0].rangefrom;
+						this.max = this.entries[this.entries.length-1].rangeto;
+						this.listorder = (this.min == "0") ? "asc" : "desc";
+					}
+					else {
+						//self.entries.push( {rangefrom: 0, rangeto: 100} );
+					}
+				}
+				
+				this.split = function() {
+					var msg = "Enter ranges of numbers between " + this.selectedItem.rangefrom + " and " + this.selectedItem.rangeto + " and separate it with commas. ";
+					var c = prompt( msg );	
+					if(c) {
+						var newlist = [];
+						c.split(",").each(
+							function(o) {
+								try {
+									var x = parseFloat(o);
+									if( self.listorder == "asc" && x > self.selectedItem.rangefrom && x < self.selectedItem.rangeto ) {
+										newlist.push( x );
+									}
+									else if(self.listorder == "desc" && x < self.selectedItem.rangefrom && x > self.selectedItem.rangeto ) {
+										newlist.push( x );
+									}
+								}
+								catch(e){}
+							}
+						)
+						
+						var tail = this.entries.splice( this.selectedIndex );
+						var old = tail.splice(0, 1)[0];
+						var sorted;
+						if(this.listorder=="asc")
+							sorted = newlist.sort(  function(a,b) {return a-b}  );
+						else {
+							sorted = newlist.sort(  function(a,b) {return b-a} );
+						}	
+						var sublist = [];	
+						var t = {rangefrom:old.rangefrom};
+						sorted.each(
+							function(o) {
+								if( t.rangefrom != o ) {
+									t.rangeto = o;
+									sublist.push(t);
+									t = {rangefrom: o};	
+								}
+							}
+						)
+						t.rangeto = old.rangeto;
+						sublist.push(t);
+						this.entries = this.entries.concat(sublist,tail);
+					}	
+				}
+				this.removeItem = function() {
+					if(this.selectedIndex == 0 ) {
+						this.entries.splice( 0, 1 );
+						if(this.entries.length>0) this.entries[0].rangefrom = this.min;
+					}
+					else {
+						var tail = this.entries.splice( this.selectedIndex ); 
+						var old = tail.splice(0, 1)[0];
+						if(tail.length>0) {
+							tail[0].rangefrom = this.entries[this.entries.length-1].rangeto;
+							this.entries = this.entries.concat( tail );							
+						}	
+						else {
+							this.entries[ this.entries.length - 1 ].rangeto = this.max; 
+						}
+					}	
+				}
 				
 				this.save = function() {
-					svc.saveGradingEq( {list:this.entries, listorder: this.listorder, removedItems: this.removedItems} );	
-					this.saveHandler();
+					var l = {list:this.entries, classid: "${param['classid']}"};
+					svc.saveGradingEq(l);
+					if(this.saveHandler) this.saveHandler();
 					return "_close";
 				}
-				this.addItem = function() {
-					this.entries.push({classid: "${param['classid']}" });
+				
+				this.showBuild = function() {
+					var f = function(lorder, mn, mx) {
+						self.listorder = lorder;
+						self.min = mn;
+						self.max = mx;
+						self.entries.push( {rangefrom: mn, rangeto: mx} );
+						self._controller.refresh();
+					}
+					return new DropdownOpener("#showbuild", {buildHandler: f} );	
 				}
-				this.removedItems = [];
-				this.removeIndex;
-				this.removeItem = function() {
-					var o = this.entries[this.removeIndex];
-					this.removedItems.push( o );
-					this.entries.remove( this.removeIndex );
-					this._controller.refresh();
-				}
+				
 			}
 			
 		);	
+		
+		$put("showbuild",
+			new function() {
+				this.listorder = "asc";
+				this.buildHandler;
+				this.build = function() {
+					var mn = 0;
+					var mx = "100";
+					if(this.listorder == "desc") {
+						mn = 100;
+						mx = 0;
+					}
+					this.buildHandler(this.listorder, mn,mx);
+					return "_close";
+				}
+			}
+		);
 	</jsp:attribute>
+	
+	<jsp:attribute name="sections">
+		<div id="showbuild" style="display:none;">
+			<p>Determine the order of the range of values</p><br>
+			<input type="radio" r:context="showbuild" r:name="listorder" value="asc"/><b>Ascending</b> (from 0 to 100)<br>
+			<input type="radio" r:context="showbuild" r:name="listorder" value="desc"/><b>Descending</b> (from 100 to 0)<br>
+			<br>
+			<input type="button" r:context="showbuild" r:name="build"  value="OK"/><br>
+		</div>	
+	</jsp:attribute>
+
 	
 	<jsp:attribute name="leftactions">
 		<input type="button" r:context="edit_eq" r:name="save" value="Save"/>
 	</jsp:attribute>
 	
+	
 	<jsp:body>
-		Arrange raw scores in <select r:context="edit_eq" r:items="listorders" r:name="listorder"/> order.<br>
-		<br>
-		<p>Starting From
-		<label r:context="edit_eq" r:visibleWhen="#{listorder=='ascending'}" r:depends="listorder">0</label>
-		<label r:context="edit_eq" r:visibleWhen="#{listorder=='descending'}" r:depends="listorder">100</label>.
-		Leave the last entry blank.
-		</p>
-		<br><br>				
-		<table r:context="edit_eq" r:items="entries" r:varName="item" r:varStatus="stat" width="300">
+		<table r:context="edit_eq" r:items="entries" r:varName="item" r:varStatus="stat" r:name="selectedItem" width="300" border="1" cellpadding="2" cellspacing="0">
 			<thead>
 				<tr>
-					<td><b>Eq. Grade</b></td>
-					<td>
-						<b>
-						<label r:context="edit_eq" r:visibleWhen="#{listorder=='ascending'}" r:depends="listorder">% less than or equal to</label>
-						<label r:context="edit_eq" r:visibleWhen="#{listorder=='descending'}" r:depends="listorder">% greater than or equal to</label>
-						</b>
+					<td colspan="2" valign="top"  align="center" width="120px">
+						Range %	
 					</td>
-					<td>&nbsp;</td>
+					<td style="font-weight:bolder;" rowspan="2" align="center">Eq. Grade</td>
+					<td rowspan="2">&nbsp;</td>
 				</tr>
-				
+				<tr>
+					<td style="font-weight:bolder;" align="center">From (%)</td>
+					<td style="font-weight:bolder;" align="center">To (%)</td>
+				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td><input type="text" r:context="edit_eq" r:name="entries[#{stat.index}].title"/></td>
-					<td><input type="text" r:context="edit_eq" r:name="entries[#{stat.index}].score"/></td>
-					<td><a r:context="edit_eq" r:name="removeItem" r:params="{removeIndex:#{stat.index}}">Remove</a></td>
-				</tr>
-			</tbody>
-			<tfoot>
-				<tr>
-					<td colspan="3">
-						<a r:context="edit_eq" r:name="addItem">Add More</a>
+					<td align="center" width="60px">#{item.rangefrom}</td>
+					<td align="center" width="60px">#{item.rangeto}</td>
+					<td align="center" width="60px">
+						<input type="text" r:context="edit_eq" r:name="entries[#{stat.index}].title" style="width:90%;text-align:center"/>
+					</td>
+					<td>
+						<a r:context="edit_eq" r:name="split" r:params="{selectedIndex: #{stat.index} }">Split</a>
+						&nbsp;&nbsp;&nbsp;
+						<a r:context="edit_eq" r:name="removeItem" r:params="{selectedIndex: #{stat.index} }">Remove</a>
 					</td>
 				</tr>
-			</tfoot>
+			</tbody>
 		</table>
+		
+		<input type="button" r:context="edit_eq" r:name="showBuild" value="Build" r:visibleWhen="#{entries.length == 0}"/>
 	</jsp:body>
    
 </t:popup>

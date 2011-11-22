@@ -13,6 +13,9 @@ class ClassroomService {
 	@Resource("CacheService")
 	def cacheService;
 	
+	@Service("UserProfileService")
+	def userService;
+	
 	@Env
 	def env;
 	
@@ -39,6 +42,11 @@ class ClassroomService {
 			}
 		}
 		
+		//load the user profile for each
+		c.members.each {
+			it.putAll(  userService.getInfo( [objid: it.objid] ) );
+		}
+		c.members.sort{ it.lastname };
 		//determine the role of the requester
 		if(env.userid) {
 			c.usertype = c.members.find{ it.objid == env.userid }?.usertype;
@@ -114,6 +122,19 @@ class ClassroomService {
 		em.create( "class_membership", o );
 		cacheService.remove( o.classid );
 	}
+	
+	@ProxyMethod
+	public def getMemberInfo(o) {
+		def classroom = getClassInfo( o.classid );
+		return classroom.members.find{ it.objid == o.userid };
+	}
+	
+	@ProxyMethod
+	public def getCurrentUserInfo(classid) {
+		def classroom = getClassInfo( classid );
+		return classroom.members.find{ it.objid == env.userid };
+	}
+	
 	
 }
 

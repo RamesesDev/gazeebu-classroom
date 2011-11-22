@@ -4,13 +4,15 @@
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 
 
-<t:content title="Home">
+<t:content title="News">
 	<jsp:attribute name="actions">
 			
 	</jsp:attribute>
 
 	<jsp:attribute name="rightpanel">
-		Sponsored Ads
+		<div style="font-family:helvetica;font-size:1.3em;color:red;font-weight:bolder;">Daily Deals</div>
+		<br>
+		<i>No deals today in your area</i>
 	</jsp:attribute>
 	
 	<jsp:attribute name="style">
@@ -21,6 +23,10 @@
 		.classhead .col {
 			background-color: lightgrey;
 			font-weight:bolder;
+		}
+		.msg-divider {
+			padding-top: 5px;
+			border-top:1px sold lightgrey;
 		}
 	</jsp:attribute>
 	
@@ -61,17 +67,19 @@
 	
 	
 	<jsp:body>
-		<h2>Pending Invitations</h2>
 		<table r:context="main" r:model="listModel" r:varName="item" r:name="selectedInvite" cellpadding="0" cellspacing="0" width="80%">
 			<tr>
-				<td valign="top"> #{item.classname} #{item.schedules}</td>
-				<td valign="top" rowspan="2">
+				<td style="font-size:14px;color:darkslateblue;font-weight:bolder;" class="msg-divider">#{item.sendername}</td> 
+				<td valign="top" rowspan="3"  class="msg-divider">
 					<input type="button" r:context="main" r:name="accept" value="Accept" /> 
 					<input type="button" r:context="main" r:name="ignore" value="Ignore" /> 
 				</td>
 			</tr>
 			<tr>
-				<td valign="top">#{item.msg} send by #{item.sendername}</td>
+				<td valign="top"><b>Class:</b> #{item.classname} #{item.schedules}</td>
+			</tr>
+			<tr>
+				<td valign="top">#{item.msg? item.msg : ''}</td>
 			</tr>
 		</table>
 	</jsp:body>

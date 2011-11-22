@@ -93,6 +93,10 @@
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
+				<td><i>Type in Lastname, firstname of teacher</i></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
 				<td>
 					<table r:context="join_class" r:items="data.classes" r:varName="item" r:name="classinfo" width="50%">
 						<tr>

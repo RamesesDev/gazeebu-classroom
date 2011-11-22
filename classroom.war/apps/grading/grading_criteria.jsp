@@ -9,7 +9,7 @@
 	request.setAttribute( "params", m );
 %>
 <s:invoke service="GradingCriteriaService" method="getAll" params="${params}" var="INFO"/>
-<s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="CLASS_INFO"/>
+<s:invoke service="ClassroomService" method="getCurrentUserInfo" params="${param['classid']}" var="CLASS_INFO"/>
 
 <t:content title="Grade Settings">
 
@@ -21,7 +21,7 @@
    <jsp:attribute name="script">
 		$register({id:"edit_criteria", page:"apps/grading/edit_criteria.jsp", title:"Grading Criteria", context:"edit_criteria", options:{width:500,height:400}});
 		$register({id:"edit_period", page:"apps/grading/edit_period.jsp", title:"Grading Period", context:"edit_period", options:{width:600,height:400}});
-		$register({id:"edit_eq", page:"apps/grading/edit_eq.jsp", title:"Grading Equivalents", context:"edit_eq", options:{width:600,height:400}});
+		$register({id:"edit_eq", page:"apps/grading/edit_eq.jsp", title:"Grading Equivalents", context:"edit_eq", options:{width:350,height:500}});
 		
 		$put( "grading_criteria", 
 			new function() {
@@ -108,7 +108,7 @@
 			<c:forEach items="${INFO.gradingPeriods}" var="item">
 				<tr>
 					<td width="50">&nbsp;</td>
-					<td style="font-size:12px;font-weight:bolder;">${item.title} ( ${item.weight}% )</td>
+					<td style="font-size:12px;font-weight:bolder;">${item.title}</td>
 					<td>from ${item.fromdate} to ${item.todate}</td>
 					<td>&nbsp;</td>
 				</tr>
@@ -129,23 +129,20 @@
 			<tr>
 				<td colspan="2">&nbsp;</td>
 			</tr>
-			<c:if test="${! empty INFO.gradingEq.list}"> 
+			<c:if test="${! empty INFO.gradingEq}">
 				<tr>
 					<td style="padding-left:10px;">
 						<table width="300">
 							<tr>
-								<th>Eq. Grade</th>
 								<th>From</th>
-								<th>
-									<c:if test="${INFO.gradingEq.sortorder == 'ascending'}">Less than or equal to</c:if>
-									<c:if test="${INFO.gradingEq.sortorder == 'descending'}">Greater than or equal to</c:if>
-								</th>	
+								<th>To</th>
+								<th>Eq. Grade</th>
 							</tr>
-							<c:forEach items="${INFO.gradingEq.list}" var="item">
+							<c:forEach items="${INFO.gradingEq}" var="item">
 								<tr>
+									<td align="center">${item.rangefrom} %</td>
+									<td align="center">${item.rangeto} %</td>
 									<td align="center">${item.title}</td>
-									<td align="center">${item.fromscore} %</td>
-									<td align="center">${item.toscore} %</td>
 								</tr>
 							</c:forEach>
 						</table>

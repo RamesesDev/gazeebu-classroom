@@ -4,7 +4,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 <%@ page import="java.util.*" %>
 
-<s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="CLASS_INFO"/>
+<s:invoke service="ClassroomService" method="getCurrentUserInfo" params="${param['classid']}" var="CLASS_INFO"/>
 <c:set var="RES_PATH" value="${pageContext.servletContext.contextPath}/apps/classinfo/syllabus_resource.jsp"/>
 
 <t:content title="Class Profile">
@@ -48,7 +48,7 @@
 				this._controller;
 				
 				this.onload = function() {
-					this.classinfo = svc.read({objid: '${CLASS_INFO.objid}'});
+					this.classinfo = svc.read({objid: "${param['classid']}"});
 					if( !this.classinfo.info ) this.classinfo.info = {};
 					this.syllabus = this.classinfo.info.syllabus;
 				}

@@ -5,21 +5,12 @@
 	   	<field name="title"/>
 		<field name="weight"/>
 		<field name="indexno"/>
-		<field name="subentries"/>
 		<field name="colorcode"/>
-    </element> 
-    <element name="subcriteria" tablename="grading_subcriteria">
-    	<field name="objid" primary="true"/>
-    	<field name="criteriaid"/>
-	   	<field name="title"/>
-		<field name="weight"/>
-		<field name="indexno"/>
     </element> 
 	 <element name="period" tablename="grading_period">
     	<field name="objid" primary="true"/>
     	<field name="classid"/>
     	<field name="title"/>
-		<field name="weight"/>
     	<field name="fromdate"/>
     	<field name="todate"/>
     </element>
@@ -27,8 +18,8 @@
     	<field name="objid" primary="true"/>
     	<field name="classid"/>
 		<field name="title"/>
-    	<field name="fromscore"/>
-		<field name="toscore"/>
+    	<field name="rangefrom"/>
+		<field name="rangeto"/>
     	<field name="indexno"/>
     </element>
 </schema>

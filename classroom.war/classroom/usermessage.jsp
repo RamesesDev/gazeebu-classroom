@@ -1,5 +1,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
+<%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
+
+<s:invoke service="ClassroomService" method="getCurrentUserInfo" params="${param['classid']}" var="USER_INFO"/>
 
 <t:content>
 	<jsp:attribute name="head">
@@ -30,7 +33,7 @@
 			new function() 
 			{
 				var self = this;
-				var profSvc = ProxyService.lookup("UserProfileService");
+				var classSvc = ProxyService.lookup("ClassroomService");
 				var svc = ProxyService.lookup("MessageService");
 
 				this.objid;
@@ -56,7 +59,7 @@
 				}
 
 				this.onload = function() {
-					this.user = profSvc.getInfo({ objid: this.objid });
+					this.user = classSvc.getMemberInfo({ userid: this.objid, classid: this.classid });
 					if( this.user && this.user.contacts ) {
 						var mb = this.user.contacts.find(function(it){ return it.type.toLowerCase() == 'mobile' });
 						if( mb ) {
@@ -95,12 +98,15 @@
 	</jsp:attribute>
 	
 	<jsp:attribute name="rightpanel">
-		
-		<a href="#classrecord:student_record?studentid=${param['objid']}">View Class Record</a>
+		<c:if test="${USER_INFO.usertype == 'teacher'}">
+			<span r:context="usermessage" r:visibleWhen="#{user.usertype == 'student'}">
+				<a href="#classrecord:student_record?studentid=${param['objid']}">View Class Record</a>
+			</span>
+		</c:if>
 	</jsp:attribute>
 	
 	<jsp:attribute name="title">
-		<table class="page-form-table" width="80%" cellpadding="0" cellspacing="0" border="0">
+		<table class="page-form-table" width="80%" cellpadding="0" cellspacing="0">
             <tr>
                 <td rowspan="4" width="60" style="padding-right:10px;">
                     <label r:context="usermessage">
@@ -119,7 +125,7 @@
             </tr>
             <tr>
                 <td>
-                    
+                    <label r:context="usermessage">#{user.usertype}  #{user.objid=='${USER_INFO.objid}' ? '(me)' : ''}</label>
                 </td>
                 <td>
                     <img src="img/email.png" style="padding-right:5px;"/>
@@ -168,7 +174,6 @@
 							#{item.message}	
 						</td>
 					</tr>
-				
                 </tbody>
             </table>
         </div>

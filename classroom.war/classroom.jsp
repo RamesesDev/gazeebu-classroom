@@ -40,18 +40,8 @@
 				
 				var loadMembers = function() {
 					self.classInfo = svc.getClassInfo( classid );
-					
-					//get yourself and remove from the list
-					var me;
-					self.classInfo.members.removeAll(
-						function(o) { 
-							if( o.objid == "${SESSION_INFO.userid}" ) {
-								me = o;
-								return true;
-							}
-							return false;
-						}
-					);
+					var me = self.classInfo.members.find( function(o) {return o.objid == "${SESSION_INFO.userid}"}  );
+					me.me = true;
 					
 					//if first time to open the class
 					if( me.state != 'ACTIVE' && me.usertype != 'teacher' ) {
@@ -178,7 +168,7 @@
 					<td valign="top">
 						<img src="img/#{item.status}.png"/>
 						<a href="#usermessage?objid=#{item.objid}" class="menuitem">
-							#{item.lastname}, #{item.firstname}
+							#{item.lastname}, #{item.firstname} #{item.me ? '<b>(me)</b>' : ''}
 						</a>
 					</td>
 					

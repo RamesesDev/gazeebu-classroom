@@ -108,14 +108,14 @@
 					<td>
 						<input type="button" r:context="home" r:name="addClass" 
 							style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
-							value="Add"/>
+							value="Add Class"/>
 					</td>
 				</c:if>
 				<c:if test="${fn:contains(SESSION_INFO.roles,'student')}">
 					<td>
 						<input type="button" r:context="home" r:name="joinClass" 
 							style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
-							value="Join"/>
+							value="Join Class"/>
 					</td>		
 				</c:if>
 			</tr>
@@ -127,7 +127,9 @@
 				<td rowspan="3" valign="top" style="padding-right:2px;"><img src="img/star.png"/></td>
 				<td><a href="classroom.jsp?classid=#{item.objid}"><b>#{item.name}</b></a></td>
 				<td rowspan="3" valign="top">
+					<!--
 					<a r:context="home" r:name="showClassMenu" style="text-decoration:none;border:1px solid lightgrey">&#9660;</a>
+					-->
 				</td>
 			</tr>	
 			<tr>	
