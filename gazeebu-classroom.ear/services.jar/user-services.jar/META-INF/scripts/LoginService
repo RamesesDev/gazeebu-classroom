@@ -1,4 +1,5 @@
 import com.rameses.annotations.*;
+import com.rameses.util.*;
 
 class LoginService {
 	
@@ -14,6 +15,8 @@ class LoginService {
 		if(!login) {
 			throw new Exception("Invalid username and password");
 		}
+		
+		o.password = Encoder.MD5.encode(o.password, o.username);
 		if(login.password != o.password) {
 			throw new Exception("Invalid username and password");
 		}
@@ -43,10 +46,12 @@ class LoginService {
 			throw new Exception("Login account not found.");
 		}
 		
+		o.oldpassword = Encoder.MD5.encode(o.oldpassword, o.username);
 		if(login.password != o.oldpassword) {
 			throw new Exception("Invalid current password provided.");
 		}
 		
+		o.newpassword = Encoder.MD5.encode(o.newpassword, o.username);
 		em.sqlContext.createExecutor('update login set password = $P{newpassword} where uid=$P{username}')
 		  .setParameters(o).execute();
 	}	
