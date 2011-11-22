@@ -8,23 +8,50 @@ class EmailMessageHandler {
 	@Service("EmailService")
 	def emailSvc;
 	
-    @After(pattern="MessageService.send*")
-    public def sendEmailNotifications( def evt ) {
-		def o = evt.result;
-		
-		def vars = [filter: ",?".multiply(o.recipients.size()).substring(1)];
-		def qry = em.sqlContext.createQuery('select email from student where objid in ( ${filter} ) and not(objid=?)').setVars(vars);
-		int i = 1;
-		o.recipients.each {
-			qry.setParameter(i++, it.recipientid );
-		}
-		qry.setParameter(i++, o.senderid);
+	@Service("ClassroomService")
+	def classroomService;
+	
+	@Service("UserProfileService")
+	def userService;
+	
+	private def sendEmail( def sender, def recipients, def msg, def msgtype, def classname ) {
+		if(!recipients) return;
 		def m = [:];
-		m.subject = "Gazeebu Message Service from " + evt.result.sendername;
-		m.message = evt.result.message;	
-		m.recipients = qry.resultList*.email;
+		m.subject = "Gazeebu "  + msgtype + " message from " + sender?.lastname + ", " + sender.firstname;
+		if( classname ) m.subject += " [ class " + classname + "]";	
+		m.message = msg;	
+		m.recipients = recipients;
 		emailSvc.send(m);	
-    } 
+	}
+	
+    @After(pattern="MessageService.send*")
+    public def notifyEmail( def evt ) {
+		def r = evt.result;
+
+		def sender = userService.getInfo( [objid: r.senderid ] );
+		def recipients = [];	
+		def	msg = r.message;	
+		def classname = null;
+		if( r.msgtype == "private") {
+			r.recipients.each {
+				def o = userService.getInfo( [objid: it.userid] );
+				if(o?.email) recipients.add( o.email );
+			}	
+		}
+		else if( r.channelid ) {
+			def classroom = classroomService.getClassInfo( r.channelid );	
+			classname = classroom.name;
+			classroom.members.each {
+				//do not include self
+				if(it.objid != r.senderid ) {
+					def o = userService.getInfo( [objid: it.objid] );
+					if(o?.email) recipients.add( o.email );
+				}	
+			}
+		}
+		sendEmail( sender, recipients, msg, r.msgtype, classname );		
+    } 		
+	
     
 }
 
