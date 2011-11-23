@@ -34,11 +34,6 @@
 				}
 					
 				this.save = function() {
-					if(this.entity.recentpassword != this.entity.password) {
-						alert("The password you entered does not match with your current password.");
-						return;
-					}
-
 					if(this.entity.confirmpassword != this.entity.newpassword) {
 						alert("New passwords does not match.");
 						return;

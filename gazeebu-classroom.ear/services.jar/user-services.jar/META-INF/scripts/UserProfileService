@@ -14,6 +14,9 @@ class UserProfileService
 	
 	def df = new java.text.SimpleDateFormat("yyyy-MM-dd");
 	
+	@Env
+	def env;
+	
 	
 	//checks if a name can be used. true = name can be used. false = name cannot be used.
 	@ProxyMethod
@@ -54,7 +57,7 @@ class UserProfileService
 		return info;
 	}
 	
-	/*
+	/**
 	 * This is marked as local to avoid interceptors
 	 * This is used to retrieve the user info from the SessionService
 	 * @see LoginService
@@ -71,6 +74,76 @@ class UserProfileService
 		user.has_set_security = user.info?.has_set_security;
 		
 		return user;
+	}
+	
+	/**
+	 * This method is used to find a user account
+	 * @param param (Map)
+	 *	 contains a key account(String), account is either the username or email address of the user
+	 */
+	@ProxyMethod
+	public def findUser( param ) {
+		def list = [];
+		em.sqlContext.createQuery('select objid from userprofile where username = $P{account} or email = $P{account}')
+		  .setParameters(param)
+		  .resultList.each{
+			 list << em.read('userprofile', it);
+		   }
+		return list;
+	}
+	
+	@Service('LoginService')
+	def loginSvc;
+	
+	/**
+	 * This method is used to change the password when the user resets its password
+	 * Invoking this method will remove the reset_password flag on the user's info field
+	 */
+	@ProxyMethod
+	public void changePassword( param ) {
+		def user = getUserInfo( [objid: param.userid] );
+		
+		param.username = user.username;
+		param.oldpassword = user.info.reset_password;
+		loginSvc.changePassword( param );
+		
+		user.info.remove('reset_password');
+		update( user );
+	}
+	
+	@ProxyMethod
+	public void resetPassword( param ) {
+		def user = getUserInfo( param );
+		def password = KeyGen.generateAlphanumKey("", 10);
+		param.password = Encoder.MD5.encode( password, user.username );
+		param.uid = user.username;
+		em.sqlContext.createExecutor('update login set password = $P{password} where uid = $P{uid}')
+		  .setParameters( param ).execute();
+		  
+		if( !user.info ) user.info = [:];
+		user.info.reset_password = password;
+		update( user );
+		  
+		sendEmail( user.username, password, user.email );
+	}
+	
+	
+	@Service("EmailService")
+	def emailSvc;
+	
+	private def sendEmail(uid, password, email) {
+		def m = [:];
+		m.subject = "Gazeebu - Reset Account Password";
+		m.message = """
+			<p>
+				You have reset your account password.
+				Login to <a href="http://www.gazeebu.com/classroom">Gazeebu Classroom</a> and use the temporary password provided below:
+			</p>
+			Username: <b>$uid</b><br/>
+			Temporary Password: <b>$password</b>
+		""";	
+		m.recipients = [email];
+		emailSvc.send(m);	
 	}
 	
 }

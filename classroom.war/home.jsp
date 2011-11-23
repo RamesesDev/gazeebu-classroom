@@ -18,6 +18,7 @@
 		$register({id: "join_class", page:"join_class.jsp", context:"join_class", title:"Join a class", options: {width:500,height:400}});
 		$register({id: "#classmenu", context:"home", options: {position:{at:"right bottom", my:"right top"}} });
 		$register({id: "getting_started", page:"home/getting_started.jsp", context:"getting_started", title:"Getting Started with Gazeebu",options:{width:650,height:450}});
+		$register({id: "changepass", page:"home/changepass.jsp", context:"changepass", title:"Change Password",options:{width:500,height:250}});
 		
 		$put("home", 
 			new function() {
@@ -33,6 +34,11 @@
 					var hasSet = '${SESSION_INFO.has_set_security}';
 					if( hasSet != '1' ) {				
 						this._controller.navigate( new PopupOpener('getting_started',{userid: userid}) );
+					}
+					
+					var resetPass = '${SESSION_INFO.info.reset_password}';
+					if( resetPass ) {
+						this._controller.navigate( new PopupOpener('changepass',{entity: {userid: userid}}) );
 					}
 				}
 				this.addClass = function() {

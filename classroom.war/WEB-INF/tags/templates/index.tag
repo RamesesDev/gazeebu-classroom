@@ -96,7 +96,7 @@
 														<a class="loginaid" href="signup.jsp">New User? Sign Up</a>
 													</td>
 													
-													<td><a class="loginaid">Forgot Password?</a></td>
+													<td><a class="loginaid" href="resetpass.jsp">Forgot Password?</a></td>
 													<td valign="top">&nbsp;</td>
 												</tr>
 											</table>
