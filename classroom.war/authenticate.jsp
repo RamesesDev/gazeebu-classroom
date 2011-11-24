@@ -1,16 +1,17 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 
 <t:public redirect_session="false">
 	
 	<h2 style="color:red;">Your session has expired.</h2>
-	<p>Please specify your email and password</p>
+	<p>Please specify your username and password</p>
 	
 	<form action="login.jsp" method="post">
 		<table cellspacing="0" cellpadding="1" class="loginform">
 			<tr>
-				<td>Email: </td>
+				<td>Username: </td>
 				<td>
-					<input id="uid" type="text" name="username" hint="Email" />
+					<input id="uid" type="text" name="username" hint="Username" />
 				</td>	
 			</tr>
 			<tr>
@@ -27,6 +28,9 @@
 				</td>
 			</tr>
 		</table>
+		<c:if test="${! empty param['u']}">
+			<input type="hidden" name="u" value="${param['u']}"/>
+		</c:if>
 	</form>
 	<script type="text/javascript">
 		$(function(){ $('#uid').focus(); });

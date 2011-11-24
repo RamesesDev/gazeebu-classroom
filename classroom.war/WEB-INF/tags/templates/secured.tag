@@ -6,7 +6,14 @@
 <%@ attribute name="header_middle" fragment="true" %>
 
 <c:if test="${empty SESSIONID}">
-	<%response.sendRedirect("authenticate.jsp");%>
+	<%
+		String uri = request.getRequestURI();
+		String qs = request.getQueryString();
+		if( qs != null )
+			uri = uri + "?" + qs;
+		
+		response.sendRedirect("authenticate.jsp?u=" + uri);
+	%>
 </c:if>
 
 <c:if test="${!empty SESSIONID}">

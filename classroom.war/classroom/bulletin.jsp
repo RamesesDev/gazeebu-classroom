@@ -157,10 +157,12 @@
 	</jsp:attribute>
 	
 	<jsp:attribute name="rightpanel">
-		<table style="font-size:11px;">
+		<table>
 			<tr>
-				<td style="font-size:12px;">
-					Sponsored Ads<br>
+				<td>
+					<div style="font-family:helvetica;font-size:1.3em;color:red;font-weight:bolder;">Deals for the day</div>
+					<br>
+					<i>No deals today in your area</i>
 				</td>
 			</tr>
 		</table>

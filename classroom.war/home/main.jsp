@@ -10,7 +10,7 @@
 	</jsp:attribute>
 
 	<jsp:attribute name="rightpanel">
-		<div style="font-family:helvetica;font-size:1.3em;color:red;font-weight:bolder;">Daily Deals</div>
+		<div style="font-family:helvetica;font-size:1.3em;color:red;font-weight:bolder;">Deals for the day</div>
 		<br>
 		<i>No deals today in your area</i>
 	</jsp:attribute>
@@ -72,7 +72,7 @@
 				<td style="font-size:14px;color:darkslateblue;font-weight:bolder;" class="msg-divider">#{item.sendername}</td> 
 				<td valign="top" rowspan="3"  class="msg-divider">
 					<input type="button" r:context="main" r:name="accept" value="Accept" /> 
-					<input type="button" r:context="main" r:name="ignore" value="Ignore" /> 
+					<input type="button" r:context="main" r:name="ignore" value="Not Now" /> 
 				</td>
 			</tr>
 			<tr>

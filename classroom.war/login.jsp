@@ -17,7 +17,11 @@
 	<%
 		Cookie cookie = new Cookie( "sessionid", (String)request.getAttribute("SESSIONID") ) ;
 		response.addCookie( cookie );
-		response.sendRedirect("home.jsp");
+		
+		if( request.getParameter("u") != null )
+			response.sendRedirect(request.getParameter("u"));
+		else
+			response.sendRedirect("home.jsp");
 	%>
 </c:if>
 

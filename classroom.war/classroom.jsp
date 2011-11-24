@@ -4,6 +4,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 
 <s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="CLASS_INFO"/>
+
 <t:secured-master>
 	<jsp:attribute name="head">
 		<link href="${pageContext.servletContext.contextPath}/css/classroom.css" type="text/css" rel="stylesheet" />
@@ -41,6 +42,13 @@
 				var loadMembers = function() {
 					self.classInfo = svc.getClassInfo( classid );
 					var me = self.classInfo.members.find( function(o) {return o.objid == "${SESSION_INFO.userid}"}  );
+					
+					//redirecto home home.jsp if you do not belong to this class
+					if( !me ) {
+						window.location.href = './home.jsp';
+						return;
+					}
+					
 					me.me = true;
 					
 					//if first time to open the class
