@@ -92,6 +92,7 @@ class ClassInviteNotifier {
 		
 		def m = [:];
 		m.usertype = usertype;
+		m.classid = c.objid;
 		m.classname =  c.name;
 		m.schedules = c.schedules;
 		

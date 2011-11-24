@@ -4,7 +4,11 @@
 	
 		${senderlname}, ${senderfname} has accepted your
 		${usertype == 'student'? 'invitation' : 'request'}
-		to join <b>${classname}</b> ${schedules? '<i>'+ schedules +'</i>' : ''} class.
+		to join 
+		<b>
+			<a href="www.gazeebu.com/classroom/classroom.jsp?classid=${classid}">${classname}</a>
+		</b> 
+		${schedules? '<i>'+ schedules +'</i>' : ''} class.
 		<br><br>
 			
 		<br><br>	
