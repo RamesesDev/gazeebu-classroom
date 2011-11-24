@@ -63,7 +63,6 @@ class SMSService
 	 * parameter fields:
 	 *   to, message
 	 */
-	/*
 	@ProxyMethod
 	public def send( msg ) 
 	{
@@ -90,13 +89,6 @@ class SMSService
 			e.printStackTrace();
 			throw e;
 		}
-	}
-	*/
-	
-	@ProxyMethod
-	public def send( msg ) 
-	{
-		println "sending sms: $msg";
 	}
 	
 	@ProxyMethod
