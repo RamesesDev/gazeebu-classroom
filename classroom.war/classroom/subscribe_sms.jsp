@@ -76,6 +76,17 @@
 		<br>
 		<div>Enter Keyword to send messages from the phone</div>
 		<div><input type="text" r:context="subscribe_sms" r:name="data.keyword"/>
+		
+		<br>
+		<h2>Receiving Messages</h2> 
+		<input type="checkbox">Receive messages from bulletin board<br>
+		<input type="checkbox">Receive messages from discussion board<br>
+		<input type="checkbox">Receive private messages<br>
+		
+		<h2>Sending Messages using mobile.</h2> 
+		<i>Type in your keyword and send to the Gazeebu number.<a href="xxx">View here for available countries</a></i><br>
+		<input type="text">Send message to bulletin.<br>
+		<input type="text">Send message to teacher<br>
     </jsp:body>
 	
 </t:popup>

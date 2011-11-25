@@ -7,6 +7,9 @@
 <%
 	Map m = new HashMap();
 	m.put("classid", request.getParameter("classid") );
+	if( request.getParameter("periodid")!=null && request.getParameter("periodid").toString().trim().length() > 0 ) {
+		m.put("periodid", request.getParameter("periodid") );
+	}
 	request.setAttribute( "params", m );
 %>
 
@@ -47,6 +50,11 @@
 			new function() {
 				var self = this;
 				this._controller;
+				this.periodid;
+				this.periods = [];
+				<c:forEach items="${INFO.gradingPeriods}" var="p"> 
+				this.periods.push( {objid:"${p.objid}", title:"${p.title}" } );
+				</c:forEach>
 				
 				var afterSave = function() {
 					self._controller.reload();
@@ -57,11 +65,20 @@
 				this.editEntry = function() {
 					return new PopupOpener("edit_activity", {activityid: this.activityid, saveHandler:afterSave});
 				}
+				this.propertyChangeListener = {
+					"periodid" : function(o) {
+						location.hash='classrecord:classrecord?periodid='+o;
+					}
+				}
 			}
 		);
 	</jsp:attribute>
 	
 	<jsp:attribute name="actions">
+		<c:if test="${! empty INFO.gradingPeriods}">
+		Period: <select r:context="classrecord" r:items="periods" r:itemKey="objid" r:itemLabel="title" r:name="periodid" 
+			r:allowNull="true" r:emptyText="All" />
+		</c:if>
 		<input class="button" type="button" r:context="classrecord" r:name="addEntry" value="Add Entry" /> 
 	</jsp:attribute>
 	
@@ -76,6 +93,8 @@
 			</c:forEach>
 			</tr>
 		</table>
+		
+		
 		<br>
 		<table class="students" cellpadding="1" cellspacing="0" width="100%" border="1">
 			<tr>

@@ -22,7 +22,8 @@ class ClassrecordService {
 		def summary = [:];
 		summary.gradingPeriods = gradingService.getGradingPeriods( p );
 		summary.gradingCriteria = gradingService.getGradingCriteria( p );
-		summary.activities = em.sqlContext.createNamedQuery('classrecord:activitylist').setParameters(p).resultList;
+		def qryName = (p.periodid) ? 'classrecord:activitylist-byperiod' : 'classrecord:activitylist';
+		summary.activities = em.sqlContext.createNamedQuery(qryName).setParameters(p).resultList;
 		summary.students = classInfo.members.findAll{ it.usertype == "student" };
 		summary.activities.each {
 			if(it.activitydate) it.activitydate = dtformat.format(it.activitydate);
@@ -103,9 +104,17 @@ class ClassrecordService {
 			m.score = it.score;	
 		}
 		def criterias = gradingService.getGradingCriteria( p );
-		result.criteriaTitles = criterias.collect { [objid: it.objid, title: it.title, weight: it.weight ] }
+		result.criteriaTitles = criterias;
 		result.criteria =  criterias.groupBy{ it.objid }.each {it.value = it.value[0] };
 		result.periods =  gradingService.getGradingPeriods( p ).groupBy { it.objid }.each {it.value = it.value[0] };
+		
+		result.totals = result.activities.groupBy{ [it.criteriaid, it.periodid] }.collect {
+			[	criteriaid: it.key[0], 
+				periodid: it.key[1],
+				totalscore: it.value.findAll{x->x.totalscore.isNumber()}.sum{x->new java.math.BigDecimal(x.totalscore)},
+				score: it.value.findAll{x->x.score.isNumber()}.sum{x->new java.math.BigDecimal(x.score)}
+			]   
+		}
 		return result;
 	}
 	
