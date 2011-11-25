@@ -4,6 +4,7 @@ import com.rameses.web.fileupload.*;
 import java.io.*;
 import java.util.regex.*;
 import testweb.*;
+import java.math.BigDecimal;
 
 class CreditService {
 
@@ -16,7 +17,7 @@ class CreditService {
 	@Service("DateService")	
 	def dateService;
 	
-	def df = new java.text.SimpleDateFormat("EEE MMMM dd yyyy KK:mm a");
+	def df = new java.text.SimpleDateFormat("yyyy-MM-dd");
 
 	@ProxyMethod
 	public void addCredit(def o) {
@@ -56,7 +57,6 @@ class CreditService {
 	      def initCheck = em.sqlContext.createNamedQuery("credit:inquireBalance");
 	      initCheck.setParameters( [objid:o.objid, credittype:o.credittype] );
 	      def checkres = initCheck.singleResult;
-	      println "value: " + o.value + "  available " + checkres.available ;
 	      if((checkres.available ) <= 0 || checkres.available < o.value)
 	         throw new Exception("Insufficient credits for " + o.credittype + " transactions.");
 	   
@@ -83,16 +83,18 @@ class CreditService {
 	@ProxyMethod
 	public def getCredits(def o) {
 	    try {
-	      def qry = em.sqlContext.createNamedQuery("credit:getCredits");
-	      qry.setParameter("objid", o.objid);
-		   return qry.singleResult;
+	      def c = em.sqlContext.createNamedQuery("credit:getCredits")
+	      	       .setParameter("objid", o.objid)
+		             .singleResult;
+		             
+		   return c ? c : [  totalcredits:0, availablecredits:0, totalconsumed:0, totalshared:0, totaldonated:0 ];
 		}catch(ex) { 
 		   ex.printStackTrace(); 
 		   throw ex;
 		}
 	}
 	
-	private def studentCreditExists(def objid) {
+	private def creditAccountExists(def objid) {
 	   try{
  	      def qry = em.sqlContext.createNamedQuery("credit:inCredit");
 	      qry.setParameter("objid", objid);
@@ -135,7 +137,7 @@ class CreditService {
 	@ProxyMethod
 	public void shareCredits(def o) {
 	   try {
-	      if(! studentCreditExists(o.to) )
+	      if(! creditAccountExists(o.to) )
 	         createCreditAccount(o.to);
 	         
 	      deductCreditShareFrom(o.from, o.amount); //deduct available credits FROM SENDER
@@ -189,7 +191,7 @@ class CreditService {
 	@ProxyMethod
 	public void donate(def o) {
 	   try {
-	      if(! studentCreditExists(o.to) )
+	      if(! creditAccountExists(o.to) )
 	         createCreditAccount(o.to);
 	   
 	      deductCreditDonationFrom(o.from, o.amount);//deduct available credits FROM DONATOR
@@ -252,5 +254,137 @@ class CreditService {
 	
 	/*
 	   donate ends here
+	*/
+	
+	
+	/*
+      Paypal Starts here
+	*/
+	
+	@ProxyMethod
+	public def createDraftOrder(def params) {
+	   try{
+	      em.save("credit_order", params);
+	      return true;
+	   }catch(ex) {
+	      ex.printStackTrace();
+         return false;
+	   }
+	}
+	
+	@ProxyMethod 
+	public def generateTransactionID() {
+	   return "BC" + new java.rmi.server.UID();
+	}
+	
+	@ProxyMethod
+	public def encryptIDs(def userid, def transactionid) {
+	   return (userid + "" + transactionid).hashCode();
+	}
+	
+	@ProxyMethod
+	public void validateOrder(def params) {
+	   try {     
+	      def qry = em.sqlContext.createNamedQuery("credit:verifytransactionid");
+	      qry.setParameter("transactionid", params.transactionid);
+	      def result = qry.singleResult;
+         
+	      if(!result)
+	         throw new Exception("Transaction ID: " + params.transactionid + " cannot be found.");
+	        
+	      def hashcode = encryptIDs(result.objid, params.transactionid);
+	      if(! result.checkid == hashcode)
+	         throw new Exception("Check ID does not match. User ID " + result.objid + " Transaction ID " + params.transactionid );
+	         
+	      if(result.status.equals("COMPLETED"))
+	         throw new Exception("Transaction has been processed. Cannot continue. Transaction ID: " + params.transactionid );
+         
+         if(result.status.equals("CANCELLED"))
+	         throw new Exception("Transaction has been cancelled. Cannot continue. Transaction ID: " + params.transactionid );
+         
+         if(!result.paymentcurrency.equals(params.paymentcurrency)) 
+            throw new Exception("Currency is incorrect.");
+            
+         if(result.totalprice.compareTo(new BigDecimal(params.paymentamount)) != 0)
+            throw new Exception("Amount does not coincide with the payed amount.");
+            
+         if(!result.receiveremail.equals(params.receiveremail))
+            throw new Exception("Receiver Email is incorrect.");
+          
+	      def data = [
+	         objid:result.objid,
+	         txntype:"PAYPAL_BUY",
+	         value:result.totalcredits,
+	         particulars:"Money Spent(" + result.paymentcurrency + "): " + result.totalprice + " with a Transaction ID " + result.transactionid 
+	      ];
+	      
+	      updateOrder(result); //updates the status of the order to 'COMPLETED'
+	      addCredit(data); //add credits to a person with a status of 'PAYPAL_BUY'
+	   }catch(ex) {
+	      ex.printStackTrace();
+	      throw ex;
+	   }
+	}
+	
+	private void updateOrder(def params) {
+	   try{
+	      def qry = em.sqlContext.createNamedExecutor("credit:updateorder");
+	      qry.setParameters( [
+	         transactionid:params.transactionid,
+	         objid:params.objid
+	      ]);
+	      
+	      qry.execute();
+	   }catch(ex){
+	      ex.printStackTrace();
+	      throw ex;
+	   }
+	}
+	
+	@ProxyMethod
+	public def hasPendingOrder(def params) {
+	   try {
+	      def qry = em.sqlContext.createNamedQuery("credit:checkPendingOrder");
+	      qry.setParameter("objid",params.objid);
+	      def result = qry.singleResult;
+	      if(result)
+	         return result;
+	      else
+	         [];
+	   }catch(ex){
+	      ex.printStackTrace();
+	      throw ex;
+	   }
+	}
+	
+	@ProxyMethod
+	public def cancelPendingOrder(def params) {
+	   try {
+	      def qry = em.sqlContext.createNamedExecutor("credit:cancelPendingOrder");
+	      qry.setParameters( [
+	         transactionid:params.transactionid,
+	         objid:params.objid
+	      ]);
+	      
+	      qry.execute();
+	      
+	      def date = dateService.serverDate;
+	      
+	      def history = [
+            objid:"TH" + new java.rmi.server.UID(),
+            refid:params.objid,
+            txndate:date,
+            txntype:"PAYPAL_CANCEL",
+            value:params.totalcredits,
+            particulars:"CANCELLED: Money Spent(PHP): 125.00 with a Transaction ID BC-45a09e1b:1333dea4ad1:-7fec"
+         ];
+         addHistory(history);
+	   }catch(ex) {
+	      ex.printStackTrace();
+	      throw ex;
+	   }
+	}
+	/*
+	   Paypal Ends Here
 	*/
 }

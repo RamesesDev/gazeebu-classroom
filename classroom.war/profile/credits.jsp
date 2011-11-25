@@ -6,17 +6,16 @@
       Registry.add({id:"sharecredit", page:"profile/sharecredit.jsp", context:"sharecredit"});
       Registry.add({id:"donate", page:"profile/donate.jsp", context:"donate"});
       Registry.add({id:"buycredits", page:"profile/buycredits.jsp", context:"buycredits"});
+      Registry.add({id:"pendingorder", page:"profile/pendingorder.jsp", context:"pendingorder"});
       $put("credits", 
          new function() {
             var self = this;
-            var accsvc = ProxyService.lookup("UserProfileService");
             var creditsvc = ProxyService.lookup("CreditService");
             this.user = {};
             this.credits = {};
             this._controller;
             
             this.onload = function() {
-               this.user = accsvc.getInfo( { objid:"${SESSION_INFO.userid}" } );
                this.credits = creditsvc.getCredits({ objid:"${SESSION_INFO.userid}" });
             }
             
@@ -40,9 +39,19 @@
             }
             
             this.buycredits = function() {
-               var popup = new PopupOpener('buycredits', {credits:this.credits});
-               popup.title="Buy Credits";
-               popup.options={width:500, height:375, resizable:false};
+               var popup;
+               
+               this.hasPendingOrder = creditsvc.hasPendingOrder({ objid:"${SESSION_INFO.userid}" });
+               
+               if(this.hasPendingOrder == null) {
+                  popup = new PopupOpener('buycredits', {credits:this.credits, userid:"${SESSION_INFO.userid}"});
+                  popup.title="Buy Credits";
+                  popup.options={width:500, height:385, resizable:false};
+               } else {
+                  popup = new PopupOpener('pendingorder', {pendingOrder:this.hasPendingOrder, userid:"${SESSION_INFO.userid}"});
+                  popup.title="Pending Order";
+                  popup.options={width:250, height:175, resizable:false};
+               }
                return popup;
             }
          }
@@ -73,30 +82,27 @@
       <tr>
          <td class="right caption">Available Credits: &nbsp&nbsp</td>
          <td >
-            <label r:context="credits">#{credits.availablecredits? credits.availablecredits : 0}</label>
+            <label r:context="credits">#{credits.availablecredits}</label>
          </td>
       </tr>
       <tr>
          <td class="right caption">Total Consumed: &nbsp&nbsp</td>
          <td>
-            <label r:context="credits">#{credits.totalconsumed? credits.totalconsumed : 0}</label>
+            <label r:context="credits">#{credits.totalconsumed}</label>
          </td>
       </tr>
       <tr>
          <td class="right caption">Total Shared: &nbsp&nbsp</td>
          <td>
-            <label r:context="credits">#{credits.totalshared? credits.totalshared : 0}</label>
+            <label r:context="credits">#{credits.totalshared}</label>
          </td>
       </tr>
       <tr>
          <td class="right caption">Total Donated: &nbsp&nbsp</td>
          <td>
-            <label r:context="credits">#{credits.totaldonated? credits.totaldonated : 0}</label>
+            <label r:context="credits">#{credits.totaldonated}</label>
          </td>
       </tr>
    </table>
    </div>
-   
-   
-   
 </t:content>

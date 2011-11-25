@@ -1,10 +1,25 @@
-[inquireBalance]
-   SELECT c.availablecredits - ifnull(sum(ce.available), 0.00) AS available
-   FROM credit c
-   LEFT JOIN credit_exception ce ON c.objid = ce.objid AND ce.type <> $P{credittype}
-   WHERE c.objid = $P{objid}
-   GROUP BY ce.objid
+[cancelPendingOrder]
+   UPDATE credit_order
+   SET status = "CANCELLED"
+   WHERE transactionid = $P{transactionid}
+   AND objid = $P{objid}
 
+[checkPendingOrder]
+   SELECT * 
+   FROM credit_order
+   WHERE objid = $P{objid}
+   AND status = "DRAFT" 
+
+[updateorder]
+   UPDATE credit_order
+   SET status = "COMPLETED"
+   WHERE transactionid = $P{transactionid}
+   AND objid = $P{objid}
+
+[verifytransactionid]
+   SELECT * 
+   FROM credit_order
+   WHERE transactionid = $P{transactionid}
 
 [inCredit]
    SELECT objid

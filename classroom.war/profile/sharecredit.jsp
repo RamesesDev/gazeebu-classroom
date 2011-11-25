@@ -2,7 +2,7 @@
 	$put(
 		"sharecredit", 
 		new function() 
-		{
+		{ 
 			var creditsvc = ProxyService.lookup("CreditService");
 			var self = this;
 			this._controller;

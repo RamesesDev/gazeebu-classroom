@@ -64,6 +64,7 @@ class SMSService
 	 *   to, message
 	 */
 	@ProxyMethod
+	@Async
 	public def send( msg ) 
 	{
 		try {
@@ -86,8 +87,8 @@ class SMSService
 			return [transid: result[2], timestamp: result[3]];
 		}
 		catch(e) {
+			println "Failed to send sms to $msg.to, message:\n$msg.msg";
 			e.printStackTrace();
-			throw e;
 		}
 	}
 	

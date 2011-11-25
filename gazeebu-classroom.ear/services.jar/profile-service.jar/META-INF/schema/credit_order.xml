@@ -1,0 +1,12 @@
+<schema>
+    <element tablename="credit_order">
+    	<field name="objid" primary="true"/>
+    	<field name="transactionid" primary="true"/>
+    	<field name="totalprice"/>
+    	<field name="totalcredits"/>
+    	<field name="status"/>
+    	<field name="paymentcurrency"/>
+    	<field name="receiveremail"/>
+    	<field name="checkid"/>
+    </element>
+</schema>
