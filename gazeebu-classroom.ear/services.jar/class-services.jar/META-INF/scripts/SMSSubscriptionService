@@ -1,4 +1,5 @@
 import com.rameses.annotations.*;
+import com.rameses.util.*;
 
 /***
 * This class handles management of classes.
@@ -13,6 +14,13 @@ public class SMSSubscriptionService {
 	
 	@Service("SMSService")
 	def smsService;
+	
+	@Service("ClassroomService")
+	def classroomSvc;
+	
+	@Service("CreditService")
+	def creditSvc;
+	
 	
 	@ProxyMethod
 	public def subscribe( def o ){
@@ -29,8 +37,7 @@ public class SMSSubscriptionService {
 	}
 
 	@ProxyMethod
-	public def unsubscribe(def o){
-		print "removing " + o;
+	public def unsubscribe(def o) {
 		em.delete( "sms_subscription", o);
 	}
 	
@@ -49,15 +56,64 @@ public class SMSSubscriptionService {
 		def x = em.read( "sms_subscription", o );
 		if(x) {
 			//print "sms sender to ->" + x.phone + "=" + o.msg;
-			smsService.send( [to:x.phone, msg: o.msg ] );
+			try {
+				def credit = [
+					objid: o.userid, txntype: 'TXT', value: 1, 
+					particulars: "msgtype: $x.msgtype, classid: $o.classid".toString()
+				];
+				creditSvc.consumeCredit(credit);
+				smsService.send( [to:x.phone, msg: o.msg ] );
+			}
+			catch(e) {
+				println "Failed to send SMS to $x.phone";
+				println "Cause: " + ExceptionManager.getOriginal(e).message;
+				}
 		}	
 	}
 	
 	@ProxyMethod
 	public def getSubscriptions( param ) {
-		assert param.userid;
+		if( !param.userid ) param.userid = env.userid;
 		
-		return em.sqlContext.createQuery('select * from sms_subscription where userid=?')
-		         .setParameter(1, param.userid).resultList;
+		def sql = new StringBuffer();
+		sql << 'select * from sms_subscription where userid=?';
+		
+		if( param.classid ) sql << ' and classid=? ';
+		if( param.msgtypes ) sql << ' and msgtype in (' + '? '.multiply(param.msgtypes.size()).trim().replace(' ',',') + ')';		
+		
+		def q = em.sqlContext.createQuery(sql.toString());
+		
+		def pcnt = 1;
+		q.setParameter(pcnt++, param.userid);
+		if( param.classid ) q.setParameter(pcnt++, param.classid);
+		param.msgtypes?.each{ q.setParameter(pcnt++, it) }
+		
+		return q.resultList.each{
+			def info = classroomSvc.getClassInfo( it.classid );
+			if( info ) {
+				it.classname = info.name;
+				it.schedules = info.schedules;
+			}
+		};
+	}
+	
+	@ProxyMethod
+	public void updateSubscriptions( param ) {
+		if(!param.userid) param.userid = env.userid;
+		if( param.phone ) param.phone = param.phone.replace('+', '');
+		def diff = param.oldmsgtypes - param.msgtypes
+		def update = param.msgtypes - diff
+		
+		diff.each{
+			param.msgtype = it;
+			em.delete( "sms_subscription", param);
+		};
+		
+		update.each {
+			param.msgtype = it;
+			param.remove('keyword');
+			if( param[it + '_keyword'] ) param.keyword = param[it + '_keyword'];
+			em.save( "sms_subscription", param );
+		};
 	}
 }

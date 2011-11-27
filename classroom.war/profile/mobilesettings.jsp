@@ -44,10 +44,10 @@
 			   cellpadding="0" cellspacing="0" border="0" >
 			<thead>
 				<tr>
-					<th width="120">Type</th>
+					<th width="80">Type</th>
 					<th width="120">Mobile No.</th>
-					<th width="120">Class</th>
-					<th width="120">Keyword</th>
+					<th width="200">Class</th>
+					<th width="100">Keyword</th>
 					<th>&nbsp;</th>
 				</tr>
 				<tr>
@@ -56,11 +56,11 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td>#{msgtype}</td>
-					<td>#{phone}</td>
-					<td>#{classname? classname : ''}</td>
-					<td>#{keyword}</td>
-					<td>
+					<td valign="top">#{msgtype}</td>
+					<td valign="top">#{phone}</td>
+					<td valign="top">#{classname? classname : ''}#{schedules? '<br><i>'+schedules+'</i>' : ''}</td>
+					<td valign="top">#{keyword? keyword : ''}</td>
+					<td valign="top">
 						<a r:context="mobilesettings" r:name="edit">Edit</a> |
 						<a r:context="mobilesettings" r:name="remove">Remove</a>
 					</td>

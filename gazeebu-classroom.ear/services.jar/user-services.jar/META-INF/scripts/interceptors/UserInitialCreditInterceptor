@@ -1,0 +1,21 @@
+import com.rameses.annotations.*;
+import com.rameses.eserver.*;
+
+
+class UserInitialCreditInterceptor {
+
+	@Service('CreditService')
+	def svc;
+
+	@After(pattern="UserProfileService.register.*")
+	public void addCredit( evt ) {
+		def user = evt.result;
+		
+		//add initial 50 credits
+		svc.createCreditAccount([
+			objid: user.objid,
+			value: 50
+		]);
+	}
+
+}

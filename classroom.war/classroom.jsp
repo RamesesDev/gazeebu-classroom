@@ -17,7 +17,7 @@
 		$register({id: "usermessage", page:"classroom/usermessage.jsp", context:"usermessage"});
 		$register( {id:"invite_student", page:"classroom/invite_student.jsp", context:"invite_student", title:"Invite Students", options: {width:500,height:400} } )
 		$register({id: "comment", page:"classroom/comment.jsp", context:"comment", title:"Post a comment", options: {width:400, height:200}});
-		$register({id: "subscribe_sms", page:"classroom/subscribe_sms.jsp", context:"subscribe_sms", title:"Subscribe SMS", options: {width:400, height:300}});
+		$register({id: "subscribe_sms", page:"classroom/subscribe_sms.jsp", context:"subscribe_sms", title:"Subscribe SMS", options: {width:500, height:350}});
 		$register({id: "add_award", page:"classroom/add_award.jsp", context:"add_award", title:"Add an Award", options: {width:400, height:300}});
 		$register({id: "class_welcome", page:"classroom/class_welcome.jsp", context:"class_welcome", title:"Welcome", options: {width:650, height:500}});
 		
@@ -89,6 +89,15 @@
 				
 				this.inviteStudents = function() {
 					return new PopupOpener("invite_student");
+				}
+				
+				this.getName = function( item ) {
+					var max = 22;
+					if( item.me ) max -= 5;
+					var n = item.lastname +', '+ item.firstname;					
+					if( n.length > max - 3 ) n = n.substr(0,max-3) + '...';
+					n += (item.me ? '<b>(me)</b>' : '');
+					return n;
 				}
 			}
 		);
@@ -166,17 +175,17 @@
 		<br>
 		<table r:context="classroom" r:items="classInfo.members" r:varStatus="stat" r:varName="item" width="95%" cellpadding="0" cellspacing="0">
 			<tbody>
-				<tr r:visibleWhen="#{item.usertype == 'teacher' && stat.prevItem.usertype!='teacher'}" >
+				<tr r:visibleWhen="#{item.usertype == 'teacher'}" >
 					<td class="menutitle" style="padding-top:10px;">TEACHER</td>
 				</tr>
-				<tr r:visibleWhen="#{item.usertype == 'student'  && stat.prevItem.usertype!='student'}" >
+				<tr r:visibleWhen="#{item.usertype == 'student' && stat.prevItem.usertype!='student'}" >
 					<td class="menutitle" style="padding-top:10px;">${CLASS_INFO.usertype=='teacher' ? 'STUDENTS' : 'CLASSMATES'}</td>
 				</tr>
 				<tr class="menuitem">
 					<td valign="top">
 						<img src="img/#{item.status}.png"/>
-						<a href="#usermessage?objid=#{item.objid}" class="menuitem">
-							#{item.lastname}, #{item.firstname} #{item.me ? '<b>(me)</b>' : ''}
+						<a href="#usermessage?objid=#{item.objid}" class="menuitem" title="#{item.lastname}, #{item.firstname}">
+							#{getName(item)}
 						</a>
 					</td>
 					

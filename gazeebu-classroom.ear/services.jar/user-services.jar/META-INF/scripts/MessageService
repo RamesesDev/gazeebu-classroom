@@ -23,7 +23,7 @@ class MessageService {
 	@Resource("CacheService")
 	def cacheService;
 	
-	private int LIMIT = 3;
+	private int LIMIT = 5;
 	
 	/** getCustomChannels should be intercepted**/
 	@ProxyMethod

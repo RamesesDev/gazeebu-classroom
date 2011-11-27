@@ -1,3 +1,11 @@
+[inquireBalance]
+   SELECT c.availablecredits - ifnull(sum(ce.available), 0.00) AS available
+   FROM credit c
+   LEFT JOIN credit_exception ce ON c.objid = ce.objid AND ce.type <> $P{credittype}
+   WHERE c.objid = $P{objid}
+   GROUP BY ce.objid
+
+
 [cancelPendingOrder]
    UPDATE credit_order
    SET status = "CANCELLED"
@@ -28,7 +36,8 @@
 
 [consumeCredit]
    UPDATE credit
-   SET availablecredits = availablecredits - $P{value}
+   SET availablecredits = availablecredits - $P{value},
+       totalconsumed = totalconsumed + $P{value}
    WHERE objid = $P{objid}
    
 [addCredit]

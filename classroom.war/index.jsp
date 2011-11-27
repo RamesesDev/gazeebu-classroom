@@ -58,7 +58,7 @@
                            r:hint="Middle name"/>
 					<br/>
 					<span class="btn">
-						<button>Sign up</button>
+						<button type="submit">Sign up</button>
 					</span>
 				</form>
 			</td>

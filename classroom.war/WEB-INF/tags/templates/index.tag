@@ -11,6 +11,7 @@
 </c:if>
 
 <c:if test="${(empty SESSIONID) || (empty redirect_session) || (redirect_session=='false')}">
+	<!DOCTYPE html>
 	<html>
 		<head>
 			<title>Gazeebu Classroom</title>
@@ -76,7 +77,7 @@
 								<td id="topmenu" align="right" valign="top">
 
 									<c:if test="${empty SESSIONID}">
-										<form action="login.jsp" method="post">
+										<form class="login" action="login.jsp" method="post">
 											<table cellspacing="0" cellpadding="1" class="loginform">
 												<tr>
 													<td valign="top">
@@ -86,17 +87,17 @@
 														<input id="pwd" type="password" r:name="password" name="password"  r:hint="Password" class="logininput"  r:context="login"/>
 													</td>
 													<td valign="top" style="padding-top:3px;">
-														<button type="submit" class="loginbutton">
+														<button type="submit">
 															Login
 														</button>
 													</td>
 												</tr>
 												<tr>
-													<td class="loginaid" width="20">
-														<a class="loginaid" href="signup.jsp">New User? Sign Up</a>
+													<td align="left">
+														<a href="signup.jsp">New User? Sign Up</a>
 													</td>
 													
-													<td><a class="loginaid" href="resetpass.jsp">Forgot Password?</a></td>
+													<td align="left"><a href="resetpass.jsp">Forgot Password?</a></td>
 													<td valign="top">&nbsp;</td>
 												</tr>
 											</table>

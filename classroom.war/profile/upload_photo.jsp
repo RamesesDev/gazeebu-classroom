@@ -32,8 +32,8 @@
 			if( !dest.exists() ) dest.mkdirs();
 			
 			//---- transfer image to the target directory -----
-			fi.write( new File(dest, fi.getName()) );
-			iu.convertToJPG( dest.getPath()+"/"+fi.getName(), dest.getPath()+"/large."+ext);
+			fi.write( new File(dest, "orig") );
+			iu.convertToJPG( dest.getPath()+"/orig", dest.getPath()+"/large."+ext);
 			iu.createThumbnail( dest.getPath()+"/large."+ext, dest.getPath()+"/medium."+ext, ext, 160);
 			iu.createThumbnail( dest.getPath()+"/large."+ext, dest.getPath()+"/thumbnail."+ext, ext, 50);
 			

@@ -197,9 +197,7 @@
 			<div r:context="bulletin" r:type="textarea" r:name="message.message" r:hint="Post message." class="inner">
 				<div class="controls-wrapper">
 					<div class="controls">
-						<div class="left">
-							<button r:context="" r:name="">Attach</button>
-						</div>
+						<div class="left"></div>
 						<div class="right">
 							<button r:context="bulletin" r:name="send">Post</button>
 						</div>

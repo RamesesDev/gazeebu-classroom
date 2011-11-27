@@ -67,7 +67,7 @@
 							}
 						}
 					}
-				}	
+				}
 			);
 			
 			function login(entity) {
@@ -240,7 +240,7 @@ Welcome to Gazeebu!
                 <td class="left caption text-top"></td>
                 <td>
 					<span class="btn">
-						<button r:context="signup" 
+						<button type="submit" r:context="signup" 
 								r:name="signup">
 							I accept. Create my Account
 						</button>

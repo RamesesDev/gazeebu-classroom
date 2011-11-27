@@ -88,25 +88,25 @@ body {
 }
 
 
-.logininput {
+form.login .logininput {
 	font-size:11px; 
 	font-family:tahoma;	
 	width:150px;
-	height:22px;
+	padding: 3px;
 }
-.loginform .hint {
+form.login .loginform .hint {
 	font-size:11px; 
 	font-family:tahoma;	
 	color: gray;
 }
-.loginbutton {
+form.login button {
 	font-size:11px; 
 	font-family:tahoma;	
-	height:20px;
 	width:50px;
 	border:1px solid lightgrey;
+	padding: 3px;
 }
-.loginaid {
+form.login a {
 	font-size:11px; font-family:tahoma;	color:white;
 	text-decoration:none;
 }

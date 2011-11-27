@@ -54,13 +54,13 @@ class CreditService {
 	      if(!o.txntype) throw new Exception("txntype is required.");
 	      if(!o.value) throw new Exception("value is required.");
 	      
-	      def initCheck = em.sqlContext.createNamedQuery("credit:inquireBalance");
-	      initCheck.setParameters( [objid:o.objid, credittype:o.credittype] );
-	      def checkres = initCheck.singleResult;
-	      if((checkres.available ) <= 0 || checkres.available < o.value)
-	         throw new Exception("Insufficient credits for " + o.credittype + " transactions.");
+	      def qry = em.sqlContext.createNamedQuery("credit:inquireBalance");
+	      qry.setParameters( [objid:o.objid, credittype:o.txntype] );
+	      def checkres = qry.singleResult;
+	      if(!checkres || checkres.available <= 0 || checkres.available < o.value)
+	         throw new Exception("Insufficient credits for " + o.txntype + " transactions.");
 	   
-	      def qry = em.sqlContext.createNamedExecutor("credit:consumeCredit");
+	      qry = em.sqlContext.createNamedExecutor("credit:consumeCredit");
 	      qry.setParameters( [objid:o.objid, value:o.value] ).execute();
 	      
 	      def date = dateService.serverDate;
@@ -75,13 +75,13 @@ class CreditService {
          ];
          addHistory(history);
 	   }catch(Exception ex) { 
-	      ex.printStackTrace(); 
 	      throw ex;   
 	   }
 	}
    
 	@ProxyMethod
 	public def getCredits(def o) {
+		if( !o.objid ) o.objid = env.userid;
 	    try {
 	      def c = em.sqlContext.createNamedQuery("credit:getCredits")
 	      	       .setParameter("objid", o.objid)
@@ -91,6 +91,25 @@ class CreditService {
 		}catch(ex) { 
 		   ex.printStackTrace(); 
 		   throw ex;
+		}
+	}
+	
+	@ProxyMethod
+	public def createCreditAccount( param ) {
+		if( !param.objid ) throw new Exception("objid is required.");		
+		try {
+			def ca = [
+				objid :            param.objid, 
+				totalcredits :     param.value? param.value : 0, 
+				availablecredits : param.value? param.value : 0, 
+				totalconsumed :    0, 
+				totalshared :      0, 
+				totaldonated:      0
+			];
+			return em.create('credit:credit', ca);
+		}catch(ex) {
+			ex.printStackTrace(); 
+			throw ex;
 		}
 	}
 	
@@ -111,18 +130,7 @@ class CreditService {
 	   }
 	   return false;
 	}
-	
-	private def createCreditAccount(def objid) {
-	   try {
-	      def qry = em.sqlContext.createNamedExecutor("credit:createCreditAccount");
-	      qry.setParameter("objid", objid);
-	      return qry.execute();
-	   }catch(ex) {
-	      ex.printStackTrace(); 
-	      throw ex;
-	   }
-	}
-	
+
 	private void addHistory(def history) {
 	   try {
 	      em.save("txn_history",history);
@@ -136,37 +144,39 @@ class CreditService {
 	*/
 	@ProxyMethod
 	public void shareCredits(def o) {
-	   try {
-	      if(! creditAccountExists(o.to) )
-	         createCreditAccount(o.to);
-	         
-	      deductCreditShareFrom(o.from, o.amount); //deduct available credits FROM SENDER
-	      addCreditShareTo(o.to, o.amount); //add availablecredits TO RECEIVER
-	      
-	      def date = dateService.serverDate;
-	      //add txn history
-         def history = [
-            objid:"TH" + new java.rmi.server.UID(),
-            refid:o.from,
-            txndate:date,
-            txntype:"SHARE",
-            value:-o.amount,
-            particulars:"SHARED TO " + o.to
-         ];
-         addHistory(history);
-         history = [
-            objid:"TH" + new java.rmi.server.UID(),
-            refid:o.to,
-            txndate:date,
-            txntype:"SHARE",
-            value:o.amount,
-            particulars:"RECEIVED A SHARE FROM " + o.from
-         ];
-         addHistory(history);
-	   }catch(ex) { 
-	      ex.printStackTrace(); 
-	      throw ex;
-	   }
+		if( !o.from ) o.from = env.userid;
+		
+		try {
+			if(! creditAccountExists(o.to) )
+			 createCreditAccount([objid: o.to]);
+			 
+			deductCreditShareFrom(o.from, o.amount); //deduct available credits FROM SENDER
+			addCreditShareTo(o.to, o.amount); //add availablecredits TO RECEIVER
+
+			def date = dateService.serverDate;
+			//add txn history
+			def history = [
+				objid:"TH" + new java.rmi.server.UID(),
+				refid:o.from,
+				txndate:date,
+				txntype:"SHARE",
+				value:-o.amount,
+				particulars:"SHARED TO " + o.to
+			];
+			addHistory(history);
+			history = [
+				objid:"TH" + new java.rmi.server.UID(),
+				refid:o.to,
+				txndate:date,
+				txntype:"SHARE",
+				value:o.amount,
+				particulars:"RECEIVED A SHARE FROM " + o.from
+			];
+			addHistory(history);
+		}catch(ex) { 
+			ex.printStackTrace(); 
+			throw ex;
+		}
 	}
 	
 	private def deductCreditShareFrom(def from, def amount) throws Exception{
@@ -192,7 +202,7 @@ class CreditService {
 	public void donate(def o) {
 	   try {
 	      if(! creditAccountExists(o.to) )
-	         createCreditAccount(o.to);
+	         createCreditAccount([objid: o.to]);
 	   
 	      deductCreditDonationFrom(o.from, o.amount);//deduct available credits FROM DONATOR
 	      addCreditDonationTo(o.to, o.amount);//add available credits to RECEIVER
