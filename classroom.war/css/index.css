@@ -3,6 +3,9 @@ body {
 	margin:0;
 	background-color: rgb(204,255,255);
 }
+
+img { border: none; }
+
 .head {
 	padding-top:10px;
 	background-color: rgb(54,142,205);

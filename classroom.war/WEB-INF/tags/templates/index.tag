@@ -1,10 +1,28 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
+<%@ tag import="java.util.regex.*" %>
+
 <%@ attribute name="redirect_session" fragment="false" %>
 <%@ attribute name="tab" fragment="false" %>
 <%@ attribute name="script" fragment="true"%>
 <%@ attribute name="style" fragment="true"%>
 
+<%
+
+String userAgent = request.getHeader("user-agent");
+if( userAgent.contains("MSIE") ) {
+	String exp = "MSIE(.*?);";
+	Pattern p = Pattern.compile(exp);
+	Matcher m = p.matcher(userAgent);
+	if( m.find() ) {
+		int v = Integer.parseInt(m.group(1).replaceAll("^\\s+|\\..*", ""));
+		if( v <= 6 ) {
+			response.sendRedirect("not-supported.jsp");
+		}
+	}
+}
+
+%>
 
 <c:if test="${!empty SESSIONID and redirect_session=='true'}">
 	<%response.sendRedirect("home.jsp");%>

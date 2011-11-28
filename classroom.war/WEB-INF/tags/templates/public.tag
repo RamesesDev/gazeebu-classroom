@@ -1,9 +1,31 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
+<%@ tag import="java.util.regex.*" %>
+
 <%@ attribute name="redirect_session" fragment="false" %>
+<%@ attribute name="check_useragent" fragment="false" %>
 <%@ attribute name="head" fragment="true" %>
 <%@ attribute name="script" fragment="true"%>
 <%@ attribute name="style" fragment="true"%>
+
+<c:if test="${check_useragent != 'false'}">
+	<%
+
+	String userAgent = request.getHeader("user-agent");
+	if( userAgent.contains("MSIE") ) {
+		String exp = "MSIE(.*?);";
+		Pattern p = Pattern.compile(exp);
+		Matcher m = p.matcher(userAgent);
+		if( m.find() ) {
+			int v = Integer.parseInt(m.group(1).replaceAll("^\\s+|\\..*", ""));
+			if( v <= 6 ) {
+				response.sendRedirect("not-supported.jsp");
+			}
+		}
+	}
+
+	%>
+</c:if>
 
 <c:if test="${!empty SESSIONID and redirect_session=='true'}">
 	<%response.sendRedirect("home.jsp");%>
@@ -37,7 +59,7 @@
 			</c:if>
 		</head>
 		<body>
-			<table width="100%" height="100%" cellpadding="0" cellspacing="0">
+			<table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0">
 				<tr>
 					<td class="head" valign="top">&nbsp;</td>
 					<td class="head" width="850px" align="right" valign="top">
@@ -56,14 +78,14 @@
 				</tr>
 				<tr>
 					<td class="middle">&nbsp;</td>
-					<td class="middle" height="100%" valign="top"  width="850px"  style="padding-top: 20px;">
+					<td class="middle" valign="top" style="padding-top: 20px;">
 						<jsp:doBody/>
 					</td>
 					<td class="middle">&nbsp;</td>		
 				</tr>
 				<tr>
 					<td class="foot">&nbsp;</td>
-					<td class="foot" height="40">
+					<td class="foot">
 						<p id="footmenu">
 							About &nbsp;&nbsp;
 							Privacy &nbsp;&nbsp;

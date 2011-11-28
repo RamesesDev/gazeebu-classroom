@@ -98,6 +98,27 @@
 		</head>
 		
 		<body>
+			<div class="wrapper ie-scroller">
+				<table class="main-container" width="930px" align="center" cellpadding="0" cellspacing="0" height="100%">
+					<tr>
+						<td height="100%">
+							<jsp:doBody/>
+						</td>
+					</tr>
+					<tr>
+						<td class="footer" width="980" valign="top">
+							<table width="100%" cellpadding="0" cellspacing="0" class="footer">
+								<tr>
+									<td width="165">&nbsp;</td>
+									<td>
+										About Terms Privacy								
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</div>
 			<div class="header-wrapper">
 				<div class="header">
 					<table cellpadding="0" cellspacing="0" width="930px" height="100%" align="center">
@@ -131,27 +152,6 @@
 						</tr>
 					</table>
 				</div>
-			</div>
-			<div class="wrapper ie-scroller">
-				<table class="main-container" width="930px" align="center" cellpadding="0" cellspacing="0" height="100%">
-					<tr>
-						<td height="100%">
-							<jsp:doBody/>
-						</td>
-					</tr>
-					<tr>
-						<td class="footer" width="980" valign="top">
-							<table width="100%" cellpadding="0" cellspacing="0" class="footer">
-								<tr>
-									<td width="165">&nbsp;</td>
-									<td>
-										About Terms Privacy								
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-				</table>
 			</div>
 			<!-- feedback panel 
 			<script type="text/javascript">

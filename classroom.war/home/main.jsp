@@ -30,18 +30,23 @@
 		}
 	</jsp:attribute>
 	
-	<jsp:attribute name="script">
+	<jsp:attribute name="head">
+		<script type="text/javascript">
 		$put("main", 
 			new function() {
-				this._controller;
+				
 				var svc = ProxyService.lookup( "ClassInvitationService" );
+				this._controller;
+				
 				this.listModel = {
 					rows: 10,
 					fetchList: function(o) {
 						return svc.getInvitations(o);
 					}
 				};
+				
 				this.selectedInvite;
+				
 				this.accept = function() {
 					svc.accept( {classid: this.selectedInvite.classid, userid: this.selectedInvite.userid, usertype:this.selectedInvite.usertype}  );
 					this._controller.reload();
@@ -54,6 +59,7 @@
 						if(window.console) console.log(e);
 					}
 				}	
+
 				this.ignore = function() {
 					if(confirm("You are about to discard this invitation. Continue?")) {
 						svc.ignore( {classid: this.selectedInvite.classid, userid: this.selectedInvite.userid, usertype:this.selectedInvite.usertype}  );
@@ -62,7 +68,8 @@
 				}	
 				
 			}
-		);	
+		);
+		</script>
 	</jsp:attribute>
 	
 	
