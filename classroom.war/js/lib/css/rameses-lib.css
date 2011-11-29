@@ -19,8 +19,8 @@ span.hint
 	font-family: arial, tahoma; font-size: 10pt; 
 }
 
-span.hint { color: gray; }
-span.hint-hover { color: lightgrey; }
+span.hint, .input-hint { color: gray; }
+span.hint-hover, .input-hint-hover { color: lightgrey; }
 
 
 /**

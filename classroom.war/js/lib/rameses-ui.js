@@ -269,6 +269,7 @@ function InputHintDecorator( inp, hint ) {
 	}
 
 	function input_keypress(evt) {
+		if( span.is(':hidden') ) return;
 		if( isCharacterPressed(evt) ) hideHint();
 	}
 	

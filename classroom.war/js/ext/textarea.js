@@ -18,14 +18,15 @@ BindingUtils.handlers.div_textarea = function( elem, controller, idx )
 
 	var value = controller.get(name) || '';
 	if( name ) textarea.val( value );
-	if( R.attr(elem, 'hint') ) {
-		new InputHintDecorator( textarea[0], R.attr(elem,'hint') );
+	
+	if( value ) {
+		textarea.trigger('focus');
+	}
+	else {
+		close.trigger('click');
 	}
 	
-	if( value )
-		textarea.trigger('focus');
-	else
-		close.trigger('click');
+	
 
 	//helper
 	function init() {
@@ -38,7 +39,7 @@ BindingUtils.handlers.div_textarea = function( elem, controller, idx )
 		 .wrap('<div class="hint-wrapper" style="width:100%"></div>')
 		 .css({
 			width:'100%',outline:'none',
-			resize:'none',overflow:'hidden'
+			resize:'none',display:'block',overflow:'auto'
 		 });
 		
 		close = tpl.find('a')
@@ -48,39 +49,43 @@ BindingUtils.handlers.div_textarea = function( elem, controller, idx )
 		 .click(a_click);
 		
 		textarea
-		 .keydown(function(){ resize(this, 30); })
-		 .keyup(function(){ resize(this, 30); })
 		 .focus(ta_focus)
-		 .change(update_bean);
+		 .blur(ta_blur)
+		 .change(update_bean)
+		 .autoResizable({
+			animate: true,
+			animateDuration: 300,
+			padding: 30,
+			paste: true,
+			pasteInterval: 100
+
+		 });
 		
 		e.data('_textarea', textarea)
 		 .data('_close', close)
 		 .data('_controls', controls);
 	}
 	
-	function resize( ta, offset ) {
-		var origH = $(ta).data('height');
-		$(ta).css('height', 0 );
-		var newH = ta.scrollHeight + offset;
-		
-		if( origH != newH ) {
-			if( origH ) $(ta).css('height', origH);
-			$(ta).data('height', newH).stop().animate({'height': newH},50);
-		}
-		else {
-			$(ta).css('height', newH);
-		}
-	}
-	
 	function ta_focus() {
-		resize(this, 30); 
+		if( R.attr(elem, 'hint') && $(this).hasClass('input-hint') ) {
+			$(this).val('').removeClass('input-hint');
+		}
+		$(this).height(50);
 		close.stop().animate({opacity: 1},50);
 		if( controls ) controls.show();
 	}
 	
+	function ta_blur() {
+		if( !this.value.trim() && !$(this).hasClass('input-hint') && R.attr(elem, 'hint') ) {
+			$(this).val(R.attr(elem, 'hint')).addClass('input-hint');
+		}
+	}
+	
 	function a_click(){ 
-		resize(textarea[0], 0);
-		textarea.val('').trigger('change');
+		textarea.val('').trigger('change').height(20);
+		if( R.attr(elem, 'hint') ) {
+			textarea.val(R.attr(elem, 'hint')).addClass('input-hint');
+		}
 		$(this).stop().animate({opacity:0},50);
 		if( controls ) controls.hide();
 		return false; 
