@@ -141,6 +141,11 @@ class ClassroomService {
 		return classroom.members.find{ it.objid == env.userid };
 	}
 	
+	@ProxyMethod
+	public void removeMember(def o) {
+		em.sqlContext.createNamedExecutor("classroom:remove-member").setParameters(o).execute();
+		cacheService.remove( o.classid );
+	}
 	
 }
 

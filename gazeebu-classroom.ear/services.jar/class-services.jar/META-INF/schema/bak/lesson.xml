@@ -1,0 +1,14 @@
+<schema>
+	<element tablename="lesson">
+		<field name="objid" primary="true" />
+		<field name="code" />
+		<field name="title" />
+		<field name="classid" />
+		<field name="description" />
+		<field name="goals"/>
+		<complex name="resources"  serializer="default"/>
+		
+		<field name="startdate"/>
+		<field name="enddate"/>
+	</element>	
+</schema>

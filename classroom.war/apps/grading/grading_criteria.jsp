@@ -95,7 +95,7 @@
 		<br>
 		<table width="80%" cellspacing="0" cellpadding="0">
 			<tr>
-				<td colspan="3" class="subtitle-font">Grading Period (Optional)</td>
+				<td colspan="3" class="subtitle-font">Grading Period</td>
 				<td align="right" class="subtitle">
 					<c:if test="${CLASS_INFO.usertype == 'teacher'}">
 						<a r:context="grading_criteria" r:name="editPeriod">Edit</a>

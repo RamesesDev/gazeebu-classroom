@@ -8,3 +8,6 @@
  
 [find-member]
  select * from class_membership where classid=$P{classid} and userid=$P{userid}
+ 
+[remove-member]
+delete from class_membership where classid=$P{classid} and userid=$P{userid}

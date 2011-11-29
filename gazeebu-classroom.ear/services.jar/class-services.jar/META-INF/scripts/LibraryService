@@ -1,0 +1,102 @@
+import com.rameses.annotations.*;
+import java.io.*;
+import java.net.*;
+import com.rameses.io.*;
+
+/***
+* This class handles management of classes.
+*/
+public class LibraryService {
+
+	@Env
+	def env;
+	
+	@PersistenceContext("main")
+	def em;
+
+	@Service("DateService")
+	def dateSvc;
+	
+	def df = new java.text.SimpleDateFormat("MM-dd-yyyy");
+
+	private long DEFAULT_ALLOWED_SIZE = 10000000;	//10 MB initial allowed
+	
+	@ProxyMethod
+	public def uploadResource( o ) {
+		o.objid = "RES:" + new java.rmi.server.UID(); 
+		o.userid = env.userid;
+		o.dtfiled = dateSvc.serverDate;
+		//before uploading check if the user has not yet used maximum size;
+		def acct = em.read( "resource:account", o ); 
+		if(!acct) {
+			acct = [:];
+			acct.allowedsize = DEFAULT_ALLOWED_SIZE;
+			acct.consumed = 0;
+			acct.userid = o.userid;
+		}
+		if( acct.allowedsize < acct.consumed + o.filesize ) 
+			throw new Exception("Your allowed storage size has been exceeded. ");
+		
+		String tmpUrl= System.getProperty("gazeebu.temp.url") + "/" + o.tmpfileid;
+		String resUrl= System.getProperty("gazeebu.library.url") + "/USR" + env.userid.hashCode();
+		File dest = new File(new URL(resUrl).toURI());
+		File f = new File(dest, "FILE"+o.objid.hashCode().toString()+ (o.ext?o.ext:'') );
+		if( !f.getParentFile().exists() ) f.getParentFile().mkdirs();
+		f.createNewFile();
+		File src = new File( new URL(tmpUrl).toURI() );
+		
+		def fis = new FileTransfer.FileInputSource(src);
+		def foh = new FileTransfer.FileOutputHandler(f);
+		FileTransfer ft = new FileTransfer();
+		ft.transfer( fis, foh );
+		
+		src.delete();
+		em.create( "resource", o );
+		
+		acct.consumed += o.filesize;
+		em.save( "resource:account", acct );
+	}
+	
+	@ProxyMethod
+	public def getResources( o ) {
+		o.userid = env.userid;
+		def qryName = "resource:list-all";
+		def list = em.sqlContext.createNamedQuery(qryName).setParameters(o).resultList;
+		list.each {
+			if(it.dtfiled) it.dtfiled = df.format(it.dtfiled);
+			it.fileurl = "USR" + o.userid.hashCode() + "/" + "FILE" + it.objid.hashCode();
+			try {
+				it.fileurl += it.filename.substring(it.filename.lastIndexOf("."));
+			}
+			catch(e){;}
+		}
+		return list;
+	}
+	
+	@ProxyMethod
+	public def removeResources( list ) {
+		def revert = 0;
+		def files = [];
+		list.each {
+			def x = em.read( "resource", [objid: it] );
+			revert += x.filesize;
+			def fileurl = "USR" + x.userid.hashCode() + "/" + "FILE" + x.objid.hashCode();
+			try {
+				fileurl += x.filename.substring(x.filename.lastIndexOf("."));
+			}
+			catch(e){;}
+			files.add( fileurl );
+			em.delete( "resource", x );
+		}
+		def z = em.read( "resource:account", [userid: env.userid] );
+		z.consumed -= revert;
+		em.save( "resource:account", z );
+		
+		String tmpUrl= System.getProperty("gazeebu.library.url");
+		files.each {
+			new File( new URL(tmpUrl+"/"+it).toURI() ).delete();
+		}
+	}
+	
+	
+}

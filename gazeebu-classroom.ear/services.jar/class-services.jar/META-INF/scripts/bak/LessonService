@@ -1,0 +1,86 @@
+import com.rameses.annotations.*;
+import java.io.*;
+import com.rameses.io.FileTransfer;
+import java.util.concurrent.*;
+import java.util.*;
+
+class LessonService {
+
+	@PersistenceContext("main")
+	def em;
+
+	@Env
+	def env;	
+	
+	@Service("MessageService")
+	def msgService;
+	
+	def df = new java.text.SimpleDateFormat("EEE MMMM dd yyyy");
+	
+	@ProxyMethod
+	public def getList(o) {
+		o.limit = 10;
+		def list = em.sqlContext.createNamedQuery("lesson:list").setParameters(o).resultList;
+		list.each {
+			if(it.resources) it.resources = em.serializer.read( it.resources );
+			if(it.startdate) it.startdate = df.format( it.startdate );
+			if(it.enddate) it.enddate = df.format( it.enddate );
+		}
+		return list;
+	}
+	
+	@ProxyMethod
+	public def create(o) {
+		o.objid = "LSON:" + new java.rmi.server.UID();
+		return em.create( "lesson", o );
+	}
+	
+	@ProxyMethod
+	public def read(o) {
+		o = em.read( "lesson", o );
+		if(o.startdate) o.startdate = df.format(o.startdate);
+		if(o.enddate) o.enddate = df.format(o.enddate);
+		return o;
+	}
+	
+	@ProxyMethod
+	public def update(o) {
+		return em.update( "lesson", o );
+	}
+	
+	@ProxyMethod
+	public def remove(o) {
+		return em.delete( "lesson", o );
+	}
+	
+	/*******************************
+	* discussion threads
+	********************************/
+	
+
+	@ProxyMethod
+	public def getMessages(o) {
+		o.msgtype = "lesson";
+		return msgService.getPublicMessages(o);
+	}
+	
+	@ProxyMethod
+	public def getResponses(o) {
+		o.msgtype = "lesson";
+		return msgService.getResponses(o);
+	}
+	
+	@ProxyMethod
+	public def send(o) {
+		o.scope = "public";
+		o.msgtype = "lesson";
+		return msgService.send(o);
+	}	
+	
+	@ProxyMethod
+	public def removeMessage(o) {
+		o.msgtype = "lesson";
+		return msgService.removeMessage(o);
+	}	
+	
+}

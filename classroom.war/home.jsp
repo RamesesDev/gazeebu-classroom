@@ -19,7 +19,7 @@
 		$register({id: "#classmenu", context:"home", options: {position:{at:"right bottom", my:"right top"}} });
 		$register({id: "getting_started", page:"home/getting_started.jsp", context:"getting_started", title:"Getting Started with Gazeebu",options:{width:650,height:450}});
 		$register({id: "changepass", page:"home/changepass.jsp", context:"changepass", title:"Change Password",options:{width:500,height:250}});
-		
+
 		$put("home", 
 			new function() {
 				var svc = ProxyService.lookup("ClassService");
@@ -103,47 +103,51 @@
 		</table>
 		<br>
 
+		<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
+			<br><a href="library.jsp"  class="menutitle">LIBRARY</a><br>
+		</c:if>
 		
-
 		<br>
 		<span class="menutitle">CLASSES</span>
-		<br>
-		<table cellpadding="0" cellspacing="0">
-			<tr>
-				<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
-					<td>
-						<input type="button" r:context="home" r:name="addClass" 
-							style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
-							value="Add Class"/>
-					</td>
-				</c:if>
-				<c:if test="${fn:contains(SESSION_INFO.roles,'student')}">
-					<td>
-						<input type="button" r:context="home" r:name="joinClass" 
-							style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
-							value="Join Class"/>
-					</td>		
-				</c:if>
-			</tr>
-		</table>
-		
 
 		<table r:context="home" r:model="classListModel" r:varName="item"  r:name="selectedClass" style="padding-top:10px;" cellpadding="0" cellspacing="0"> 
-			<tr>
-				<td rowspan="3" valign="top" style="padding-right:2px;"><img src="img/star.png"/></td>
-				<td><a href="classroom.jsp?classid=#{item.objid}"><b>#{item.name}</b></a></td>
-				<td rowspan="3" valign="top">
-					<!--
-					<a r:context="home" r:name="showClassMenu" style="text-decoration:none;border:1px solid lightgrey">&#9660;</a>
-					-->
-				</td>
-			</tr>	
-			<tr>	
-				<td style="font-size:10px;">#{item.schedules}</td>
-			</tr>
-			<tr>	
-				<td style="font-size:11px;padding-bottom:10px;"><b>as #{item.usertype}</b></td>
-			</tr>
+			<tbody>	
+				<tr>
+					<td rowspan="2" valign="top" style="padding-right:2px;"><img src="img/star.png"/></td>
+					<td>
+						<a href="classroom.jsp?classid=#{item.objid}"><b>#{item.name}</b></a>
+						<b>(#{item.usertype})</b>						
+					</td>
+					<td rowspan="3" valign="top">
+						<!--
+						<a r:context="home" r:name="showClassMenu" style="text-decoration:none;border:1px solid lightgrey">&#9660;</a>
+						-->
+					</td>
+				</tr>	
+				<tr>	
+					<td style="font-size:10px;padding-bottom:10px;">#{item.schedules}</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
+					<tr>
+						<td colspan="3">
+							<input type="button" r:context="home" r:name="addClass" 
+								style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
+								value="Add Class"/>
+						</td>
+					</tr>
+				</c:if>
+				<c:if test="${fn:contains(SESSION_INFO.roles,'student')}">
+					<tr>
+						<td colspan="3">
+							<input type="button" r:context="home" r:name="joinClass" 
+								style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
+								value="Join Class"/>
+						</td>		
+					</tr>	
+				</c:if>
+			</tfoot>	
 		</table>
 		
 		<div id="classmenu" style="display:none;">

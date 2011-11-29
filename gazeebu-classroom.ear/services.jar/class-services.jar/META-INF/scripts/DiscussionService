@@ -1,0 +1,74 @@
+import com.rameses.annotations.*;
+import java.io.*;
+import com.rameses.io.FileTransfer;
+import java.util.concurrent.*;
+import java.util.*;
+
+class DiscussionService {
+
+	@PersistenceContext("main")
+	def em;
+
+	@Service("MessageService")
+	def msgService;
+
+	@Service("DateService")
+	def dateService;
+
+	@Env
+	def env;
+	
+	def df = new java.text.SimpleDateFormat("EEE MMMM dd yyyy");
+	
+	@ProxyMethod
+	public def getThreads(o) {
+		o.limit = 10;
+		def list =  em.sqlContext.createNamedQuery("discussion:thread-list").setParameters(o).resultList;
+		list.each {
+			if(it.dtposted) it.dtposted = df.format( it.dtposted );
+		}
+		return list;
+	}
+	
+	@ProxyMethod
+	public def openThread(o) {
+		return em.read( "discussion:thread", o );
+	}
+	
+	@ProxyMethod
+	public def addThread(o) {
+		o.objid = "DTHRD:"  + new java.rmi.server.UID();
+		o.dtposted = dateService.serverDate;
+		o.userid = env.userid;
+		em.create("discussion:thread", o );
+	}
+
+	@ProxyMethod
+	public def updateThread(o) {
+		em.update("discussion:thread", o );
+	}
+	
+	@ProxyMethod
+	public def addTopic(o) {
+		o.objid = "DTPIC:"  + new java.rmi.server.UID();
+		o.dtposted = dateService.serverDate;
+		o.userid = env.userid;
+		em.create("discussion:topic", o );
+	}
+
+	@ProxyMethod
+	public def updateTopic(o) {
+		em.update("discussion:topic", o );
+	}
+
+	@ProxyMethod
+	public def getTopics(o) {
+		return em.sqlContext.createNamedQuery("discussion:topic-list").setParameters(o).resultList;
+	}
+
+	@ProxyMethod
+	public def openTopic(o) {
+		return em.read( "discussion:topic", o );
+	}
+	
+}

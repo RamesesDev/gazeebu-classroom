@@ -44,3 +44,16 @@ order by msg.dtfiled desc
 
 [recipients]
 select userid from message_recipient where msgid = ?
+
+[remove-recipients]
+delete from message_recipient where msgid=$P{objid}
+
+[remove-unsubscribe]
+delete from message_unsubscribe where msgid=$P{objid}
+
+[remove-message]
+delete from message where objid=$P{objid}
+
+[remove-comments]
+delete from message where parentid=$P{objid}
+

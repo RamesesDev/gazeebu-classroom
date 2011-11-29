@@ -28,8 +28,18 @@ class SessionNotifierMessageHandler {
 				sessionService.notifyAllExceptSender( r, r.senderid  );
 			}	
 		}
-		
     } 
     
+    @After(pattern="MessageService.removeMessage*")
+	public def broadcastRemoveMessage( def evt ) {
+		def r = evt.args[0];
+		if(r.channelid) {
+			def classroom = classroomService.getClassInfo( r.channelid );		
+			classroom.members.each {
+				sessionService.notifyUser( it.objid, [msgtype:r.msgtype+"-removed", objid: r.objid, channelid: r.channelid ] );
+			}
+		}
+	}
+	
 }
 

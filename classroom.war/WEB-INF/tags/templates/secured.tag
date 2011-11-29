@@ -3,6 +3,8 @@
 
 <%@ attribute name="before_rendering" fragment="true" %>
 <%@ attribute name="head" fragment="true" %>
+<%@ attribute name="script" fragment="true" %>
+<%@ attribute name="style" fragment="true" %>
 <%@ attribute name="header_middle" fragment="true" %>
 
 <c:if test="${empty SESSIONID}">
@@ -84,6 +86,17 @@
 			</script>
 
 			<jsp:invoke fragment="head"/>
+			<c:if test="${! empty script}">
+			<script>
+				<jsp:invoke fragment="script"/>	
+			</script>	
+			</c:if>
+
+			<c:if test="${! empty style}">
+			<style>
+				<jsp:invoke fragment="style"/>	
+			</style>	
+			</c:if>
 
 			<!--[if IE]>
 			<style>

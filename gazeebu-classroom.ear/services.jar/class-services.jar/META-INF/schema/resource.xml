@@ -1,0 +1,21 @@
+<schema>
+	<element name="resource" tablename="resource">
+		<field name="objid" primary="true" />
+		<field name="userid" />
+		<field name="filename" />
+		<field name="title" />
+		<field name="description" />
+		<field name="dtfiled" />
+		<field name="filesize" />
+		<field name="category"/>
+		<field name="keywords"/>
+		<field name="content_type"/>
+	</element>	
+	
+	<element name="account" tablename="resource_account">
+		<field name="userid" primary="true" />
+		<field name="allowedsize" />
+		<field name="consumed" />
+	</element>
+	
+</schema>

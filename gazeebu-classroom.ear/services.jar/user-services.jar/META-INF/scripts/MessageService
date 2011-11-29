@@ -155,6 +155,13 @@ class MessageService {
 		
 	}
 	
-	
+	@ProxyMethod
+	public def removeMessage(o) {
+		assert o.objid;
+		em.sqlContext.createNamedExecutor("message:remove-recipients").setParameters(o).execute();
+		em.sqlContext.createNamedExecutor("message:remove-unsubscribe").setParameters(o).execute();
+		em.sqlContext.createNamedExecutor("message:remove-comments").setParameters(o).execute();
+		em.sqlContext.createNamedExecutor("message:remove-message").setParameters(o).execute();
+	}
 	
 }

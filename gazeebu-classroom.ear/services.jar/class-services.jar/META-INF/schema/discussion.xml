@@ -1,0 +1,22 @@
+<schema>
+	<element name="thread" tablename="discussion_thread">
+		<field name="objid" primary="true" />
+		<field name="subject" />
+		<field name="description" />
+		<field name="classid" />
+		<field name="dtposted" />
+		<field name="userid"/>
+		<field name="state"/>
+		<complex name="resources"  serializer="default"/>
+	</element>	
+	<element name="topic" tablename="discussion_topic">
+		<field name="objid" primary="true" />
+		<field name="title" />
+		<field name="description" />
+		<field name="parentid" />
+		<field name="dtposted" />
+		<field name="userid" />
+		<field name="state"/>
+		<complex name="resources"  serializer="default"/>
+	</element>
+</schema>

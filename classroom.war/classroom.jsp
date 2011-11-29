@@ -2,8 +2,14 @@
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/ui" prefix="common" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
+<%@ taglib tagdir="/WEB-INF/tags/common/ui" prefix="u"%>
+<%@ page import="java.util.*" %>
+
+
 
 <s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="CLASS_INFO"/>
+<s:invoke service="ClassroomService" method="getCurrentUserInfo" params="${param['classid']}" var="CLASS_USER_INFO"/>
+
 
 <t:secured-master>
 	<jsp:attribute name="head">
@@ -12,14 +18,16 @@
 	
 	<jsp:attribute name="script">
 		$register({id: "bulletin", page:"classroom/bulletin.jsp", context:"bulletin"});
-		$register({id: "discussion", page:"classroom/discussion.jsp", context:"discussion"});
 		$register({id: "private_messages", page:"classroom/private_messages.jsp", context:"news"});
 		$register({id: "usermessage", page:"classroom/usermessage.jsp", context:"usermessage"});
 		$register( {id:"invite_student", page:"classroom/invite_student.jsp", context:"invite_student", title:"Invite Students", options: {width:500,height:400} } )
 		$register({id: "comment", page:"classroom/comment.jsp", context:"comment", title:"Post a comment", options: {width:400, height:200}});
-		$register({id: "subscribe_sms", page:"classroom/subscribe_sms.jsp", context:"subscribe_sms", title:"Subscribe SMS", options: {width:500, height:350}});
+		$register({id: "subscribe_sms", page:"classroom/subscribe_sms.jsp", context:"subscribe_sms", title:"Subscribe SMS", options: {width:400, height:300}});
 		$register({id: "add_award", page:"classroom/add_award.jsp", context:"add_award", title:"Add an Award", options: {width:400, height:300}});
 		$register({id: "class_welcome", page:"classroom/class_welcome.jsp", context:"class_welcome", title:"Welcome", options: {width:650, height:500}});
+		
+		
+		$register({id: "#membermenu", context:"classroom"});
 		
 		<common:loadmodules name="apps" role="${CLASS_INFO.usertype}"/>
 		$put("apps", 
@@ -39,35 +47,12 @@
 				this._controller;
 				var self = this;
 				
-				var loadMembers = function() {
-					self.classInfo = svc.getClassInfo( classid );
-					var me = self.classInfo.members.find( function(o) {return o.objid == "${SESSION_INFO.userid}"}  );
-					
-					//redirecto home home.jsp if you do not belong to this class
-					if( !me ) {
-						window.location.href = './home.jsp';
-						return;
-					}
-					
-					me.me = true;
-					
-					//if first time to open the class
-					if( me.state != 'ACTIVE' && me.usertype != 'teacher' ) {
-						var cinfo = ProxyService.lookup('ClassService').read({objid: classid});
-						
-						//show welcome message or syllabus if specified
-						var info = cinfo && cinfo.info;
-						if( info && (info.syllabus || info.welcome_message) ) {
-							var op = new PopupOpener('class_welcome',{
-								classid: "${param['classid']}",
-								classinfo: cinfo,
-								userid: me.objid
-							})
-							self._controller.navigate(op);
-						}
-						else {
-							svc.activateMembership( classid, me.objid );
-						}
+				this.memberList = {
+					fetchList: function(o) {
+						self.classInfo = svc.getClassInfo( classid );
+						var me = self.classInfo.members.find( function(o) {return o.objid == "${SESSION_INFO.userid}"}  );
+						me.me = true;
+						return self.classInfo.members;
 					}
 				}
 				
@@ -76,13 +61,25 @@
 						window.location.hash = "bulletin";
 					}
 				
-					loadMembers();
-					if(classid) {
-						Session.handlers.classroom = function(o) {
-							if(o.classroom && o.classroom == classid ) {
-								loadMembers();
-								self._controller.refresh();
-							}
+					//if first time to open the class
+					<c:if test="${CLASS_USER_INFO.usertype != 'teacher' and (! empty CLASS_INFO.info) and 
+						( (! empty CLASS_INFO.info.syllabus) || (! empty CLASS_INFO.info.welcome_message)  ) }">
+						<c:if test="${CLASS_USER_INFO.state != 'ACTIVE'}">;	
+							alert('show syllabus here');
+							/*
+							var op = new PopupOpener('class_welcome',{
+								classid: "${param['classid']}",
+								classinfo: <u:tojson value="${CLASS_INFO.info}"/>,
+								userid: "${SESSION_INFO.userid}"
+							})
+							self._controller.navigate(op);
+							*/
+						</c:if>
+					</c:if>
+					
+					Session.handlers.classroom = function(o) {
+						if(o.classroom && o.classroom == classid ) {
+							self.memberList.refresh(true);
 						}
 					}
 				}
@@ -90,14 +87,20 @@
 				this.inviteStudents = function() {
 					return new PopupOpener("invite_student");
 				}
+
+				this.showMemberMenu = function() {
+					return new DropdownOpener("#membermenu");
+				}
 				
-				this.getName = function( item ) {
-					var max = 22;
-					if( item.me ) max -= 5;
-					var n = item.lastname +', '+ item.firstname;					
-					if( n.length > max - 3 ) n = n.substr(0,max-3) + '...';
-					n += (item.me ? '<b>(me)</b>' : '');
-					return n;
+				//called by dropdown opener
+				this.selectedMember;
+				this.removeMember = function() {
+					if(this.selectedMember) {
+						if(confirm("You are about to remove " + this.selectedMember.lastname + "," + this.selectedMember.firstname + " from this class. Continue?") ) {
+							svc.removeMember( {userid: this.selectedMember.objid, classid: classid} ); 
+						}
+					}
+					return "_close";
 				}
 			}
 		);
@@ -125,6 +128,7 @@
 		</table>	
 	</jsp:attribute>
 	
+	
 	<jsp:body>
 		<table cellpadding="0" cellspacing="0">
 			<tr>
@@ -145,9 +149,6 @@
 		<table class="menuitem" width="100%" cellpadding="0" cellspacing="0">
 			<tr>
 				<td><a href="#bulletin">Bulletin</a></td>
-			</tr>
-			<tr>
-				<td><a href="#discussion">Discussion</a></td>
 			</tr>
 			<tr>	
 				<td><a href="#private_messages">Messages</a></td>
@@ -173,28 +174,33 @@
 		</c:if>
 		
 		<br>
-		<table r:context="classroom" r:items="classInfo.members" r:varStatus="stat" r:varName="item" width="95%" cellpadding="0" cellspacing="0">
+		<table r:context="classroom" r:model="memberList" r:name="selectedMember"
+			r:varStatus="stat" r:varName="item" width="95%" cellpadding="0" cellspacing="0">
 			<tbody>
-				<tr r:visibleWhen="#{item.usertype == 'teacher'}" >
+				<tr r:visibleWhen="#{item.usertype == 'teacher' && (stat.prevItem==null || stat.prevItem.usertype!='teacher') }" >
 					<td class="menutitle" style="padding-top:10px;">TEACHER</td>
 				</tr>
-				<tr r:visibleWhen="#{item.usertype == 'student' && stat.prevItem.usertype!='student'}" >
+				<tr r:visibleWhen="#{item.usertype == 'student'  && stat.prevItem.usertype!='student'}" >
 					<td class="menutitle" style="padding-top:10px;">${CLASS_INFO.usertype=='teacher' ? 'STUDENTS' : 'CLASSMATES'}</td>
 				</tr>
 				<tr class="menuitem">
 					<td valign="top">
 						<img src="img/#{item.status}.png"/>
-						<a href="#usermessage?objid=#{item.objid}" class="menuitem" title="#{item.lastname}, #{item.firstname}">
-							#{getName(item)}
+						<a href="#usermessage?objid=#{item.objid}" class="menuitem">
+							#{item.lastname}, #{item.firstname} #{item.me ? '<b>(me)</b>' : ''}
 						</a>
+						<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+							<a r:context="classroom" r:visibleWhen="#{item.usertype == 'student'}" r:name="showMemberMenu">&#9660;</a>
+						</c:if>
 					</td>
 					
 				</tr>
 			</tbody>
 		</table>
 		
-		
-		
+		<div id="membermenu" style="display:none;">
+			<a r:context="classroom" r:name="removeMember">Remove</a>
+		</div>
 	</jsp:body>
 	
 </t:secured-master>

@@ -180,7 +180,7 @@
 						<input type="text" r:context="edit_eq" r:name="entries[#{stat.index}].title" style="width:90%;text-align:center"/>
 					</td>
 					<td>
-						<a r:context="edit_eq" r:name="split" r:params="{selectedIndex: #{stat.index} }">Split</a>
+						<a r:context="edit_eq" r:name="split" r:params="{selectedIndex: #{stat.index} }">Insert</a>
 						&nbsp;&nbsp;&nbsp;
 						<a r:context="edit_eq" r:name="removeItem" r:params="{selectedIndex: #{stat.index} }">Remove</a>
 					</td>
