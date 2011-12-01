@@ -51,15 +51,7 @@ BindingUtils.handlers.div_textarea = function( elem, controller, idx )
 		textarea
 		 .focus(ta_focus)
 		 .blur(ta_blur)
-		 .change(update_bean)
-		 .autoResizable({
-			animate: true,
-			animateDuration: 300,
-			padding: 30,
-			paste: true,
-			pasteInterval: 50
-
-		 });
+		 .change(update_bean);
 		
 		e.data('_textarea', textarea)
 		 .data('_close', close)
@@ -69,6 +61,17 @@ BindingUtils.handlers.div_textarea = function( elem, controller, idx )
 	function ta_focus() {
 		if( R.attr(elem, 'hint') && $(this).hasClass('input-hint') ) {
 			$(this).val('').removeClass('input-hint');
+		}
+		if( !$(this).data('__autoResized') ) {
+			$(this)
+			 .data('__autoResized', true)
+			 .autoResizable({
+				animate: false,
+				animateDuration: 300,
+				padding: 30,
+				paste: true,
+				pasteInterval: 50
+			 });
 		}
 		$(this).height(50);
 		close.stop().animate({opacity: 1},50);

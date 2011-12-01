@@ -3,9 +3,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/common/ui" prefix="cui" %>
 
 <t:content title="Bulletin Board" subtitle="Post announcements and important news">
-	<jsp:attribute name="head">
-		<script src="${pageContext.servletContext.contextPath}/js/ext/textarea.js"></script>
-	</jsp:attribute>
+
 	<jsp:attribute name="style">
 		.removeButton {
 			font-size: 12px;

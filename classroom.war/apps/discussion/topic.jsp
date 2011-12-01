@@ -28,13 +28,46 @@
 		$put("topic_info", 	
 			new function() {
 				var self = this;
-				this.objid;
+				var svc = ProxyService.lookup("DiscussionService");
+				this.objid = "${param['objid']}";
 				this.members = [];
 				this.classMembers;
 				this.users = {};
 				
+				this.memberList = {
+					fetchList: function(o) {
+						var m = {};
+						m.parentid = self.objid;
+						return svc.getTopicMembers(m);
+					}
+				};
+				
 				this.onload = function() {
 					this.users = $ctx('classroom').usersIndex;
+				}
+				
+				this.selectedReference;
+				
+				this.referenceList = {
+					fetchList: function(o) {	
+						var m = {parentid: self.objid};
+						return svc.getResources( m );
+					}
+				}
+				
+				this.addReference = function() {
+					var h = function(o) {
+						svc.addResource(o);
+						self.referenceList.refresh(true);
+					}
+					return new PopupOpener("discussion:add_resource", {parentid: this.objid, saveHandler: h });
+				}
+				
+				this.removeReference = function() {
+					if( this.selectedResource && confirm("You are about to remove this resource. Continue?")) {
+						svc.removeResource( this.selectedResource );
+						self.referenceList.refresh(true);
+					}
 				}
 			}
 		);	
@@ -61,33 +94,46 @@
 					<div  class="section-label">Description</div>
 					<div>${TOPIC.description}</div> 	
 					<br>
-					<c:if test="${! empty TOPIC.members}">
 					<div class="section-label">Members</div>
-						<table r:context="topic_info" r:items="members" r:varName="item">
+					<table r:context="topic_info" r:model="memberList" r:varName="item">
+						<tr>
+							<td><img src="${pageContext.servletContext.contextPath}/profile/photo.jsp?id=#{item.userid}&t=thumbnail&v=#{users[item.userid].info.photoversion}" width="30px"/></td>
+							<td>#{users[item.userid].lastname}, #{users[item.userid].firstname}</td>
+						</tr>
+					</table>
+					
+					<div class="section-label">
+						<table width="100%">
 							<tr>
-								<td><img src="${pageContext.servletContext.contextPath}/profile/photo.jsp?id=#{item.objid}&t=thumbnail&v=#{users[item.objid].info.photoversion}" width="30px"/></td>
-								<td>#{users[item.objid].lastname}, #{users[item.objid].firstname}</td>
+								<td >References</td>
+								<td align="right" style="padding-right:4px;">
+									<a r:context="topic_info" r:name="addReference">Add</a>
+								</td>
 							</tr>
 						</table>
-					</c:if>
+					</div>
 					
-					<div class="section-label">References</div>
 					<div>
-						<table>
-							<c:forEach items="${TOPIC.resources}" var="item" varStatus="status">
-								<tr>
-									<td style="padding-left:10px;">
-										<c:if test="${item.type == 'video'}">
-											<embed src="${item.link}" height="260" width="350"></embed> 
-											<br>
-											${status.index+1}. ${item.title}
-										</c:if>
-										<c:if test="${item.type == 'link'}">
-											${status.index+1}. <a href="javascript:window.open('${item.link}');">${item.title}</a>
-										</c:if>
-									</td>
-								</tr>
-							</c:forEach>
+						<table width="100%" r:context="topic_info" r:model="referenceList" r:varName="item" r:varStatus="stat" r:name="selectedReference">
+							<tr>
+								<td rowspan="3" valign="top">
+									<img width="30px" src="profile/photo.jsp?id=#{item.userid}&t=thumbnail&v=#{users[item.userid].info.photoversion}">	
+								</td>
+								<td style="font-weight:bold;color:darkslateblue;">
+									#{item.title}
+								</td>
+								<td align="right" style="padding-right:4px;">
+									<a r:context="topic_info" r:name="removeReference" r:visibleWhen="#{item.userid == '${SESSION_INFO.userid}'}">
+										Remove
+									</a>
+								</td>
+							</tr>
+							<tr>
+								<td>#{item.description}</td>
+							</tr>
+							<tr>
+								<td>posted by #{users[item.userid].lastname}, #{users[item.userid].firstname}</td>
+							</tr>
 						</table>
 					</div>
 					

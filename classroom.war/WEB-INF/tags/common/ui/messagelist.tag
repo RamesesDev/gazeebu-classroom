@@ -166,13 +166,10 @@
 	</table>
 </div>
 
-<div class="post-message" style="width:80%">
+<div class="post-message" style="width:90%">
 	<div r:context="${context}" r:type="textarea" r:name="message.message" r:hint="Post message." class="inner">
 		<div class="controls-wrapper">
 			<div class="controls">
-				<div class="left">
-					<button r:context="" r:name="">Attach</button>
-				</div>
 				<div class="right">
 					<button r:context="${context}" r:name="send">Post</button>
 				</div>

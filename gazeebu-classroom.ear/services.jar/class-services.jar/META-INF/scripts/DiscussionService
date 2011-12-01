@@ -34,7 +34,6 @@ class DiscussionService {
 	@ProxyMethod
 	public def openThread(o) {
 		def x = em.read( "discussion:thread", o );
-		x.resources = em.sqlContext.createNamedQuery("discussion:resource-list").setParameters(x).resultList;
 		return x;
 	}
 	
@@ -82,7 +81,7 @@ class DiscussionService {
 
 	@ProxyMethod
 	public def getTopicMembers(o) {
-		return em.sqlContext.createNamedQuery("discussion:topic-members").setParameters(x).resultList;
+		return em.sqlContext.createNamedQuery("discussion:topic-members").setParameters(o).resultList;
 	}
 
 	@ProxyMethod
@@ -126,8 +125,7 @@ class DiscussionService {
 	@ProxyMethod
 	public def getMessages(o) {
 		o.msgtype = "topic";
-		print o;
-		return msgService.getPublicMessages(o);
+		return msgService.getResponses(o);
 	}
 	
 	@ProxyMethod

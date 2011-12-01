@@ -14,6 +14,7 @@
 <t:secured-master>	
 	<jsp:attribute name="head">
 		<link href="${pageContext.servletContext.contextPath}/css/classroom.css" type="text/css" rel="stylesheet" />
+		<script src="${pageContext.servletContext.contextPath}/js/ext/textarea.js"></script>
 		
 		<script type="text/javascript">
 		

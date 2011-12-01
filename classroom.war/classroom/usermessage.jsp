@@ -142,10 +142,7 @@
 				<div r:context="usermessage" r:type="textarea" r:name="text" r:hint="Write a message" class="inner">
 					<div class="controls-wrapper">
 						<div class="controls">
-							<div class="left">
-								<a href="#" title="Attach a link"><img src="img/post-icons/doc-attach.png"/></a>
-								<a href="#" title="Add another recipient"><img src="img/post-icons/doc-add.png"/></a>
-							</div>
+							<div class="left"></div>
 							<div class="right">
 								<button r:context="usermessage" r:name="send">Send</button>
 							</div>
