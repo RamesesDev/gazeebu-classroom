@@ -111,6 +111,7 @@ class ClassroomService {
 		}
 	}
 	
+	/*
 	@ProxyMethod
 	public void addStudent(def classid, def student) {
 		def cs = [:];
@@ -121,12 +122,24 @@ class ClassroomService {
 		em.create( "class_membership", cs );
 		cacheService.remove( classid );
 	}
+	*/
 	
 	@ProxyMethod
 	public void addMember(def o) {
 		o.objid = "CLSMMBRS" + new java.rmi.server.UID();
 		em.create( "class_membership", o );
-		cacheService.remove( o.classid );
+
+		o.objid = o.userid;
+		o.status = 'online';
+		cacheService.update( o.classid, 
+			[ '''
+				{o,v->
+					o.members.add( v.user );
+				};
+			  ''', 
+			  [user: o]  
+			]
+		);
 	}
 	
 	@ProxyMethod
@@ -144,7 +157,18 @@ class ClassroomService {
 	@ProxyMethod
 	public void removeMember(def o) {
 		em.sqlContext.createNamedExecutor("classroom:remove-member").setParameters(o).execute();
-		cacheService.remove( o.classid );
+		cacheService.update( o.classid, 
+			[ '''
+				{o,v->
+					def z = o.members.find{x->x.objid==v.userid};
+					if( z ) {
+						o.members.remove(z);
+					}
+				};
+			  ''', 
+			  [userid:o.userid]  
+			]
+		);
 	}
 	
 }

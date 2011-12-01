@@ -15,8 +15,8 @@
 				this.syllabus;
 				
 				this.onload = function() {
-					if( this.classinfo && this.classinfo.info )
-						this.syllabus = this.classinfo.info.syllabus;
+					if( this.classinfo )
+						this.syllabus = this.classinfo.syllabus;
 				}
 				
 				this.activate = function() {
@@ -51,7 +51,7 @@
 					<td valign="top">
 						<div style="height:200px;overflow:auto;">
 							<label r:context="class_welcome" style="display:block;">
-								#{classinfo.info.welcome_message? classinfo.info.welcome_message : '<i>No welcome message yet</i>.'}
+								#{classinfo.welcome_message? classinfo.welcome_message : '<i>No welcome message yet</i>.'}
 							</label>
 						</div>
 					</td>

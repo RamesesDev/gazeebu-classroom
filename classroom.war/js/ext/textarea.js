@@ -57,7 +57,7 @@ BindingUtils.handlers.div_textarea = function( elem, controller, idx )
 			animateDuration: 300,
 			padding: 30,
 			paste: true,
-			pasteInterval: 100
+			pasteInterval: 50
 
 		 });
 		

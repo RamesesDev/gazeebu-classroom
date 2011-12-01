@@ -3,9 +3,10 @@ body {
 	background-color:#eee;
 }
 
-body, table, p {
+body, table, p  {
 	font-family:arial;
 	font-size: 11px;
+	line-height: 1.45em;
 }
 
 img { border: none; }

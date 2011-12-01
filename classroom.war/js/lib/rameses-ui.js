@@ -2036,15 +2036,17 @@ function PopupOpener( id, params, options )
 		else
 			div = $(this.id);
 
+			
+		var options = $.extend(defaultOptions, {});
 		//remove div if dynamically created
 		if( dynamic ) {
-			this.options.close = function() { div.remove();	}
+			options.close = function() { div.remove();	}
 		}
-		this.options.modal = true;
-		this.options.title = this.title || inv.title;
+		options.modal = true;
+		options.title = this.title || inv.title;
 
-		var options = $.extend(defaultOptions, this.options);
 		if( inv.options ) options = $.extend(options, inv.options);
+		options = $.extend(options, this.options);
 
 		if( dynamic )
 			div.load(page, WindowUtil.getParameters(p), createDialog);
@@ -2082,7 +2084,7 @@ function PopupOpener( id, params, options )
  *   DropdownOpener.options = {}
  * the value of DropdownOpener.options is global unless explicitly overriden
  */
-function DropdownOpener( id, params ) 
+function DropdownOpener( id, params, options ) 
 {
 	this.classname = "opener";
 	this.caller;
@@ -2090,10 +2092,20 @@ function DropdownOpener( id, params )
     this.params = params;
 	this.title;
 	this.source;
-	this.options = {};
+	this.options = options || {};
 	this.styleClass;
 	
-	var defaultConfig = { my: 'left top', at: 'left bottom' };
+	var defaultConfig = { my: 'left top', at: 'left bottom' };	
+	var positionNames = {
+		'bottom-left' : { my: 'left top', at: 'left bottom' },
+		'bottom-right' : {my: 'right top', at: 'right bottom'},
+		'top-left' : { my: 'left bottom', at: 'left top' },
+		'top-right' : { my: 'right bottom', at: 'right top' }
+	};
+	var defaultEffect = {
+		name: 'slide',
+		options: {direction: 'up'}
+	};
 	
 	
     this.load = function() {
@@ -2141,8 +2153,20 @@ function DropdownOpener( id, params )
 		var dynamic = false;
 		
 		if( styleClass ) div.addClass( styleClass );
+		
+		var effect = options.effect || defaultEffect;
 
 		this.show = function( page, params, callback ) {
+			//if options.position is string, it should be one of the positionNames key
+			if( typeof options.position == 'string' ) {
+				if( positionNames[options.position] ) {
+					options.position = positionNames[options.position];
+				}
+				else {
+					options.position = null;
+				}
+			}
+			
 			var posConfig = $.extend(defaultConfig, options.position || {});
 			posConfig.of = $(source);
 			
@@ -2163,7 +2187,7 @@ function DropdownOpener( id, params )
 			function initDailog(){
 				div.appendTo('body')
 				 .position( posConfig )
-				 .show('slide', {direction:"up"});
+				 .show(effect.name, effect.options);
 
 				bindWindowEvt();
 				callback(div);
@@ -2181,7 +2205,7 @@ function DropdownOpener( id, params )
 		}
 
 		function hide() {
-			div.hide('slide', {direction:"up"}, function() {
+			div.hide(effect.name, effect.options, function() {
 				if( !dynamic ) {
 					var ch = $(this).children().hide().remove();
 					ch.insertAfter(this);

@@ -52,32 +52,37 @@
 						self.classInfo = svc.getClassInfo( classid );
 						var me = self.classInfo.members.find( function(o) {return o.objid == "${SESSION_INFO.userid}"}  );
 						me.me = true;
+						console.log( self.classInfo.members );
 						return self.classInfo.members;
 					}
 				}
 				
 				this.onload = function() {
-					if(! window.location.hash ) {
-						window.location.hash = "bulletin";
+					//redirecto home home.jsp if you do not belong to this class
+					if( !'${CLASS_USER_INFO}' ) {
+						window.location.href = './home.jsp';
+						return;
 					}
-				
+					
+					if(! window.location.hash ) {
+						window.location.hash = "bulletin:bulletin";
+					}
+
 					//if first time to open the class
 					<c:if test="${CLASS_USER_INFO.usertype != 'teacher' and (! empty CLASS_INFO.info) and 
 						( (! empty CLASS_INFO.info.syllabus) || (! empty CLASS_INFO.info.welcome_message)  ) }">
-						<c:if test="${CLASS_USER_INFO.state != 'ACTIVE'}">;	
-							alert('show syllabus here');
-							/*
+						<c:if test="${CLASS_USER_INFO.state != 'ACTIVE'}">
 							var op = new PopupOpener('class_welcome',{
 								classid: "${param['classid']}",
 								classinfo: <u:tojson value="${CLASS_INFO.info}"/>,
 								userid: "${SESSION_INFO.userid}"
 							})
 							self._controller.navigate(op);
-							*/
 						</c:if>
 					</c:if>
 					
 					Session.handlers.classroom = function(o) {
+						console.log('receiving object: ' + $.toJSON(o));
 						if(o.classroom && o.classroom == classid ) {
 							self.memberList.refresh(true);
 						}
@@ -89,18 +94,26 @@
 				}
 
 				this.showMemberMenu = function() {
-					return new DropdownOpener("#membermenu");
+					return new DropdownOpener("#membermenu", null, {position: 'bottom-right'});
 				}
 				
 				//called by dropdown opener
 				this.selectedMember;
 				this.removeMember = function() {
 					if(this.selectedMember) {
+						if(this.selectedMember.status == 'online') throw new Error('This student is currently online.');
 						if(confirm("You are about to remove " + this.selectedMember.lastname + "," + this.selectedMember.firstname + " from this class. Continue?") ) {
 							svc.removeMember( {userid: this.selectedMember.objid, classid: classid} ); 
 						}
 					}
 					return "_close";
+				}
+				
+				this.getName = function( item ) {
+					var max = 22;
+					var n = item.lastname +', '+ item.firstname;					
+					if( n.length > max - 3 ) n = n.substr(0,max-3) + '...';
+					return n;
 				}
 			}
 		);
@@ -113,6 +126,8 @@
 		.menuitem {
 			font-color: 
 		}
+		.no-header { border: solid 7px #999; }
+		.no-header .ui-dialog-titlebar { display: none; }
 	</jsp:attribute>
 	
 	<jsp:attribute name="header_middle">
@@ -130,76 +145,66 @@
 	
 	
 	<jsp:body>
-		<table cellpadding="0" cellspacing="0">
-			<tr>
-				<td>
-					<img src="profile/photo.jsp?id=${SESSION_INFO.userid}&t=thumbnail&v=${SESSION_INFO.info.photoversion}"/>
-				</td>
-				<td style="font-size:11px;padding-left:5px;">
-					${SESSION_INFO.lastname}, ${SESSION_INFO.firstname}<br>
-					<b>${CLASS_INFO.usertype}</b>
-				</td>
-			</tr>
-		</table>
-		<br>	
-		
-		<div class="menutitle">
-			FEEDS
-		</div>
-		<table class="menuitem" width="100%" cellpadding="0" cellspacing="0">
-			<tr>
-				<td><a href="#bulletin">Bulletin</a></td>
-			</tr>
-			<tr>	
-				<td><a href="#private_messages">Messages</a></td>
-			</tr>
-		</table>
-		
-		<div class="menutitle">
-			CLASS
-		</div>
-		<table class="menuitem" r:context="apps" r:items="items" r:varName="item" width="100%" cellpadding="0" cellspacing="0">
-			<tr>
-				<td valign="top">
-					<a href="##{item.id}">
-						#{item.caption}
-					</a>
-				</td>
-			</tr>
-		</table>
-		
-		<c:if test="${CLASS_INFO.usertype == 'teacher'}">
-			<br>
-			<input class="button" type="button" r:context="classroom" r:name="inviteStudents" value="Invite Students" />
-		</c:if>
-		
-		<br>
-		<table r:context="classroom" r:model="memberList" r:name="selectedMember"
-			r:varStatus="stat" r:varName="item" width="95%" cellpadding="0" cellspacing="0">
-			<tbody>
-				<tr r:visibleWhen="#{item.usertype == 'teacher' && (stat.prevItem==null || stat.prevItem.usertype!='teacher') }" >
-					<td class="menutitle" style="padding-top:10px;">TEACHER</td>
-				</tr>
-				<tr r:visibleWhen="#{item.usertype == 'student'  && stat.prevItem.usertype!='student'}" >
-					<td class="menutitle" style="padding-top:10px;">${CLASS_INFO.usertype=='teacher' ? 'STUDENTS' : 'CLASSMATES'}</td>
-				</tr>
-				<tr class="menuitem">
-					<td valign="top">
-						<img src="img/#{item.status}.png"/>
-						<a href="#usermessage?objid=#{item.objid}" class="menuitem">
-							#{item.lastname}, #{item.firstname} #{item.me ? '<b>(me)</b>' : ''}
-						</a>
-						<c:if test="${CLASS_INFO.usertype == 'teacher'}">
-							<a r:context="classroom" r:visibleWhen="#{item.usertype == 'student'}" r:name="showMemberMenu">&#9660;</a>
-						</c:if>
+		<div class="left-content">
+			<table cellpadding="0" cellspacing="0">
+				<tr>
+					<td>
+						<img src="profile/photo.jsp?id=${SESSION_INFO.userid}&t=thumbnail&v=${SESSION_INFO.info.photoversion}"/>
 					</td>
-					
+					<td style="font-size:11px;padding-left:5px;">
+						${SESSION_INFO.lastname}, ${SESSION_INFO.firstname}<br>
+						<b>${CLASS_INFO.usertype}</b>
+					</td>
 				</tr>
-			</tbody>
-		</table>
-		
-		<div id="membermenu" style="display:none;">
-			<a r:context="classroom" r:name="removeMember">Remove</a>
+			</table>
+			<br>	
+
+			<table class="menu" r:context="apps" r:items="items" r:varName="item" width="100%" cellpadding="0" cellspacing="0">
+				<tr>
+					<td class="icon">
+						#{item.icon? '<img src="' + item.icon + '" width="16px"/>' : ''}
+					</td>
+					<td class="caption">
+						<a href="##{item.id}">
+							#{item.caption}
+						</a>
+					</td>
+				</tr>
+			</table>
+			
+			<br>
+			<div class="hr"></div>
+			<h3>Classroom</h3>
+			<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+				<input class="button" type="button" r:context="classroom" r:name="inviteStudents" value="Invite Students" />
+				<br>
+			</c:if>
+			<table r:context="classroom" r:model="memberList" r:name="selectedMember"
+				r:varStatus="stat" r:varName="item" width="95%" cellpadding="0" cellspacing="0">
+				<tbody>
+					<tr class="menu">
+						<td valign="top" width="16px;">
+							<img src="img/#{item.status}.png"/>
+						</td>
+						<td valign="top">
+							<a href="#usermessage?objid=#{item.objid}" class="menuitem" title="#{item.lastname}, #{item.firstname}">
+								<span class="capitalize">#{getName(item)}</span>
+							</a>
+							<br/>
+							<span class="caption">#{item.usertype} #{item.me? '<b>(me)</b>' : ''}</span>
+						</td>
+						<td valign="top" width="3px">
+							<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+								<a r:context="classroom" r:visibleWhen="#{item.usertype == 'student'}" r:name="showMemberMenu">&#9660;</a>
+							</c:if>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<div id="membermenu" style="display:none;">
+				<a r:context="classroom" r:name="removeMember">Remove</a>
+			</div>
 		</div>
 	</jsp:body>
 	

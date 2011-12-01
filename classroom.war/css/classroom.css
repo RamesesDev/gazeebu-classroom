@@ -1,26 +1,46 @@
-.menutitle { 
-		font-family:verdana;
-		font-weight:bold;
-		text-transform:underline;
-		font-size:11px;
-		padding-top:15px;
-		color: darkslateblue;
-	}
-.menuitem td{
+.left-content {
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
 	font-size:11px;
-	font-family:verdana;
-	padding:1px;
 }
-.menuitem td a{
-	text-decoration:none; 
+
+.left-content h3 { color: #777; }
+
+.left-content span.caption { color: #777; }
+
+.capitalize { text-transform:capitalize }
+
+.menutitle { 
+	font-family: arial;
+	font-weight:bold;
+	text-transform:underline;
+	padding-top:15px;
+	color: darkslateblue;
 }
+
+.menu td {
+	line-height: 1.45em;
+	padding: 2px 0px;
+}
+
+.menu td a { text-decoration:none; }
+
+.menu .icon {
+	width: 16px;
+}
+
+.menu .caption {
+	padding-left: 5px;
+}
+
 #classesmenu tr.selected {
 	background-color:lightgrey;
 }
+
 #classesmenu tr.selected a {
 	color: black;
 	font-weight: bold;
 }
+
 .notification {
 	color:white;
 	background-color:red;
@@ -31,10 +51,12 @@
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 }
+
 .button {
 	border:1px solid lightgrey;
 	font-weight:bolder;
 	padding:5px;
 }
+
 .button:hover { border-color: #aaa; }
 .button:active { border-color: #333; }

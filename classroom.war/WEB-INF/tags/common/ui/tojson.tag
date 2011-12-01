@@ -4,7 +4,7 @@
 <%@ tag import="com.rameses.server.common.*" %>
 <%@ tag import="java.util.*" %>
 
-<%@ attribute name="value" %>
+<%@ attribute name="value" rtexprvalue="true" type="java.lang.Object" required="true"%>
 
 <%=JsonUtil.toString(value)%>
 
