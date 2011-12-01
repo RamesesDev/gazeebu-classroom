@@ -42,17 +42,14 @@
 	</jsp:attribute>
 	
 	<jsp:attribute name="rightpanel">
-		<table style="font-size:11px;">
-			<tr>
-				<td style="font-size:12px;">
-					Sponsored Ads<br>
-				</td>
-			</tr>
-		</table>
+		<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+			<input class="button" type="button" r:context="classroom" r:name="inviteStudents" value="Invite Students" />
+			<br>
+		</c:if>
 	</jsp:attribute>
 	
 	<jsp:body>
-		<cui:messagelist context="bulletin" canRemove="true" proxyService="BulletinService"/>
+		<cui:messagelist context="bulletin" canRemove="true" proxyService="BulletinService" usersIndex="$ctx('classroom').usersIndex"/>
 	</jsp:body>
 	
 </t:content>

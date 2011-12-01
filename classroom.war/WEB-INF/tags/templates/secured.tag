@@ -1,5 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <%@ attribute name="before_rendering" fragment="true" %>
 <%@ attribute name="head" fragment="true" %>
@@ -126,7 +127,7 @@
 									<td>
 										About Terms Privacy								
 									</td>
-								</tr>
+									</tr>
 							</table>
 						</td>
 					</tr>
@@ -147,6 +148,9 @@
 							<td align="right" class="mainmenu">
 								<a href="home.jsp">Home</a>
 								<a href="profile.jsp">Profile</a>
+								<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
+									<a href="library.jsp">Library</a>
+								</c:if>
 								<a href="#" id="useraccountmenu" r:context="session" r:name="showProfileMenu">
 									Hi ${SESSION_INFO.username}&nbsp;&nbsp;&#9660;
 								</a>
@@ -166,7 +170,7 @@
 					</table>
 				</div>
 			</div>
-			<!-- feedback panel 
+			<!-- feedback panel -->
 			<script type="text/javascript">
 				$put(
 					'feedback',
@@ -184,6 +188,7 @@
 						};
 						
 						this.submit = function() {
+							ProxyService.lookup("FeedbackService").send( this.entity );
 							this.entity = {};
 							$('#feedback .info').fadeIn().delay(1000).fadeOut('', function(){
 								self.toggleFeedbackBox();
@@ -194,7 +199,7 @@
 				);
 				
 				//calculate feedback box position
-				$(function(){
+				$(window).load(function(){
 					var fb = $('#feedback').css('opacity', 0).show();
 					var box = fb.find('.box');
 					fb.css({left: -(box[0].offsetWidth+3)})
@@ -216,7 +221,7 @@
 									<td colspan="2">
 										<textarea id="comments" 
 										          r:context="feedback" 
-												  r:name="entity.comments" 
+												  r:name="entity.comment" 
 												  r:required="true" 
 												  r:caption="Feedback"
 												  rows="6">
@@ -238,7 +243,7 @@
 					</td>
 				</tr>
 			</table>
-			-->
+			
 		</body>
 	</html>	
 </c:if>

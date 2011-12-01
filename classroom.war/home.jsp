@@ -102,11 +102,6 @@
 			</tr>
 		</table>
 		<br>
-
-		<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
-			<br><a href="library.jsp"  class="menutitle">LIBRARY</a><br>
-		</c:if>
-		
 		<br>
 		<span class="menutitle">CLASSES</span>
 

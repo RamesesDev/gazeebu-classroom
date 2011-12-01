@@ -135,12 +135,16 @@ class UserProfileService
 		def m = [:];
 		m.subject = "Gazeebu - Reset Account Password";
 		m.message = """
+		  <html>
+		   <body>
 			<p>
 				You have reset your account password.
 				Login to <a href="http://www.gazeebu.com/classroom">Gazeebu Classroom</a> and use the temporary password provided below:
 			</p>
 			Username: <b>$uid</b><br/>
 			Temporary Password: <b>$password</b>
+		   </body>
+		  </html>
 		""";	
 		m.recipients = [email];
 		emailSvc.send(m);	

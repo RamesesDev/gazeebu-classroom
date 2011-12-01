@@ -11,12 +11,10 @@
 <s:invoke service="ClassroomService" method="getCurrentUserInfo" params="${param['classid']}" var="CLASS_USER_INFO"/>
 
 
-<t:secured-master>
+<t:secured-master>	
 	<jsp:attribute name="head">
 		<link href="${pageContext.servletContext.contextPath}/css/classroom.css" type="text/css" rel="stylesheet" />
-	</jsp:attribute>
-	
-	<jsp:attribute name="head">
+		
 		<script type="text/javascript">
 		
 		$register({id: "bulletin", page:"classroom/bulletin.jsp", context:"bulletin"});
@@ -191,11 +189,7 @@
 			
 			<br>
 			<div class="hr"></div>
-			<h3>Classroom</h3>
-			<c:if test="${CLASS_INFO.usertype == 'teacher'}">
-				<input class="button" type="button" r:context="classroom" r:name="inviteStudents" value="Invite Students" />
-				<br>
-			</c:if>
+			<h3>CLASSROOM</h3>
 			<table r:context="classroom" r:model="memberList" r:name="selectedMember"
 				r:varStatus="stat" r:varName="item" width="95%" cellpadding="0" cellspacing="0">
 				<tbody>
@@ -206,9 +200,9 @@
 						<td valign="top">
 							<a href="#usermessage?objid=#{item.objid}" class="menuitem" title="#{item.lastname}, #{item.firstname}">
 								<span class="capitalize">#{getName(item)}</span>
+								<br/>
+								<span class="caption">#{item.usertype} #{item.me? '<b>(me)</b>' : ''}</span>
 							</a>
-							<br/>
-							<span class="caption">#{item.usertype} #{item.me? '<b>(me)</b>' : ''}</span>
 						</td>
 						<td valign="top" width="3px">
 							<c:if test="${CLASS_INFO.usertype == 'teacher'}">
