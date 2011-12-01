@@ -10,7 +10,8 @@
 <%@ attribute name="proxyService" %>
 <%@ attribute name="messagewidth" %>
 <%@ attribute name="parentid" %>
-
+<%@ attribute name="picSize" %>
+<%@ attribute name="usersIndex" %>
 
 <style>
 	#sendername {
@@ -44,6 +45,13 @@
 			this.classid = "${param['classid']}";
 			this.message = {};
 			this.eof = "false";
+			
+			this.users = {};
+			<c:if test="${!empty usersIndex}">
+			this.users = ${usersIndex};	
+			</c:if>
+			this.xname = "Baby";
+			
 			this.listModel = {
 				fetchList: function( p, last ){
 					var m = {channelid: self.classid};
@@ -92,6 +100,9 @@
 					alert( "Please write a message");
 					return;
 				}
+				<c:if test="${! empty parentid}">
+				this.message.parentid = "${parentid}"; 	
+				</c:if>
 				this.message.channelid = this.classid;
 				svc.send( this.message );
 				this.message = {}
@@ -139,19 +150,19 @@
 	<table class="comments" r:context="${context}" r:items="comments[params.objid]" r:varName="comment" 
 		cellpadding="0" cellspacing="0" width="100%" width="100%">
 		<tr>
-			<td valign="top" width="50" rowspan="2" class="msg-divider">
-				<img src="profile/photo.jsp?id=#{comment.senderid}&t=thumbnail" width="60%"/>
+			<td valign="top" rowspan="2" class="msg-divider"  r:context="${context}">
+				<img src="profile/photo.jsp?id=#{comment.senderid}&t=thumbnail&v=#{users[comment.senderid].info.photoversion}" width="30px"/>
 			</td>
-			<td valign="top"  id="sendername" class="msg-divider">
-				#{comment.lastname}, #{comment.firstname} 
+			<td valign="top"  id="sendername" class="msg-divider" style="padding-left:4px">
+				#{users[comment.senderid].lastname}, #{users[comment.senderid].firstname} 
 				<span style="font-size:11px;color:gray;font-weight:normal;"> - Posted #{comment.dtfiled}</span>
 			</td>
 		</tr>
-		</tr>	
-			<td valign="top">
+		<tr>	
+			<td valign="top"  style="padding-left:4px">
 				#{comment.message}
 			</td>
-		</tr>		
+		</tr>
 	</table>
 </div>
 
@@ -175,11 +186,11 @@
 	r:emptyText="No messages posted yet" cellspacing="0" class="${context}" r:name="selectedMessage">
 	<tbody>
 		<tr>
-			<td valign="top" align="center" width="70"  class="msg-divider" rowspan="3">
-				<img src="profile/photo.jsp?id=#{item.senderid}&t=thumbnail"/>
+			<td valign="top" align="center" class="msg-divider" rowspan="3">
+				<img src="profile/photo.jsp?id=#{item.senderid}&t=thumbnail&v=#{users[item.senderid].info.photoversion}}" width="${!empty picSize ? picSize : '40px'}"/>
 			</td>
-			<td valign="top" id="sendername"  class="msg-divider">
-				#{item.lastname}, #{item.firstname}	
+			<td valign="top" id="sendername"  class="msg-divider" style="padding-left:4px;">
+				#{users[item.senderid].lastname}, #{users[item.senderid].firstname}	
 				<span style="font-size:11px;color:gray;font-weight:normal;"> - Posted #{item.dtfiled}</span>
 			</td>
 			<td align="right" style="padding-right:2px;"  class="msg-divider">
@@ -189,12 +200,12 @@
 			</td>
 		</tr>
 		<tr>
-			<td valign="top" colspan="2" style="padding-top:5px;padding-bottom:5px;">
+			<td valign="top" colspan="2" style="padding-top:5px;padding-bottom:5px;padding-left:4px;">
 				#{item.message}	
 			</td>
 		</tr>
 		<tr>
-			<td valign="bottom" colspan="2">
+			<td valign="bottom" colspan="2" style="padding-left:4px;">
 				<a r:context="${context}" r:name="comment">Comment</a>
 				&nbsp;&nbsp;&nbsp;&nbsp;
 				<a r:context="${context}" r:name="viewComments" r:visibleWhen="#{item.expanded != 'true'}">View Comments (#{item.replies})</a>
@@ -208,7 +219,3 @@
 	</tbody>
 </table>
 <a r:context="${context}" r:name="listModel.fetchNext" r:visibleWhen="#{eof=='false'}">View More</a>
-
-
-
-

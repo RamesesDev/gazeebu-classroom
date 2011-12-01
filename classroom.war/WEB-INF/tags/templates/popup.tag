@@ -1,10 +1,15 @@
 <%@ attribute name="leftactions" fragment="true" %>
 <%@ attribute name="rightactions" fragment="true" %>
+<%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 
 <%@ attribute name="head" fragment="true" %>
 <%@ attribute name="script" fragment="true"%>
 <%@ attribute name="style" fragment="true"%>
 <%@ attribute name="sections" fragment="true"%>
+
+<c:if test="${!empty SESSIONID}">
+	<s:invoke service="SessionService" method="getInfo" params="${SESSIONID}" var="SESSION_INFO"/>
+</c:if>
 
 <c:if test="${! empty head}">
 <jsp:invoke fragment="head"/>	

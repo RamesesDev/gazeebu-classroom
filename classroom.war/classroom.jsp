@@ -16,20 +16,24 @@
 		<link href="${pageContext.servletContext.contextPath}/css/classroom.css" type="text/css" rel="stylesheet" />
 	</jsp:attribute>
 	
-	<jsp:attribute name="script">
+	<jsp:attribute name="head">
+		<script type="text/javascript">
+		
 		$register({id: "bulletin", page:"classroom/bulletin.jsp", context:"bulletin"});
 		$register({id: "private_messages", page:"classroom/private_messages.jsp", context:"news"});
 		$register({id: "usermessage", page:"classroom/usermessage.jsp", context:"usermessage"});
 		$register( {id:"invite_student", page:"classroom/invite_student.jsp", context:"invite_student", title:"Invite Students", options: {width:500,height:400} } )
 		$register({id: "comment", page:"classroom/comment.jsp", context:"comment", title:"Post a comment", options: {width:400, height:200}});
 		$register({id: "subscribe_sms", page:"classroom/subscribe_sms.jsp", context:"subscribe_sms", title:"Subscribe SMS", options: {width:400, height:300}});
-		$register({id: "add_award", page:"classroom/add_award.jsp", context:"add_award", title:"Add an Award", options: {width:400, height:300}});
 		$register({id: "class_welcome", page:"classroom/class_welcome.jsp", context:"class_welcome", title:"Welcome", options: {width:650, height:500}});
 		
+		$register({id: "classroom:lookup_member", page:"classroom/lookup_member.jsp", 
+			context:"lookup_member", title:"Select Class Members", options: {height:500}});
 		
 		$register({id: "#membermenu", context:"classroom"});
 		
 		<common:loadmodules name="apps" role="${CLASS_INFO.usertype}"/>
+		
 		$put("apps", 
 			new function() {
 				this.items = new Array();
@@ -46,13 +50,20 @@
 				this.classInfo;
 				this._controller;
 				var self = this;
+				this.usersIndex;
 				
 				this.memberList = {
 					fetchList: function(o) {
 						self.classInfo = svc.getClassInfo( classid );
-						var me = self.classInfo.members.find( function(o) {return o.objid == "${SESSION_INFO.userid}"}  );
-						me.me = true;
-						console.log( self.classInfo.members );
+						var mbrs = self.classInfo.members;
+						self.usersIndex = {}
+						for( var i=0;i < mbrs.length;i++) {
+							var x = mbrs[i];
+							if( x.objid == "${SESSION_INFO.userid}") {
+								x.me = true;
+							}
+							self.usersIndex[x.objid] = x;
+						}	
 						return self.classInfo.members;
 					}
 				}
@@ -67,11 +78,11 @@
 					if(! window.location.hash ) {
 						window.location.hash = "bulletin:bulletin";
 					}
-
+				
 					//if first time to open the class
 					<c:if test="${CLASS_USER_INFO.usertype != 'teacher' and (! empty CLASS_INFO.info) and 
 						( (! empty CLASS_INFO.info.syllabus) || (! empty CLASS_INFO.info.welcome_message)  ) }">
-						<c:if test="${CLASS_USER_INFO.state != 'ACTIVE'}">
+						<c:if test="${CLASS_USER_INFO.state != 'ACTIVE'}">;	
 							var op = new PopupOpener('class_welcome',{
 								classid: "${param['classid']}",
 								classinfo: <u:tojson value="${CLASS_INFO.info}"/>,
@@ -82,7 +93,6 @@
 					</c:if>
 					
 					Session.handlers.classroom = function(o) {
-						console.log('receiving object: ' + $.toJSON(o));
 						if(o.classroom && o.classroom == classid ) {
 							self.memberList.refresh(true);
 						}
@@ -101,12 +111,19 @@
 				this.selectedMember;
 				this.removeMember = function() {
 					if(this.selectedMember) {
-						if(this.selectedMember.status == 'online') throw new Error('This student is currently online.');
 						if(confirm("You are about to remove " + this.selectedMember.lastname + "," + this.selectedMember.firstname + " from this class. Continue?") ) {
 							svc.removeMember( {userid: this.selectedMember.objid, classid: classid} ); 
 						}
 					}
 					return "_close";
+				}
+				
+				this.findMember = function(id) {
+					return this.classInfo.members.find(
+						function(t) {
+							return (t.objid == id);
+						}
+					)
 				}
 				
 				this.getName = function( item ) {
@@ -117,6 +134,8 @@
 				}
 			}
 		);
+		
+		</script>
 	</jsp:attribute>
 	
 	<jsp:attribute name="style">
@@ -126,8 +145,6 @@
 		.menuitem {
 			font-color: 
 		}
-		.no-header { border: solid 7px #999; }
-		.no-header .ui-dialog-titlebar { display: none; }
 	</jsp:attribute>
 	
 	<jsp:attribute name="header_middle">

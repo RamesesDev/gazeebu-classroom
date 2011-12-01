@@ -16,14 +16,18 @@
 <t:content title="Discussion" subtitle="Topics for discussion">
 
 	<jsp:attribute name="script">
-		$register( {id:"new_thread", context:"new_thread", page:"apps/discussion/new_thread.jsp", title:"New Discussion Thread", options: {width:500,height:600}} );
+		$register( {id:"new_thread", context:"new_thread", page:"apps/discussion/new_thread.jsp", title:"New Discussion Thread", options: {width:500,height:420}} );
 		$put("discussion", 
 			new function() {
 				var svc = ProxyService.lookup("DiscussionService");
 				var self = this;
 				this.classid = "${param['classid']}";
 				this.eof = "false";
-				this._controller;
+				this.users;
+				
+				this.onload = function() {
+					this.users = $ctx('classroom').members;
+				}
 				
 				this.listModel = {
 					fetchList: function( p, last ){
@@ -74,6 +78,7 @@
 					<a href="#discussion:thread?objid=#{item.objid}">
 						#{item.subject}
 					</a>
+					( #{item.topic_count != 0 ? ( item.topic_count!=1 ? item.topic_count + ' topics' : '1 topic') : 'No topics posted'} )
 				</td>
 			</tr>
 			<tr>	

@@ -11,10 +11,11 @@ class DiscussionService {
 
 	@Service("MessageService")
 	def msgService;
+	
 
 	@Service("DateService")
 	def dateService;
-
+	
 	@Env
 	def env;
 	
@@ -32,7 +33,9 @@ class DiscussionService {
 	
 	@ProxyMethod
 	public def openThread(o) {
-		return em.read( "discussion:thread", o );
+		def x = em.read( "discussion:thread", o );
+		x.resources = em.sqlContext.createNamedQuery("discussion:resource-list").setParameters(x).resultList;
+		return x;
 	}
 	
 	@ProxyMethod
@@ -40,6 +43,7 @@ class DiscussionService {
 		o.objid = "DTHRD:"  + new java.rmi.server.UID();
 		o.dtposted = dateService.serverDate;
 		o.userid = env.userid;
+		o.state = "open";
 		em.create("discussion:thread", o );
 	}
 
@@ -53,7 +57,12 @@ class DiscussionService {
 		o.objid = "DTPIC:"  + new java.rmi.server.UID();
 		o.dtposted = dateService.serverDate;
 		o.userid = env.userid;
+		o.state = "open";
+		if(!o.viewoption) o.viewoption = 0;
 		em.create("discussion:topic", o );
+		o?.subscribers.each {
+			addTopicSubscriber( [topicid: o.objid, userid: it.objid] );
+		}
 	}
 
 	@ProxyMethod
@@ -63,12 +72,75 @@ class DiscussionService {
 
 	@ProxyMethod
 	public def getTopics(o) {
-		return em.sqlContext.createNamedQuery("discussion:topic-list").setParameters(o).resultList;
+		o.limit = 10;
+		def list = em.sqlContext.createNamedQuery("discussion:topic-list").setParameters(o).resultList;
+		list.each {
+			if(it.dtposted) it.dtposted = df.format( it.dtposted );
+		}
+		return list;
 	}
 
 	@ProxyMethod
 	public def openTopic(o) {
-		return em.read( "discussion:topic", o );
+		def x = em.read( "discussion:topic", o );
+		x.members = em.sqlContext.createNamedQuery("discussion:topic-members").setParameters(x).resultList;
+		x.resources = em.sqlContext.createNamedQuery("discussion:resource-list").setParameters(x).resultList;
+		return x;
 	}
+	
+	
+	@ProxyMethod
+	public def addTopicSubscriber(o) {
+		return em.create( "discussion:topic-subscriber", o );
+	}
+	
+	@ProxyMethod
+	public def removeTopicSubscriber(o) {
+		return em.delete( "discussion:topic-subscriber", o );
+	}
+	
+	@ProxyMethod
+	public def addResource(o) {
+		o.objid = "DISCRS:"+new java.rmi.server.UID();
+		o.userid = env.userid;
+		o.dtposted = dateService.serverDate;
+		return em.create( "discussion:resource", o );
+	}
+
+	@ProxyMethod
+	public def removeResource(o) {
+		return em.delete( "discussion:resource", o );
+	}
+	
+	/*******************************
+	* discussion threads
+	********************************/
+	
+
+	@ProxyMethod
+	public def getMessages(o) {
+		o.msgtype = "topic";
+		print o;
+		return msgService.getPublicMessages(o);
+	}
+	
+	@ProxyMethod
+	public def getResponses(o) {
+		o.msgtype = "topic";
+		return msgService.getResponses(o);
+	}
+	
+	@ProxyMethod
+	public def send(o) {
+		o.scope = "public";
+		o.msgtype = "topic";
+		return msgService.send(o);
+	}	
+	
+	@ProxyMethod
+	public def removeMessage(o) {
+		o.msgtype = "topic";
+		return msgService.removeMessage(o);
+	}	
 	
 }
