@@ -74,7 +74,6 @@ class MessageService {
 		def dtfiled = getLastMessageDate(o);
 		def m = [userid: env.userid, channelid: channelid, limit:LIMIT, lastdtfiled: dtfiled, msgtype: o.msgtype, parentid: o.parentid ];
 		def qryName = (!m.parentid) ? "message:public-messages" : "message:public-context-messages";
-		print qryName + " " + m.toString();
 		def list = em.sqlContext.createNamedQuery(qryName).setParameters(m).resultList;
 		return formatMessages(list);
 	}

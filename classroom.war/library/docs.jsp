@@ -2,10 +2,9 @@
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 
 <t:content title="Documents">
-
    
 	<jsp:attribute name="script">
-		$register({id:"#add-file",context:"add-file", title:"Upload Document", options: {height:400,width:500}}); 
+		$register({id:"upload_doc",context:"upload_doc",page:"library/upload_doc.jsp", title:"Upload Document to Library", options: {height:400,width:500}}); 
 		$put("docs", 
 			new function() {
 				var svc = ProxyService.lookup("LibraryService");
@@ -13,11 +12,9 @@
 				this.qry = {}
 				this.add = function() {
 					var h = function(o) {
-						o.category = "doc";
-						svc.uploadResource(o);
 						self.listModel.refresh(true);
 					}
-					return new PopupOpener( "#add-file", {handler:h, entry: {}} );	
+					return new PopupOpener( "upload_doc", {handler:h} );	
 				}
 				this.search = function() {
 					alert('search');
@@ -42,33 +39,6 @@
 			}
 		);	
 		
-		$put("add-file",
-			new function() {
-				this.handler;
-				this.entry;
-				var self = this;
-				this._controller;
-				this.save = function() {
-					this.handler(this.entry);
-					return "_close";	
-				}	
-				this.afterAttach = function(o) {
-					this.entry.filename = o.filename;
-					this.entry.content_type = o.content_type;
-					this.entry.tmpfileid = o.fileid;
-					this.entry.filesize = o.filesize;
-					this.entry.ext = o.ext;
-				}
-				this.removeAttachment = function() {
-					var c = this.entry;
-					this.entry = {};
-					this.entry.title = c.title;
-					this.entry.description = c.description;
-					this.entry.keywords = c.keywords;
-					self._controller.refresh();
-				}
-			}
-		);	
 	</jsp:attribute>
 
 	<jsp:attribute name="style">
@@ -90,33 +60,6 @@
 		<input type=text r:context="docs" r:name="qry.search" r:hint="Type Search Keyword"/>
 		<input type="button" r:context="docs" r:name="search"	value="Search"/>
 		
-	</jsp:attribute>
-	
-	<jsp:attribute name="sections">
-		<div id="add-file" style="display:none">
-			<div>
-				<input type="file"
-				r:context="add-file" 
-				r:caption="1. Select file to upload"
-				r:oncomplete="afterAttach"
-				r:expression="1. #{filename} &nbsp;&nbsp;&nbsp;&nbsp;size:#{filesize}"
-				r:onremove="removeAttachment"
-				r:url="library/upload_temp.jsp"/>
-			</div>
-			<br>
-			<div class="label">2. Enter Title</div>
-			<div><input type="text" r:context="add-file" r:name="entry.title" r:hint="Enter Title" style="width:380px;"/></div>	
-			<br>
-			<div class="label">3. Enter Description <i>( put in notes so you can remember what this file is about)</i></div>
-			<div><textarea r:context="add-file" r:name="entry.description" style="width:380px;"></textarea></div>	
-			<br>
-			<div class="label">4. Enter Keywords <i>( to help you find your documents easier )</i></div>
-			<div><textarea r:context="add-file" r:name="entry.keywords" style="width:380px;"></textarea></div>	
-			<br>
-			<button style="padding-left:10px;padding-right:10px;padding-top:5px;padding-bottom:5px">
-				<a r:context="add-file" r:name="save">Save</a>
-			</button>
-		</div>
 	</jsp:attribute>
 	
    <jsp:body>

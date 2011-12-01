@@ -42,6 +42,16 @@
 						return svc.getTopics( m );
 					}
 				}
+				
+				this.selectedResource;
+				this.resourceList = {
+					fetchList: function(o) {	
+						var m = {parentid: self.objid};
+						return svc.getResources( m );
+					}
+				}
+				
+				
 				this.selectedTopic;
 				this.addTopic = function() {
 					var f = function(o) {
@@ -53,6 +63,21 @@
 				
 				this.editThread = function() {
 					alert('editing ' + this.selectedTopic.objid);
+				}
+				
+				this.addResource = function() {
+					var h = function(o) {
+						svc.addResource(o);
+						self.resourceList.refresh(true);
+					}
+					return new PopupOpener("discussion:add_resource", {parentid: this.objid, saveHandler: h });
+				}
+				
+				this.removeResource = function() {
+					if( this.selectedResource && confirm("You are about to remove this resource. Continue?")) {
+						svc.removeResource( this.selectedResource );
+						self.resourceList.refresh(true);
+					}
 				}
 			}
 		);	
@@ -84,29 +109,34 @@
 							<tr>
 								<td >References</td>
 								<td align="right" style="padding-right:4px;">
-									<a href="">Add</a>
+									<c:if test="${CLASS_USER_INFO.usertype=='teacher'}">
+										<a r:context="thread" r:name="addResource">Add</a>
+									</c:if>
 								</td>
 							</tr>
 						</table>
 					</div>
+					
 					<div>
-						<table>
-							<c:forEach items="${DISCUSSION.resources}" var="item" varStatus="status">
-								<tr>
-									<td style="padding-left:10px;">
-										<c:if test="${item.type == 'video'}">
-											<embed src="${item.link}" height="260" width="350"></embed> 
-											<br>
-											${status.index+1}. ${item.title}
-										</c:if>
-										<c:if test="${item.type == 'link'}">
-											${status.index+1}. <a href="javascript:window.open('${item.link}');">${item.title}</a>
-										</c:if>
-									</td>
-								</tr>
-							</c:forEach>
+						<table width="100%" r:context="thread" r:model="resourceList" r:varName="item" r:varStatus="stat" r:name="selectedResource">
+							<tr>
+								<td>#{stat.index+1}. </td>
+								<td style="font-weight:bold;color:darkslateblue;">
+									#{item.title}
+								</td>
+								<td align="right" style="padding-right:4px;">
+									<a r:context="thread" r:name="removeResource" r:visibleWhen="#{item.userid == '${SESSION_INFO.userid}'}">
+										Remove
+									</a>
+								</td>
+							</tr>
+							<tr>
+								<td>&nbsp;</td>
+								<td>#{item.description}</td>
+							</tr>
 						</table>
 					</div>
+					
 				</td>
 				
 				<td colspan="2" valign="top" width="50%" style="border-left:1px solid gray;padding-left:10px;">

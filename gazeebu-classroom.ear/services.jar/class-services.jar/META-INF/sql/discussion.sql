@@ -11,7 +11,7 @@ order by dtposted asc
 limit $P{limit} 
 
 [topic-members]
-select * from discussion_topic_subscriber where topicid=$P{objid}
+select * from discussion_topic_subscriber where topicid=$P{parentid}
 
 [resource-list]
-select * from discussion_resource where parentid=$P{objid}
+select * from discussion_resource where parentid=$P{parentid}

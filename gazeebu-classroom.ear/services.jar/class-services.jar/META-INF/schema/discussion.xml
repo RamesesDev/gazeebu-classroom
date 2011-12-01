@@ -30,7 +30,7 @@
 		<field name="title"/>
 		<field name="description"/>
 		<field name="restype"/>
-		<field name="linkref"/>
+		<field name="link"/>
 		<field name="embedcode"/>
 	</element>
 </schema>
