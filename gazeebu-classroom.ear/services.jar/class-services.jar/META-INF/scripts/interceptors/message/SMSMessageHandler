@@ -11,13 +11,17 @@ class SMSMessageHandler {
 	@Service("ClassroomService")
 	def classroomService;
 	
+	@Service("UserProfileService")
+	def profileSvc;
+	
 	
     @After(pattern="MessageService.send*")
     public def sendSMS( def evt ) {
 		def r = evt.result;
 		if( !r ) return;
 		
-		def message = r.message + "\nfrm: $r.lastname,$r.firstname";
+	def user = profileSvc.getUserInfo([objid: r.userid]);
+		def message = r.message + "\nfrm: $user.lastname, $user.firstname";
 		if( r.subscribers ) {
 			r.subscribers.each {
 				def o = [userid: it.userid, classid: r.channelid, msgtype:r.msgtype,msg:message];

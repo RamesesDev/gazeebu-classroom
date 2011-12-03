@@ -172,44 +172,46 @@
 			</table>
 			<br>	
 
-			<table class="menu" r:context="apps" r:items="items" r:varName="item" width="100%" cellpadding="0" cellspacing="0">
-				<tr>
-					<td class="icon">
-						#{item.icon? '<img src="' + item.icon + '" width="16px"/>' : ''}
-					</td>
-					<td class="caption">
-						<a href="##{item.id}">
-							#{item.caption}
-						</a>
-					</td>
-				</tr>
-			</table>
-			
-			<br>
-			<div class="hr"></div>
-			<h3>CLASSROOM</h3>
-			<table r:context="classroom" r:model="memberList" r:name="selectedMember"
-				r:varStatus="stat" r:varName="item" width="95%" cellpadding="0" cellspacing="0">
-				<tbody>
-					<tr class="menu">
-						<td valign="top" width="16px;">
-							<img src="img/#{item.status}.png"/>
+			<div r:context="apps" r:visibleWhen="true" style="display:none">
+				<table class="menu" r:context="apps" r:items="items" r:varName="item" width="100%" cellpadding="0" cellspacing="0">
+					<tr>
+						<td class="icon">
+							#{item.icon? '<img src="' + item.icon + '" width="16px"/>' : ''}
 						</td>
-						<td valign="top">
-							<a href="#common:usermessage?objid=#{item.objid}" class="menuitem" title="#{item.lastname}, #{item.firstname}">
-								<span class="capitalized">#{getName(item)}</span>
-								<br/>
-								<span class="caption">#{item.usertype} #{item.me? '<b>(me)</b>' : ''}</span>
+						<td class="caption">
+							<a href="##{item.id}">
+								#{item.caption}
 							</a>
 						</td>
-						<td valign="top" width="3px">
-							<c:if test="${CLASS_INFO.usertype == 'teacher'}">
-								<a r:context="classroom" r:visibleWhen="#{item.usertype == 'student'}" r:name="showMemberMenu">&#9660;</a>
-							</c:if>
-						</td>
 					</tr>
-				</tbody>
-			</table>
+				</table>
+				
+				<br>
+				<div class="hr"></div>
+				<h3>CLASSROOM</h3>
+				<table r:context="classroom" r:model="memberList" r:name="selectedMember"
+					r:varStatus="stat" r:varName="item" width="95%" cellpadding="0" cellspacing="0">
+					<tbody>
+						<tr class="menu">
+							<td valign="top" width="16px;">
+								<img src="img/#{item.status}.png"/>
+							</td>
+							<td valign="top">
+								<a href="#common:usermessage?objid=#{item.objid}" class="menuitem" title="#{item.lastname}, #{item.firstname}">
+									<span class="capitalized">#{getName(item)}</span>
+									<br/>
+									<span class="caption">#{item.usertype} #{item.me? '<b>(me)</b>' : ''}</span>
+								</a>
+							</td>
+							<td valign="top" width="3px">
+								<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+									<a r:context="classroom" r:visibleWhen="#{item.usertype == 'student'}" r:name="showMemberMenu">&#9660;</a>
+								</c:if>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 			
 			<div id="membermenu" style="display:none;">
 				<a r:context="classroom" r:name="removeMember">Remove</a>

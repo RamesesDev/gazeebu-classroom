@@ -91,59 +91,61 @@
 	</jsp:attribute>
 	
 	<jsp:body>
-		<table cellpadding="0" cellspacing="0">
-			<tr>
-				<td>
-					<img src="profile/photo.jsp?id=${SESSION_INFO.userid}&t=thumbnail&v=${SESSION_INFO.info.photoversion}"/>
-				</td>
-				<td style="font-size:11px;padding-left:5px;">
-					${SESSION_INFO.lastname}, ${SESSION_INFO.firstname}<br>
-				</td>
-			</tr>
-		</table>
-		<br>
-		<br>
-		<span class="menutitle">CLASSES</span>
-
-		<table r:context="home" r:model="classListModel" r:varName="item"  r:name="selectedClass" style="padding-top:10px;" cellpadding="0" cellspacing="0"> 
-			<tbody>	
+		<div r:context="home" r:visibleWhen="true" style="display:none">
+			<table cellpadding="0" cellspacing="0">
 				<tr>
-					<td rowspan="2" valign="top" style="padding-right:2px;"><img src="img/star.png"/></td>
 					<td>
-						<a href="classroom.jsp?classid=#{item.objid}"><b>#{item.name}</b></a>
-						<b>(#{item.usertype})</b>						
+						<img src="profile/photo.jsp?id=${SESSION_INFO.userid}&t=thumbnail&v=${SESSION_INFO.info.photoversion}"/>
 					</td>
-					<td rowspan="3" valign="top">
-						<!--
-						<a r:context="home" r:name="showClassMenu" style="text-decoration:none;border:1px solid lightgrey">&#9660;</a>
-						-->
+					<td style="font-size:11px;padding-left:5px;">
+						${SESSION_INFO.lastname}, ${SESSION_INFO.firstname}<br>
 					</td>
-				</tr>	
-				<tr>	
-					<td style="font-size:10px;padding-bottom:10px;">#{item.schedules}</td>
 				</tr>
-			</tbody>
-			<tfoot>
-				<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
+			</table>
+			<br>
+			<br>
+			<span class="menutitle">CLASSES</span>
+
+			<table r:context="home" r:model="classListModel" r:varName="item"  r:name="selectedClass" style="padding-top:10px;" cellpadding="0" cellspacing="0"> 
+				<tbody>	
 					<tr>
-						<td colspan="3">
-							<input type="button" r:context="home" r:name="addClass" 
-								style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
-								value="Add Class"/>
+						<td rowspan="2" valign="top" style="padding-right:2px;"><img src="img/star.png"/></td>
+						<td>
+							<a href="classroom.jsp?classid=#{item.objid}"><b>#{item.name}</b></a>
+							<b>(#{item.usertype})</b>						
 						</td>
-					</tr>
-				</c:if>
-				<c:if test="${fn:contains(SESSION_INFO.roles,'student')}">
-					<tr>
-						<td colspan="3">
-							<input type="button" r:context="home" r:name="joinClass" 
-								style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
-								value="Join Class"/>
-						</td>		
+						<td rowspan="3" valign="top">
+							<!--
+							<a r:context="home" r:name="showClassMenu" style="text-decoration:none;border:1px solid lightgrey">&#9660;</a>
+							-->
+						</td>
 					</tr>	
-				</c:if>
-			</tfoot>	
-		</table>
+					<tr>	
+						<td style="font-size:10px;padding-bottom:10px;">#{item.schedules}</td>
+					</tr>
+				</tbody>
+				<tfoot>
+					<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
+						<tr>
+							<td colspan="3">
+								<input type="button" r:context="home" r:name="addClass" 
+									style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
+									value="Add Class"/>
+							</td>
+						</tr>
+					</c:if>
+					<c:if test="${fn:contains(SESSION_INFO.roles,'student')}">
+						<tr>
+							<td colspan="3">
+								<input type="button" r:context="home" r:name="joinClass" 
+									style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
+									value="Join Class"/>
+							</td>		
+						</tr>	
+					</c:if>
+				</tfoot>	
+			</table>
+		</div>
 		
 		<div id="classmenu" style="display:none;">
 			<a r:context="home" r:name="activateClass">Activate</a>
