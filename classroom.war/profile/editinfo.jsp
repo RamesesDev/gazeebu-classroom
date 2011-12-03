@@ -5,37 +5,30 @@
 
 <t:popup>
 	<jsp:attribute name="head">
-		<script src="js/ext/birthdate.js"></script>
+		<script src="js/ext/datetime.js"></script>
 		<script>
-		   $put("editinfo", 
-			  new function() {
-				 var svc = ProxyService.lookup("UserProfileService");
-				 this.user = {};
-				 this.handler;
-					this.gender = [ 
-					  {id:"M", name:"Male"}, 
-					  {id:"F", name:"Female"}
-					];
-					
-				   this.onload = function() {
-					   if( this.user.birthdate ) {
-						   var b = this.user.birthdate.split('-');
-						   this.birthdate = new DateModel(parseInt(b[1]), parseInt(b[2]), parseInt(b[0]));
-					   }
-					   else {
-						   this.birthdate = new DateModel();
-					   }
-					}
-			  
-				 this.save = function() {
+			$put("editinfo", 
+			  new function() 
+			  {
+				var svc = ProxyService.lookup("UserProfileService");
+				this.user = {};
+				this.handler;
+				
+				this.gender = [ 
+					{id:"M", name:"Male"}, 
+					{id:"F", name:"Female"}
+				];
+
+
+				this.save = function() {
 					svc.update(this.user);
 					if(this.handler)
-					   this.handler();
-					   
+					this.handler();
+
 					return "_close";
-				 }
-			  }
-		   );
+					}
+				}
+			);
 		</script>
 	</jsp:attribute>
 
@@ -104,7 +97,7 @@
 				 Birthday: &nbsp;&nbsp;
 			  </td>
 			  <td>
-				 <birthdate r:context="editinfo" r:model="birthdate" r:name="user.birthdate"/>
+				 <span r:type="datetime" r:context="editinfo" r:name="user.birthdate" r:mode="date"/>
 			  </td>
 		   </tr>
 		   <tr>

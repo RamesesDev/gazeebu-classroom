@@ -12,4 +12,4 @@ Write a welcome message for your students.
 	  r:oncomplete="afterAttach"
 	  r:expression="#{filename}"
 	  r:onremove="removeSyllabus"
-	  r:url="apps/classinfo/syllabus_upload.jsp"/>
+	  r:url="classroom/classinfo/syllabus_upload.jsp"/>

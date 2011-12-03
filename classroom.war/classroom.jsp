@@ -17,21 +17,13 @@
 		<script src="${pageContext.servletContext.contextPath}/js/ext/textarea.js"></script>
 		
 		<script type="text/javascript">
-		
-		$register({id: "bulletin", page:"classroom/bulletin.jsp", context:"bulletin"});
-		$register({id: "private_messages", page:"classroom/private_messages.jsp", context:"news"});
-		$register({id: "usermessage", page:"classroom/usermessage.jsp", context:"usermessage"});
-		$register( {id:"invite_student", page:"classroom/invite_student.jsp", context:"invite_student", title:"Invite Students", options: {width:500,height:400} } )
-		$register({id: "comment", page:"classroom/comment.jsp", context:"comment", title:"Post a comment", options: {width:400, height:200}});
-		$register({id: "subscribe_sms", page:"classroom/subscribe_sms.jsp", context:"subscribe_sms", title:"Subscribe SMS", options: {width:400, height:300}});
-		$register({id: "class_welcome", page:"classroom/class_welcome.jsp", context:"class_welcome", title:"Welcome", options: {width:650, height:500}});
-		
+
 		$register({id: "classroom:lookup_member", page:"classroom/lookup_member.jsp", 
 			context:"lookup_member", title:"Select Class Members", options: {height:500}});
 		
 		$register({id: "#membermenu", context:"classroom"});
 		
-		<common:loadmodules name="apps" role="${CLASS_INFO.usertype}"/>
+		<common:loadmodules name="classroom" role="${CLASS_INFO.usertype}"/>
 		
 		$put("apps", 
 			new function() {
@@ -82,7 +74,7 @@
 					<c:if test="${CLASS_USER_INFO.usertype != 'teacher' and (! empty CLASS_INFO.info) and 
 						( (! empty CLASS_INFO.info.syllabus) || (! empty CLASS_INFO.info.welcome_message)  ) }">
 						<c:if test="${CLASS_USER_INFO.state != 'ACTIVE'}">;	
-							var op = new PopupOpener('class_welcome',{
+							var op = new PopupOpener('common:class_welcome',{
 								classid: "${param['classid']}",
 								classinfo: <u:tojson value="${CLASS_INFO.info}"/>,
 								userid: "${SESSION_INFO.userid}"
@@ -99,7 +91,7 @@
 				}
 				
 				this.inviteStudents = function() {
-					return new PopupOpener("invite_student");
+					return new PopupOpener("common:invite_student");
 				}
 
 				this.showMemberMenu = function() {
@@ -110,6 +102,7 @@
 				this.selectedMember;
 				this.removeMember = function() {
 					if(this.selectedMember) {
+						if( this.selectedMember.status == 'online' ) throw new Error('Cannot remove online members.');
 						if(confirm("You are about to remove " + this.selectedMember.lastname + "," + this.selectedMember.firstname + " from this class. Continue?") ) {
 							svc.removeMember( {userid: this.selectedMember.objid, classid: classid} ); 
 						}
@@ -130,6 +123,10 @@
 					var n = item.lastname +', '+ item.firstname;					
 					if( n.length > max - 3 ) n = n.substr(0,max-3) + '...';
 					return n;
+				}
+				
+				this.subscribeSMS = function() {
+					return new PopupOpener( "common:subscribe_sms", {msgtype: "bulletin"}); 
 				}
 			}
 		);
@@ -199,8 +196,8 @@
 							<img src="img/#{item.status}.png"/>
 						</td>
 						<td valign="top">
-							<a href="#usermessage?objid=#{item.objid}" class="menuitem" title="#{item.lastname}, #{item.firstname}">
-								<span class="capitalize">#{getName(item)}</span>
+							<a href="#common:usermessage?objid=#{item.objid}" class="menuitem" title="#{item.lastname}, #{item.firstname}">
+								<span class="capitalized">#{getName(item)}</span>
 								<br/>
 								<span class="caption">#{item.usertype} #{item.me? '<b>(me)</b>' : ''}</span>
 							</a>

@@ -3,17 +3,14 @@
 <%@ page import="java.io.*" %>
 <%@ page import="com.rameses.service.*" %>
 
-<%   
+<%
 	try {
 		String fileid = request.getParameter("id");
-		String type = request.getParameter("t");
 		String resUrl = System.getProperty( "gazeebu.library.url" );
 		String content_type = request.getParameter("ct");
 		
 		File dest = new File(new URL(resUrl+"/"+fileid).toURI());
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + fileid + "\"");
-		
-		//attachment or inline
+		response.setHeader("Content-Disposition", "inline; filename=\"" + fileid + "\"");
 		
 		//-- serve resource
 		File f = dest;

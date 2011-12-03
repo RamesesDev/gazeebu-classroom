@@ -53,15 +53,17 @@ class DiscussionService {
 	
 	@ProxyMethod
 	public def addTopic(o) {
-		o.objid = "DTPIC:"  + new java.rmi.server.UID();
-		o.dtposted = dateService.serverDate;
-		o.userid = env.userid;
-		o.state = "open";
-		if(!o.viewoption) o.viewoption = 0;
-		em.create("discussion:topic", o );
-		o?.subscribers.each {
-			addTopicSubscriber( [topicid: o.objid, userid: it.objid] );
-		}
+		def m = [:];
+		m.msgtype = "topic";
+		m.channelid = o.classid;
+		m.threadid = o.threadid;
+		m.message = o.description;
+		m.subject = o.subject;
+		m.subscribers = o.subscribers?.collect { [userid: it.objid] }
+		m.state = "open";
+		//if(!m.viewoption) m.viewoption = 0;
+		
+		msgService.send( m );
 	}
 
 	@ProxyMethod
@@ -71,12 +73,7 @@ class DiscussionService {
 
 	@ProxyMethod
 	public def getTopics(o) {
-		o.limit = 10;
-		def list = em.sqlContext.createNamedQuery("discussion:topic-list").setParameters(o).resultList;
-		list.each {
-			if(it.dtposted) it.dtposted = df.format( it.dtposted );
-		}
-		return list;
+		return msgService.getMessages(m);
 	}
 
 	@ProxyMethod

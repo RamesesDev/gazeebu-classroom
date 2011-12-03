@@ -21,11 +21,29 @@ public class LibraryService {
 
 	private long DEFAULT_ALLOWED_SIZE = 10000000;	//10 MB initial allowed
 	
+	
+	private def buildUrl( res ) {
+		return buildTargetDir( res ) + "/" + buildTargetFile( res );
+	}
+	
+	private def buildTargetDir( res ) {
+		return "USR" + res.userid.hashCode() + "/$res.category";
+	}
+	
+	private def buildTargetFile( res ) {
+		return "FILE" + res.objid.hashCode() + (res.ext? "."+res.ext : "");
+	}
+	
 	@ProxyMethod
 	public def uploadResource( o ) {
 		o.objid = "RES:" + new java.rmi.server.UID(); 
 		o.userid = env.userid;
 		o.dtfiled = dateSvc.serverDate;
+		try {
+			o.ext = o.filename.substring(o.filename.lastIndexOf(".")+1);
+		}
+		catch(e){;}
+		
 		//before uploading check if the user has not yet used maximum size;
 		def acct = em.read( "resource:account", o ); 
 		if(!acct) {
@@ -38,11 +56,11 @@ public class LibraryService {
 			throw new Exception("Your allowed storage size has been exceeded. ");
 		
 		String tmpUrl= System.getProperty("gazeebu.temp.url") + "/" + o.tmpfileid;
-		String resUrl= System.getProperty("gazeebu.library.url") + "/USR" + env.userid.hashCode();
+		String resUrl= System.getProperty("gazeebu.library.url") + "/" + buildTargetDir( o );
 		File dest = new File(new URL(resUrl).toURI());
-		File f = new File(dest, "FILE"+o.objid.hashCode().toString()+ (o.ext?o.ext:'') );
+		File f = new File(dest, buildTargetFile(o) );
 		if( !f.getParentFile().exists() ) f.getParentFile().mkdirs();
-		f.createNewFile();
+		
 		File src = new File( new URL(tmpUrl).toURI() );
 		
 		def fis = new FileTransfer.FileInputSource(src);
@@ -64,11 +82,7 @@ public class LibraryService {
 		def list = em.sqlContext.createNamedQuery(qryName).setParameters(o).resultList;
 		list.each {
 			if(it.dtfiled) it.dtfiled = df.format(it.dtfiled);
-			it.fileurl = "USR" + o.userid.hashCode() + "/" + "FILE" + it.objid.hashCode();
-			try {
-				it.fileurl += it.filename.substring(it.filename.lastIndexOf("."));
-			}
-			catch(e){;}
+			it.fileurl = buildUrl( it );
 		}
 		return list;
 	}
@@ -80,11 +94,7 @@ public class LibraryService {
 		list.each {
 			def x = em.read( "resource", [objid: it] );
 			revert += x.filesize;
-			def fileurl = "USR" + x.userid.hashCode() + "/" + "FILE" + x.objid.hashCode();
-			try {
-				fileurl += x.filename.substring(x.filename.lastIndexOf("."));
-			}
-			catch(e){;}
+			def fileurl = buildUrl(x);
 			files.add( fileurl );
 			em.delete( "resource", x );
 		}
@@ -98,5 +108,13 @@ public class LibraryService {
 		}
 	}
 	
+	@ProxyMethod
+	public def findResources( param ) {
+		if( param.title ) param.title = '%' + param.title + '%';
+		return em.sqlContext.createNamedQuery("resource:find").setParameters(param).resultList.each{
+			it.fileurl = buildUrl( it );
+			it.dtfiled = df.format( it.dtfiled );
+		};
+	}
 	
 }

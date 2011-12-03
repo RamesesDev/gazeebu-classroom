@@ -63,8 +63,20 @@ var BindingUtils = new function() {
 			
 			if( R.attr($e, 'action') ) {
 				var action = R.attr($e, 'action');
-				elem.onclick = function() { 
-					$get(controller.name).invoke( this, action );  
+				if( elem.type == 'text' ) {
+					if( !$e.data('_keyup_binded') ) {
+						$e.data('_keyup_binded',true)
+						 .keyup(function(event){
+							if(event.keyCode == 13){
+								$get(controller.name).invoke( this, action );
+							}
+						});
+					}
+				}
+				else {
+					elem.onclick = function() { 
+						$get(controller.name).invoke( this, action );  
+					}
 				}
 			}
 			
@@ -2084,17 +2096,8 @@ function PopupOpener( id, params, options )
  *   DropdownOpener.options = {}
  * the value of DropdownOpener.options is global unless explicitly overriden
  */
-function DropdownOpener( id, params, options ) 
-{
-	this.classname = "opener";
-	this.caller;
-    this.id = id;
-    this.params = params;
-	this.title;
-	this.source;
-	this.options = options || {};
-	this.styleClass;
-	
+(function()
+{		
 	var defaultConfig = { my: 'left top', at: 'left bottom' };	
 	var positionNames = {
 		'bottom-left' : { my: 'left top', at: 'left bottom' },
@@ -2102,57 +2105,68 @@ function DropdownOpener( id, params, options )
 		'top-left' : { my: 'left bottom', at: 'left top' },
 		'top-right' : { my: 'right bottom', at: 'right top' }
 	};
+	
 	var defaultEffect = {
 		name: 'slide',
 		options: {direction: 'up'}
 	};
 	
-	
-    this.load = function() {
-		var inv = Registry.find(this.id);
-		if(inv==null) {
-			alert( this.id + " is not registered" );
-			return;
-		}
-        var n = inv.context;
-        var p = this.params;
-		var caller = this.caller;
-		var page;
-		if( this.id.startsWith('#') )
-			page = $(this.id);
-		else
-			page = inv.page;
+	function DropdownOpener( id, params, options ) 
+	{
+		this.classname = "opener";
+		this.caller;
+		this.id = id;
+		this.params = params;
+		this.title;
+		this.source;
+		this.options = options || {};	
 		
-		if( DropdownOpener.options ) this.options = $.extend(DropdownOpener.options, this.options);
-		if( inv.options ) this.options = $.extend(this.options, inv.options);
-		
-		var w = new DropdownWindow(this.source, this.options, this.styleClass);
-        w.show( page, WindowUtil.getParameters(p), function(div) {
-			if( n!=null ) {
-				if(p!=null) {
-					for( var key in p ) {
-						try{ $ctx(n)[key] = p[key]; }catch(e){;}
+		this.load = function() {
+			var inv = Registry.find(this.id);
+			if(inv==null) {
+				alert( this.id + " is not registered" );
+				return;
+			}
+			var n = inv.context;
+			var p = this.params;
+			var caller = this.caller;
+			var page;
+			if( this.id.startsWith('#') )
+				page = $(this.id);
+			else
+				page = inv.page;
+			
+			var options = $.extend({}, DropdownOpener.options);
+			if( inv.options ) options = $.extend(options, inv.options);
+			options = $.extend(options, this.options);
+			
+			var w = new DropdownWindow(this.source, options);
+			w.show( page, WindowUtil.getParameters(p), function(div) {
+				if( n!=null ) {
+					if(p!=null) {
+						for( var key in p ) {
+							try{ $ctx(n)[key] = p[key]; }catch(e){;}
+						}
+					}
+					$ctx(n)._caller = caller.code;
+					BindingUtils.load( div );
+					$get(n).container = {
+						element: w.getElement(),
+						close:   function() { w.close(); if(caller) caller.refresh() },
+						refresh: function() { $get(n).refresh(); }
 					}
 				}
-				$ctx(n)._caller = caller.code;
-				BindingUtils.load( div );
-				$get(n).container = {
-					element: w.getElement(),
-					close:   function() { w.close(); if(caller) caller.refresh() },
-					refresh: function() { $get(n).refresh(); }
-				}
-			}
-        });
-    };
-
-
+			});
+		};
+	}//-- end of DropdownOpener
+	
 	//--- DropdownWindow class ----
-	function DropdownWindow( source, options, styleClass ) {
+	function DropdownWindow( source, options ) {
 
 		var div = $('<div class="dropdown-window" style="position: absolute; z-index: 999999; top: 0; left: 0;"></div>');
 		var dynamic = false;
 		
-		if( styleClass ) div.addClass( styleClass );
+		if( options.styleClass ) div.addClass( options.styleClass );
 		
 		var effect = options.effect || defaultEffect;
 
@@ -2201,7 +2215,7 @@ function DropdownOpener( id, params, options )
 		
 		function isFixedPositioned( elem ) {
 			return elem.css('position') == 'fixed' || 
-			      (elem[0].offsetParent && isFixedPositioned( $(elem[0].offsetParent) ));
+				  (elem[0].offsetParent && isFixedPositioned( $(elem[0].offsetParent) ));
 		}
 
 		function hide() {
@@ -2228,8 +2242,12 @@ function DropdownOpener( id, params, options )
 		}
 
 	}//-- end of DropdownWindow class
+	
+	//make the classes visible globally
+	window.DropdownOpener = DropdownOpener;
+	DropdownOpener.DropdownWindow = DropdownWindow;
 
-}//-- end of DropdownOpener
+})();
 
 //load binding immediately
 $(document).ready (

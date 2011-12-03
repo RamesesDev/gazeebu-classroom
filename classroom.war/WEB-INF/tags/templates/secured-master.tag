@@ -33,8 +33,8 @@
 	<jsp:body>
 		<table width="100%" height="100%" cellpadding="0" cellspacing="0">
 			<tr>
-				<td valign="top" width="165" height="100%" id="leftpanel">
-					<table width="100%" cellpadding="0" cellspacing="0">
+				<td valign="top" width="1px" height="100%">
+					<table id="leftpanel" width="165px" cellpadding="0" cellspacing="0">
 						<tr>
 							<td valign="top">
 								<jsp:doBody/>
@@ -44,6 +44,30 @@
 				</td>
 				<td valign="top" height="100%">
 					<table class="shadowbox" width="100%" height="550">
+						<tr>
+							<td align="right">
+								<a id="toggle" href="#" style="text-decoration:none" title="Expand content panel">
+									[+]
+								</a>
+								<script type="text/javascript">
+									$(function(){
+										$('#toggle').click(function(){
+											var e = $(this);
+											var lp = $('#leftpanel');
+											if( e.data('expanded') ) {
+												lp.css('display',lp.data('display'));
+												e.data('expanded', false).html('[+]').attr('title','Expand content panel');
+											}
+											else {
+												lp.data('display', lp.css('display')).css('display','none');
+												e.data('expanded', true).html('[-]').attr('title','Compress content panel');
+											}
+											return false;
+										});
+									});
+								</script>
+							</td>
+						</tr>
 						<tr>
 							<td id="content" height="100%" valign="top">&nbsp;</td> 
 						</tr>

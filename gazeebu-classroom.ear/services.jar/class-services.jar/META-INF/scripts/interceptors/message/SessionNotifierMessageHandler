@@ -11,22 +11,45 @@ class SessionNotifierMessageHandler {
     @After(pattern="MessageService.send*")
     public def broadcastMessage( def evt ) {
 		def r = evt.result;
-		if( r.msgtype == "private") {
-			sessionService.notifyUser( r.senderid, r );
-			r.recipients.each {
+		
+		if( r.subscribers ) {
+			sessionService.notifyUser( r.userid, r );
+			r.subscribers.each {
 				sessionService.notifyUser( it.userid, r );
 			}
 		}
-		else {
-			if(r.channelid) {
-				def classroom = classroomService.getClassInfo( r.channelid );		
-				classroom.members.each {
+		else if( r.channelid ){
+			def classroom = classroomService.getClassInfo( r.channelid );		
+			classroom.members.each {
+				sessionService.notifyUser( it.objid, r );
+			}
+		}
+    }
+	
+    @After(pattern="MessageService.respond*")
+    public def broadcastResponse( def evt ) {
+		def r = evt.result;
+		
+		sessionService.notifyUser( r.userid, r );
+		if( r.userid != r.parent.userid ) {
+			sessionService.notifyUser( r.parent.userid, r );
+		}
+		
+		
+		if( r.subscribers && r.parent.privacy != 0 ) {
+			r.subscribers.each {
+				if( it.userid != r.userid && it.userid != r.parent.userid ) {
+					sessionService.notifyUser( it.userid, r );
+				}
+			}
+		}
+		else if( r.channelid ) {
+			def classroom = classroomService.getClassInfo( r.channelid );		
+			classroom.members.each {
+				if( it.objid != r.userid && it.objid != r.parent.userid ) {
 					sessionService.notifyUser( it.objid, r );
 				}
 			}
-			else {
-				sessionService.notifyAllExceptSender( r, r.senderid  );
-			}	
 		}
     } 
     

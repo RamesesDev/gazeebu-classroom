@@ -8,20 +8,7 @@
 		<field name="userid"/>
 		<field name="state"/>
 	</element>	
-	<element name="topic" tablename="discussion_topic">
-		<field name="objid" primary="true" />
-		<field name="subject" />
-		<field name="description" />
-		<field name="parentid" />
-		<field name="dtposted" />
-		<field name="userid" />
-		<field name="state"/>
-		<field name="viewoption"/>
-	</element>
-	<element name="topic-subscriber" tablename="discussion_topic_subscriber">
-		<field name="topicid" primary="true" />
-		<field name="userid" primary="true" />
-	</element>
+	
 	<element name="resource" tablename="discussion_resource">
 		<field name="objid" primary="true" />
 		<field name="parentid" />

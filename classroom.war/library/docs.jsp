@@ -4,7 +4,7 @@
 <t:content title="Documents">
    
 	<jsp:attribute name="script">
-		$register({id:"upload_doc",context:"upload_doc",page:"library/upload_doc.jsp", title:"Upload Document to Library", options: {height:400,width:500}}); 
+		$register({id:"upload_doc_form",context:"upload_doc_form",page:"library/upload_doc_form.jsp", title:"Upload Document to Library", options: {height:400,width:500}}); 
 		$put("docs", 
 			new function() {
 				var svc = ProxyService.lookup("LibraryService");
@@ -14,7 +14,7 @@
 					var h = function(o) {
 						self.listModel.refresh(true);
 					}
-					return new PopupOpener( "upload_doc", {handler:h} );	
+					return new PopupOpener( "upload_doc_form", {handler:h} );	
 				}
 				this.search = function() {
 					alert('search');
@@ -88,7 +88,9 @@
 					<td align="center">#{item.filesize}</td>
 					<td align="center">#{item.dtfiled}</td>
 					<td align="center">
-						<a href="javascript:window.open('library/viewres.jsp?id=#{item.fileurl}&ct=#{item.content_type}')">View</a> 
+						<a href="library/viewres.jsp?id=#{item.fileurl}&ct=#{item.content_type}" target="_blank">View</a> 
+						&nbsp;
+						<a href="library/downloadres.jsp?id=#{item.fileurl}&ct=#{item.content_type}" target="_blank">Download</a> 
 					</td>
 				</tr>
 			</tbody>

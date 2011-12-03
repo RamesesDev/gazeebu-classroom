@@ -1,18 +1,11 @@
-.left-content {
-	font-family: 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
-	font-size:11px;
-}
-
 .left-content h3 { color: #777; }
 
 .left-content span.caption { color: #777; }
 
-.capitalize { text-transform:capitalize }
-
 .menutitle { 
 	font-family: arial;
 	font-weight:bold;
-	text-transform:underline;
+	text-decoration:underline;
 	padding-top:15px;
 	color: darkslateblue;
 }
@@ -52,11 +45,57 @@
 	border-radius: 2px;
 }
 
-.button {
-	border:1px solid lightgrey;
-	font-weight:bolder;
-	padding:5px;
+/*-- message style -----*/
+.message .message-head {
+	border-bottom: solid 1px #efefef;
 }
 
-.button:hover { border-color: #aaa; }
-.button:active { border-color: #333; }
+.message .subject,
+.message .sendername {
+	color: darkslateblue;
+	font-size:12px;
+	font-weight:bold;
+}
+
+.message .sendername {
+	text-transform: capitalize;
+}
+
+.message .notifycount {
+	background-color: #f00;
+	color: #fff;
+	font-weight:bold;
+	font-size:10px;
+	display: inline-block;
+	text-align:center;
+	width: 11px; line-height: 11px;
+	padding: 2px;
+}
+
+.message .message-hr {
+	height: 0px;
+	line-height: 0px;
+	border-top: solid 1px #ccc;
+	border-bottom: solid 1px #eee;
+	margin: 3px 0;
+}
+
+.message .remove {
+	background: #efefef;
+	border: solid 1px #eee;
+	display: inline-block;
+	font-size: 11px; font-family: arial;
+	width: 12px; height: 12px; line-height: 12px;
+	text-align: center;
+	text-decoration: none;
+	color: #777;
+}
+
+.message .remove:hover {
+	color: #333;
+	background: #ddd;
+}
+
+
+
+

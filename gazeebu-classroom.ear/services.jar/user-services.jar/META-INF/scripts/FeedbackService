@@ -12,7 +12,7 @@ class FeedbackService {
 	@Env
 	def env;
 	
-	static final def ADMIN_EMAILS = ['jaycverg@gmail'];
+	static final def ADMIN_EMAILS = ['jaycverg@gmail.com','gazeebu@gmail.com'];
 
 
 	@ProxyMethod
@@ -20,17 +20,28 @@ class FeedbackService {
 		def m = [:];
 		m.subject = "Gazeebu Feedback from $env.lastname, $env.firstname";
 		m.message = """
-			<b>Message:</b>
-			<p>
-				$param.comment
-			</p>
-			<br/>
-			<br/>
-			Posted by: $env.lastname, $env.firstname
-			<br/>
-			Date Posted: $dateSvc.serverDate
-		""";	
+			<html>
+				<body>
+					<table>
+						<tr>
+							<td>
+								<b>Message:</b>
+								<div style="border:solid 1px #ddd;padding:20px;">
+									$param.comment
+								</div>
+								<br/>
+								<br/>
+								Posted by: $env.lastname, $env.firstname
+								<br/>
+								Date Posted: $dateSvc.serverDate
+							</td>
+						</tr>
+				</body>
+			</html>
+		""".toString();
 		m.recipients = ADMIN_EMAILS;
+		
+		println "sending feedback..";
 		emailSvc.send(m);
 	}
 	

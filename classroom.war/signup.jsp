@@ -214,6 +214,7 @@
 					</select>
                 </td>
             </tr>
+			<!--
             <tr>
                 <td class="left caption text-top">Terms of Service: </td>
                 <td>
@@ -236,6 +237,7 @@ Welcome to Gazeebu!
 					</textarea>
                 </td>
             </tr>
+			-->
             <tr>
                 <td class="left caption text-top"></td>
                 <td>

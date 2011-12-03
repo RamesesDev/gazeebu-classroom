@@ -20,10 +20,10 @@ BindingUtils.handlers.div_textarea = function( elem, controller, idx )
 	if( name ) textarea.val( value );
 	
 	if( value ) {
-		textarea.trigger('focus');
+		ta_focus(null,false);
 	}
 	else {
-		close.trigger('click');
+		a_click(null,false);
 	}
 	
 	
@@ -58,12 +58,12 @@ BindingUtils.handlers.div_textarea = function( elem, controller, idx )
 		 .data('_controls', controls);
 	}
 	
-	function ta_focus() {
-		if( R.attr(elem, 'hint') && $(this).hasClass('input-hint') ) {
-			$(this).val('').removeClass('input-hint');
+	function ta_focus(event,animate) {
+		if( R.attr(elem, 'hint') && textarea.hasClass('input-hint') ) {
+			textarea.val('').removeClass('input-hint');
 		}
-		if( !$(this).data('__autoResized') ) {
-			$(this)
+		if( !textarea.data('__autoResized') ) {
+			textarea
 			 .data('__autoResized', true)
 			 .autoResizable({
 				animate: false,
@@ -73,23 +73,32 @@ BindingUtils.handlers.div_textarea = function( elem, controller, idx )
 				pasteInterval: 50
 			 });
 		}
-		$(this).height(50);
+		if( animate == false )
+			textarea.height(50);
+		else
+			textarea.stop().animate({height:50},100);
+
 		close.stop().animate({opacity: 1},50);
 		if( controls ) controls.show();
 	}
 	
 	function ta_blur() {
-		if( !this.value.trim() && !$(this).hasClass('input-hint') && R.attr(elem, 'hint') ) {
-			$(this).val(R.attr(elem, 'hint')).addClass('input-hint');
+		if( !textarea[0].value.trim() && !textarea.hasClass('input-hint') && R.attr(elem, 'hint') ) {
+			textarea.val(R.attr(elem, 'hint')).addClass('input-hint');
 		}
 	}
 	
-	function a_click(){ 
-		textarea.val('').trigger('change').height(20);
+	function a_click(event,animate){
+		textarea.val('').trigger('change');
+		if( animate == false )
+			textarea.height(20);
+		else
+			textarea.stop().animate({height:20},100);
+		
 		if( R.attr(elem, 'hint') ) {
 			textarea.val(R.attr(elem, 'hint')).addClass('input-hint');
 		}
-		$(this).stop().animate({opacity:0},50);
+		close.stop().animate({opacity:0},50);
 		if( controls ) controls.hide();
 		return false; 
 	}

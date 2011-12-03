@@ -4,6 +4,9 @@ class EmailMessageHandler {
 	
 	@PersistenceContext("main")
 	def em;
+	
+	@Resource("TemplateService")
+	def template;
 
 	@Service("EmailService")
 	def emailSvc;
@@ -11,46 +14,98 @@ class EmailMessageHandler {
 	@Service("ClassroomService")
 	def classroomService;
 	
-	@Service("UserProfileService")
-	def userService;
 	
-	private def sendEmail( def sender, def recipients, def msg, def msgtype, def classname ) {
-		if(!recipients) return;
-		def m = [:];
-		m.subject = "Gazeebu "  + msgtype + " message from " + sender?.lastname + ", " + sender.firstname;
-		if( classname ) m.subject += " [ class " + classname + "]";	
-		m.message = msg;	
-		m.recipients = recipients;
-		emailSvc.send(m);	
+	static final def TPL_DIR = "META-INF/templates";
+	
+	
+	
+	private def sendEmail( def sender, def recipients, def subject, def msg, def classname, tplname, parent ) {
+		try {
+			if(!recipients) return;
+			def m = [:];
+			m.subject = subject;
+			if( classname ) m.subject += " [ class " + classname + "]";	
+			try {
+				m.message = template.getResult("${TPL_DIR}/${tplname}.groovy", [classname: classname, msg: msg, sender: sender, parent: parent]);	
+			}
+			catch(e) {
+				m.message = msg;
+			}
+			m.recipients = recipients;
+			emailSvc.send(m);	
+		}
+		catch(e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 	
     @After(pattern="MessageService.send*")
     public def notifyEmail( def evt ) {
 		def r = evt.result;
-
-		def sender = userService.getInfo( [objid: r.senderid ] );
+		if( !r.channelid ) return;
+		
+		def classroom = classroomService.getClassInfo( r.channelid );	
+		def classname = classroom.name;
+		
+		def sender = classroom.members.find { m-> m.objid == r.userid };
 		def recipients = [];	
-		def	msg = r.message;	
-		def classname = null;
-		if( r.msgtype == "private") {
-			r.recipients.each {
-				def o = userService.getInfo( [objid: it.userid] );
+		def	msg = r.message;
+
+		if( r.subscribers ) {
+			r.subscribers.each { item ->
+				def o = classroom.members.find { m-> m.objid == item.userid };
 				if(o?.email) recipients.add( o.email );
 			}	
 		}
-		else if( r.channelid ) {
-			def classroom = classroomService.getClassInfo( r.channelid );	
-			classname = classroom.name;
+		else {
 			classroom.members.each {
 				//do not include self
-				if(it.objid != r.senderid ) {
-					def o = userService.getInfo( [objid: it.objid] );
-					if(o?.email) recipients.add( o.email );
+				if(it.objid != r.userid ) {
+					if(it.email) recipients.add( it.email );
 				}	
 			}
 		}
-		sendEmail( sender, recipients, msg, r.msgtype, classname );		
-    } 		
+		
+		def subject = "Gazeebu "  + r.msgtype + " message from " + sender?.lastname + ", " + sender.firstname;
+		sendEmail( sender, recipients, subject, msg, classname, "email_" + r.msgtype, null);
+    } 
+	
+    @After(pattern="MessageService.respond*")
+    public def notifyEmailFromResponse( def evt ) {
+		try {
+			def r = evt.result;
+			if( !r.channelid ) return;
+
+			def classroom = classroomService.getClassInfo( r.channelid );	
+			def classname = classroom.name;
+			
+			def sender = classroom.members.find { m-> m.objid == r.userid };
+			def recipients = [];	
+			def	msg = r.message;
+			
+			if( r.userid != r.parent.userid ) {
+				def user = classroom.members.find { m-> m.objid == r.parent.userid };
+				if(user?.email) recipients.add(user.email);
+			}
+			
+			if( r.subscribers ) {
+				r.subscribers.each { item ->
+					if( item.userid != r.userid ) {
+						def o = classroom.members.find { m-> m.objid == item.userid };
+						if(o?.email) recipients.add( o.email );
+					}
+				}	
+			}
+			
+			def subject = "Gazeebu "  + r.parent.msgtype + " reply from " + sender?.lastname + ", " + sender.firstname;
+			sendEmail( sender, recipients, subject, msg, classname, "email_" + r.parent.msgtype + "_response", r.parent );
+		}
+		catch(e) {
+			e.printStackTrace();
+			throw e;
+		}
+    }
 	
     
 }

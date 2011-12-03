@@ -26,9 +26,6 @@
 	
 	<jsp:attribute name="script">
 		$register({id: "docs", page: "library/docs.jsp", context: "docs"});
-		$register({id: "pictures", page: "library/pictures.jsp", context: "pictures"});
-		$register({id: "presentations", page: "library/presentations.jsp", context: "presentations"});
-		$register({id: "videos", page: "library/videos.jsp", context: "videos"});
 
 		$put("library",
 			new function() {
@@ -46,9 +43,6 @@
 				<td valign="top" width="120" height="100%" class="menupanel">
 					<div class="title">LIBRARY</div>
 					<div class="submenu"><a href="#docs">Documents</a></div>
-					<div class="submenu"><a href="#pictures">Pictures</a></div>
-					<div class="submenu"><a href="#presentations">Presentations</a></div>
-					<div class="submenu"><a href="#videos">Videos</a></div>
 					<div class="title">STORE</div>
 				</td>
 				<td style="border-left:1px solid lightgrey;width:5px;">&nbsp;</td>

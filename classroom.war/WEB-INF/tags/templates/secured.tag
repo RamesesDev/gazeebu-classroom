@@ -54,8 +54,8 @@
 						}
 						this.showProfileMenu = function() {
 							var popup = new DropdownOpener( '#usermenu' );
-							popup.styleClass = 'usermenu';
 							popup.options = {
+								styleClass: 'usermenu',
 								position: {my: 'right top', at: 'right bottom'},
 								onClose : function() { select( false ); },
 								onShow  : function() { select( true ); }
@@ -148,9 +148,7 @@
 							<td align="right" class="mainmenu">
 								<a href="home.jsp">Home</a>
 								<a href="profile.jsp">Profile</a>
-								<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
-									<a href="library.jsp">Library</a>
-								</c:if>
+								<a href="library.jsp">Library</a>
 								<a href="#" id="useraccountmenu" r:context="session" r:name="showProfileMenu">
 									Hi ${SESSION_INFO.username}&nbsp;&nbsp;&#9660;
 								</a>

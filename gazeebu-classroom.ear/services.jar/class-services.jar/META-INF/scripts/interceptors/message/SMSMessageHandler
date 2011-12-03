@@ -18,8 +18,8 @@ class SMSMessageHandler {
 		if( !r ) return;
 		
 		def message = r.message + "\nfrm: $r.lastname,$r.firstname";
-		if( r.msgtype == "private") {
-			r.recipients.each {
+		if( r.subscribers ) {
+			r.subscribers.each {
 				def o = [userid: it.userid, classid: r.channelid, msgtype:r.msgtype,msg:message];
 				smsSubscriptionSvc.sendSubscribed( o );
 			}	
@@ -28,7 +28,7 @@ class SMSMessageHandler {
 			def classroom = classroomService.getClassInfo( r.channelid );		
 			classroom.members.each {
 				//do not include self
-				if(it.objid != r.senderid ) {
+				if(it.objid != r.userid ) {
 					def o = [userid: it.objid, classid: r.channelid, msgtype:r.msgtype,msg:message];
 					smsSubscriptionSvc.sendSubscribed( o );
 				}	

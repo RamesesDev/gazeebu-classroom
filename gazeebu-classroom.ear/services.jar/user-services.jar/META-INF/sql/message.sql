@@ -1,63 +1,63 @@
-[last-dtfiled]
-select dtfiled from message where objid = ?
+[last-dtposted]
+select dtposted from message where objid = ?
 
-[public-messages]
-select nf.* 
-from message nf 
-where nf.channelid = $P{channelid} 
-and nf.scope = 'public' and nf.parentid is null 
-and nf.msgtype=$P{msgtype} and nf.dtfiled < $P{lastdtfiled} 
-order by nf.dtfiled desc  
-limit $P{limit}
+#notes: 
+# use bitwise mask
+# 2 = if mask exists, read private only to subscribers or author
+# 4 = if mask exists, post private only to subscribers or author
 
-[public-context-messages]
-select nf.* 
-from message nf 
-where nf.parentid=$P{parentid} 
-and nf.msgtype=$P{msgtype} and nf.dtfiled < $P{lastdtfiled} 
-order by nf.dtfiled desc  
-limit $P{limit}
+[messages]
+select nf.*, (select count(objid) from message_response where msgid = nf.objid) as replies 
+from 
+(select *, 1 as cancomment from message m  
+   where m.channelid = $P{channelid} 
+   and m.msgtype=$P{msgtype} and m.dtposted < $P{lastdtposted} 
+   and (
+	   (m.userid = $P{userid}) or 
+	   m.privacy = 0 or
+	   (exists (select * from message_subscriber ms where ms.msgid=m.objid and ms.userid=$P{userid}) ) 
+   ) 
+) nf 
+order by nf.dtposted desc  
+limit $P{limit} 
 
-[incoming-private-messages]
-select nf.* 
-from message nf  
-where exists (select * from message_recipient where msgid=nf.objid and userid=$P{userid}) 
-and nf.channelid = $P{channelid}  
-and nf.dtfiled < $P{lastdtfiled} 
-and nf.msgtype = 'private' 
-order by nf.dtfiled desc  
-limit $P{limit}
+[thread-messages]
+select nf.*, (select count(objid) from message_response where msgid = nf.objid) as replies 
+from 
+(select *, 1 as cancomment from message m  
+   where m.threadid = $P{threadid} 
+   and m.msgtype=$P{msgtype} and m.dtposted < $P{lastdtposted} 
+   and (
+	   (m.userid = $P{userid}) or 
+	   (exists (select * from message_subscriber ms where ms.msgid=m.objid and ms.userid=$P{userid}) ) or
+	   (not exists (select * from message_subscriber ms where ms.msgid=m.objid) )
+   ) 
+) nf 
+order by nf.dtposted desc  
+limit $P{limit} 
 
-[conversation]
-select nf.* from message nf 
-where nf.channelid = $P{channelid} 
-and nf.msgtype='private' 
-and (exists (select * from message_recipient where msgid=nf.objid and userid=$P{userid}) 
-or nf.senderid = $P{userid}) 
-and  
-(exists (select * from message_recipient where msgid=nf.objid and userid=$P{observerid}) 
-or nf.senderid = $P{observerid}) 
-and nf.dtfiled < $P{lastdtfiled} 
-order by nf.dtfiled desc 
-limit $P{limit}
 
 [responses]
-select msg.*  from message msg 
-where msg.parentid=$P{parentid}  
-order by msg.dtfiled desc
+select msg.*  from message_response msg 
+where msg.msgid=$P{objid}  
+order by msg.dtposted desc
 
-[recipients]
-select userid from message_recipient where msgid = ?
+[subscribers]
+select userid from message_subscriber where msgid = ?
 
-[remove-recipients]
-delete from message_recipient where msgid=$P{objid}
+[add-subscriber]
+insert ignore into message_subscriber(msgid, userid) values($P{msgid}, $P{userid})
 
-[remove-unsubscribe]
-delete from message_unsubscribe where msgid=$P{objid}
+[remove-subscribers]
+delete from message_subscriber where msgid=$P{objid}
+
 
 [remove-message]
 delete from message where objid=$P{objid}
 
-[remove-comments]
-delete from message where parentid=$P{objid}
+[remove-responses]
+delete from message_response where msgid=$P{objid}
+
+
+
 

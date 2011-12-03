@@ -10,6 +10,7 @@
 		<field name="category"/>
 		<field name="keywords"/>
 		<field name="content_type"/>
+		<field name="ext"/>
 	</element>	
 	
 	<element name="account" tablename="resource_account">

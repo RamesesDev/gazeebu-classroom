@@ -1,5 +1,5 @@
 [thread-list]
-select d.*, (select count(*) from discussion_topic where parentid=d.objid) as topic_count 
+select d.*, (select count(*) from message where threadid=d.objid) as topic_count 
 from discussion_thread d 
 where d.classid=$P{classid} 
 order by d.dtposted asc 

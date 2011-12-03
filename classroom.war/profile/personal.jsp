@@ -3,7 +3,6 @@
 
 <t:content title="General Information">
 	<jsp:attribute name="head">
-		<script src="js/ext/birthdate.js"></script>
 		<script>
 			Registry.add({id:"editaddress", page:"profile/editaddress.jsp", context:"editaddress"});
 			Registry.add({id:"editinfo", page:"profile/editinfo.jsp", context:"editinfo"});

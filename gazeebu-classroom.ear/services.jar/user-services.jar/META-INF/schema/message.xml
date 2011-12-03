@@ -1,32 +1,28 @@
 <schema>
     <element name="message" tablename="message">
         <field name="objid" primary="true"/>
-		<field name="dtfiled"/>
-		<field name="senderid"/>
+		<field name="dtposted"/>
+		<field name="userid"/>
 		<field name="subject"/>
 		<field name="message"/>
 		<field name="msgtype"/>
 		<field name="channelid"/>
-		<field name="scope"/>
-		<field name="parentid"/>
-		<field name="replies"/>
+		<field name="threadid"/>
+		<field name="privacy"/>
     </element>
 	
-	<element name="unsubscribe" tablename="message_unsubscribe">
-	    <field name="objid"  primary="true"/>
-	    <field name="userid"/>
-		<field name="msgid" />
-		<field name="status"/>
-		<field name="usertype"/>
+	<element name="subscriber" tablename="message_subscriber">
+	    <field name="userid" primary="true"/>
+		<field name="msgid" primary="true"/>
+		<field name="state"/>
     </element>
 	
-	<element name="recipient" tablename="message_recipient">
+	<element name="response" tablename="message_response">
 	    <field name="objid"  primary="true"/>
+	    <field name="dtposted"/>
 	    <field name="userid"/>
 		<field name="msgid" />
-		<field name="status"/>
-		<field name="usertype"/>
+		<field name="message"/>
     </element>
 
-	
 </schema>
