@@ -14,16 +14,31 @@
 <s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="CLASS_INFO"/>
 
 <t:content title="Discussion" subtitle="Topics for discussion">
+	
+	<jsp:attribute name="style">
+		.threads .top {
+			font-size:15px;font-weight:bold;color:darkslateblue;padding-top:10px;
+		}
+		.threads .desc {
+			font-size:10px;font-style:italic;
+		}
+		.threads .hr {
+			border-top: 1px solid #D2D9E7;
+		}
+	</jsp:attribute>
 
 	<jsp:attribute name="script">
 		$register( {id:"new_thread", context:"new_thread", page:"classroom/discussion/new_thread.jsp", title:"New Discussion Thread", options: {width:500,height:420}} );
 		$put("discussion", 
-			new function() {
+			new function() 
+			{
 				var svc = ProxyService.lookup("DiscussionService");
 				var self = this;
 				this.classid = "${param['classid']}";
 				this.eof = "false";
 				this.users;
+				
+				this.selected;
 				
 				this.onload = function() {
 					this.users = $ctx('classroom').members;
@@ -48,6 +63,16 @@
 					}
 					return new PopupOpener("new_thread", {saveHandler: s});
 				}
+				
+				this.edit = function() {
+					var s = function(o) {
+						svc.updateThread( o );
+						self.listModel.refresh(true); 
+					}
+					var o = new PopupOpener("new_thread", {saveHandler: s, entry: this.selected});
+					o.title = "Edit Discussion Thread";
+					return o;
+				}
 			}
 		);	
 	</jsp:attribute>
@@ -71,19 +96,29 @@
 	</jsp:attribute>	
 		
 	<jsp:body>
-		<table r:context="discussion" r:model="listModel" r:varName="item"
-			cellpadding="0" cellspacing="0" width="80%" r:emptyText="No discussion posted">
+		<table r:context="discussion" r:model="listModel" r:varName="item" r:name="selected" r:emptyText="No discussion posted"
+			   class="threads" cellpadding="0" cellspacing="0" width="95%">
 			<tr>
-				<td style="font-size:15px;font-weight:bold;color:darkslateblue;padding-top:10px;">
+				<td class="top">
 					<a href="#discussion:thread?objid=#{item.objid}">
 						#{item.subject}
 					</a>
 					( #{item.topic_count != 0 ? ( item.topic_count!=1 ? item.topic_count + ' topics' : '1 topic') : 'No topics posted'} )
 				</td>
+				<td width="50px" align="right" class="top">
+					<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
+						<a r:context="discussion" r:name="edit">Edit</a>
+					</c:if>
+				</td>
 			</tr>
 			<tr>	
-				<td valign="top" style="font-size:10px;font-style:italic;">
+				<td colspan="2" valign="top" class="desc">
 					Posted on #{item.dtposted}
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div class="hr"></div>
 				</td>
 			</tr>
 		</table>

@@ -206,6 +206,7 @@ img { border: none; }
 	margin: 3px 0px; padding: 0;
 }
 
+.wingdings { font-family: "Wingdings" !important; }
 
 /*
    .page-form-table

@@ -33,8 +33,7 @@ class DiscussionService {
 	
 	@ProxyMethod
 	public def openThread(o) {
-		def x = em.read( "discussion:thread", o );
-		return x;
+		return em.read( "discussion:thread", o );
 	}
 	
 	@ProxyMethod
@@ -48,7 +47,10 @@ class DiscussionService {
 
 	@ProxyMethod
 	public def updateThread(o) {
-		em.update("discussion:thread", o );
+		def t = em.read("discussion:thread", o);
+		o.remove("dtposted");
+		t.putAll(o);
+		em.update("discussion:thread", t );
 	}
 	
 	@ProxyMethod

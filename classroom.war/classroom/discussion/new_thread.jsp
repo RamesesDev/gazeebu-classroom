@@ -15,9 +15,10 @@
 	<jsp:attribute name="script">
 		$register( {id:"#add_resource", context:"resource"} );
 		$put("new_thread", 
-			new function() {
+			new function() 
+			{
 				this.saveHandler;
-				this.entry = {classid: "${param['classid']}", resources:[] };
+				this.entry = {classid: "${param['classid']}"};
 				var self = this;
 				
 				this.save = function() {

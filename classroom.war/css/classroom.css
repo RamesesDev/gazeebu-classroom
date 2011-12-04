@@ -80,6 +80,7 @@
 	margin: 3px 0;
 }
 
+.message .btn ,
 .message .remove {
 	background: #efefef;
 	border: solid 1px #eee;
@@ -91,6 +92,7 @@
 	color: #777;
 }
 
+.message .btn:hover,
 .message .remove:hover {
 	color: #333;
 	background: #ddd;

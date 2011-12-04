@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
+<%@ taglib tagdir="/WEB-INF/tags/common/ui" prefix="ui" %>
 <%@ taglib tagdir="/WEB-INF/tags/message" prefix="msg" %>
 <%@ page import="java.util.*" %>
 
@@ -21,17 +22,10 @@
 		<script src="${pageContext.request.contextPath}/js/ext/lightbox/jquery.lightbox.js"></script>
 	</jsp:attribute>
 
-	<jsp:attribute name="contenthead">
-		<a href="#discussion:discussion" style="font-size:9px;color:blue;"><< Back</a><br>
-	</jsp:attribute>
-	
-	<jsp:attribute name="subtitle">
-		<a style="font-size:11px;color:black;text-transform:none;">Posted on ${THREAD.dtposted}</a>
-	</jsp:attribute>
-
 	<jsp:attribute name="script">
 		$register({id:"view_embed", context:"view_embed", page: "library/view_embed.jsp", title:"Embeded Attachment", options:{width:600,height:500}});
-		
+		$register( {id:"new_thread", context:"new_thread", page:"classroom/discussion/new_thread.jsp", title:"New Discussion Thread", options: {width:500,height:420}} );
+
 		$put("thread", 	
 			new function() 
 			{
@@ -68,7 +62,13 @@
 				}
 				
 				this.editThread = function() {
-					alert('editing ' + this.selectedTopic.objid);
+					var h = function(o) {
+						svc.updateThread(o);
+						window.location.reload();
+					};
+					var o = new PopupOpener("new_thread", {saveHandler:h, entry: <ui:tojson value="${THREAD}"/> });
+					o.title = "Edit Discussion Thread";
+					return o;
 				}
 				
 				this.addAttachment = function() {
@@ -116,6 +116,19 @@
 		}
  	</jsp:attribute>
 
+	<jsp:attribute name="contenthead">
+		<a href="#discussion:discussion" style="font-size:9px;color:blue;"><< Back</a><br>
+	</jsp:attribute>
+	
+	<jsp:attribute name="subtitle">
+		<a style="font-size:11px;color:black;text-transform:none;">Posted on ${THREAD.dtposted}</a>
+	</jsp:attribute>
+	
+	<jsp:attribute name="actions">
+		<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
+			<a r:context="thread" r:name="editThread">Edit</a>
+		</c:if>
+	</jsp:attribute>
 
 	<jsp:body>
 		<table width="100%" cellpadding="2" cellspacing="1">
