@@ -35,6 +35,22 @@ class AttachmentService {
 	}
 	
 	@ProxyMethod
+	public def updateAttachment(param) {
+		def a = em.read("attachment", param);
+		param.remove("dtposted");
+		a.putAll( param );		
+		em.update("attachment", a);
+		
+		if( param.subscribers ) {
+			param.subscribers.each {
+				em.save("attachment:subscriber", [userid: it.userid, attachmentid: a.objid]);
+			}
+		}
+		
+		return a;
+	}
+	
+	@ProxyMethod
 	public void removeAttachment(param) {
 		em.delete("attachment", param);
 	}

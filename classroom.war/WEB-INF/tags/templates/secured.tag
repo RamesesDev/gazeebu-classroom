@@ -52,15 +52,18 @@
 								if( window.console ) console.log( e );
 							}
 						}
+						
+						var profileMenu;						
 						this.showProfileMenu = function() {
-							var popup = new DropdownOpener( '#usermenu' );
-							popup.options = {
-								styleClass: 'usermenu',
-								position: {my: 'right top', at: 'right bottom'},
-								onClose : function() { select( false ); },
-								onShow  : function() { select( true ); }
-							};
-							return popup;
+							if( !profileMenu ) {
+								profileMenu = new DropdownOpener( '#usermenu' );
+								profileMenu.options = {
+									styleClass: 'dropdownmenu',
+									handleClassOnOpen: 'menu_open',
+									position: {my: 'right top', at: 'right bottom'}
+								};
+							}
+							return profileMenu;
 						}
 						
 						this.onload = function() {
@@ -74,13 +77,6 @@
 								}	
 							}	
 							Session.connect();
-						}
-						
-						function select( value ) {
-							if( value )
-								$('#useraccountmenu').addClass('dropdown_open');
-							else
-								$('#useraccountmenu').removeClass('dropdown_open');
 						}
 					}
 				);	
@@ -98,21 +94,10 @@
 				<jsp:invoke fragment="style"/>	
 			</style>	
 			</c:if>
-
-			<!--[if IE]>
-			<style>
-				html, body { height: 100%; overflow: hidden; }
-				.header-wrapper { position: absolute; top: 0; left: 0; width: 100%; }
-				.header { position: relative; margin-right: 17px; width: auto; text-align: center; }
-				.wrapper { height: 100%; overflow: auto; text-align: left; position: relative; }
-				
-				#feedback { position: absolute; }
-			</style>
-			<![endif]-->
 		</head>
 		
 		<body>
-			<div class="wrapper ie-scroller">
+			<div class="wrapper">
 				<table class="main-container" width="930px" align="center" cellpadding="0" cellspacing="0" height="100%">
 					<tr>
 						<td height="100%">
@@ -133,41 +118,40 @@
 					</tr>
 				</table>
 			</div>
-			<div class="header-wrapper">
-				<div class="header">
-					<table cellpadding="0" cellspacing="0" width="930px" height="100%" align="center">
-						<tr>
-							<td width="165">
-								<a href="${pageContext.servletContext.contextPath}">
-									<img src="${pageContext.servletContext.contextPath}/img/biglogo25.png">
-								</a>
-							</td>
-							<td align="left">
-								<jsp:invoke fragment="header_middle"/>
-							</td>
-							<td align="right" class="mainmenu">
-								<a href="home.jsp">Home</a>
-								<a href="profile.jsp">Profile</a>
-								<a href="library.jsp">Library</a>
-								<a href="#" id="useraccountmenu" r:context="session" r:name="showProfileMenu">
-									Hi ${SESSION_INFO.username}&nbsp;&nbsp;&#9660;
-								</a>
-								<!-- useraccount menu panel -->
-								<div id="usermenu" style="display:none">
-									<ul>
-										<li>
-											<a href="profile.jsp">Edit Profile</a>
-										</li>
-										<li>
-											<a r:context="session" r:name="logout">Logout</a>
-										</li>
-									</ul>
-								</div>
-							</td>
-						</tr>
-					</table>
-				</div>
+			<div class="header">
+				<table cellpadding="0" cellspacing="0" width="930px" height="100%" align="center">
+					<tr>
+						<td width="165">
+							<a href="${pageContext.servletContext.contextPath}">
+								<img src="${pageContext.servletContext.contextPath}/img/biglogo25.png">
+							</a>
+						</td>
+						<td align="left">
+							<jsp:invoke fragment="header_middle"/>
+						</td>
+						<td align="right" class="mainmenu">
+							<a href="home.jsp">Home</a>
+							<a href="profile.jsp">Profile</a>
+							<a href="library.jsp">Library</a>
+							<a href="#" id="useraccountmenu" r:context="session" r:name="showProfileMenu">
+								Hi ${SESSION_INFO.username}&nbsp;&nbsp;&#9660;
+							</a>
+							<!-- useraccount menu panel -->
+							<div id="usermenu" style="display:none">
+								<ul>
+									<li>
+										<a href="profile.jsp">Edit Profile</a>
+									</li>
+									<li>
+										<a r:context="session" r:name="logout">Logout</a>
+									</li>
+								</ul>
+							</div>
+						</td>
+					</tr>
+				</table>
 			</div>
+
 			<!-- feedback panel -->
 			<script type="text/javascript">
 				$put(

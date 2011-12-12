@@ -8,77 +8,86 @@
 
 <t:popup>
 
-	<jsp:attribute name="script">
-		$register({id:"library:res_lookup", context:"res_lookup", page:"library/res_lookup.jsp", title:"Select Resource from Library", options: {height:400,width:500}});
-		
-		$put("add_attachment", 	
-			new function() 
-			{
-				var self = this;
-				this._controller;
-				
-				this.resource =  {subscribers:[]}
-				this.linktypes = ["link", "embed", "library"];
-				
-				//passed by the caller
-				this.parentid;
-				this.senderid;
-				this.handler;
-				this.subscribers;
-				
-				this.libtype;
-				this.libtypes = ["doc"];
-
-				this.users;
-				this.allowAlso = false;
-				this.allowed = [];
-				
-				this.libres;
-				
-				this.onload = function() {
-					this.users = $ctx('classroom').usersIndex;
-					if( this.subscribers ) {
-						var ss = [];
-						this.subscribers.each(function(o){
-							if( o.userid != '${SESSION_INFO.userid}' ) ss.push(o);
-						});
-						this.subscribers = ss;
-					}					
-				}
-
-				this.save = function() {
-					if( this.senderid )
-						this.resource.subscribers.push({userid: this.senderid});
-						
-					if( this.allowed.length > 0 )
-						this.allowed.each(function(o){ self.resource.subscribers.push({userid: o}) });
+	<jsp:attribute name="head">
+		<script type="text/javascript">
+			$register({id:"library:res_lookup", context:"res_lookup", page:"library/res_lookup.jsp", title:"Select Resource from Library", options: {height:400,width:500}});
+			
+			$put("add_attachment", 	
+				new function() 
+				{
+					var self = this;
+					this._controller;
 					
-					this.resource.refid = this.parentid;
-					ProxyService.lookup("AttachmentService").addAttachment(this.resource);
-					if( this.handler ) this.handler(this.resource);
-					return "_close";
-				}
+					this.resource =  {subscribers:[]}
+					this.linktypes = ["link", "embed", "library"];
+					
+					//passed by the caller
+					this.parentid;
+					this.senderid;
+					this.handler;
+					this.subscribers;
+					
+					this.libtype;
+					this.libtypes = ["doc"];
 
-				this.title;
-				this.searchLib = function(txt) {
-					var m = {category: self.libtype, title: txt};
-					return ProxyService.lookup("LibraryService").findResources( m );
-				}
+					this.users;
+					this.allowAlso = false;
+					this.allowed = [];
+					
+					this.libres;
+					
+					this.onload = function() {
+						this.users = $ctx('classroom').usersIndex;
+						if( this.subscribers ) {
+							var ss = [];
+							this.subscribers.each(function(o){
+								if( o.userid != '${SESSION_INFO.userid}' ) ss.push(o);
+							});
+							this.subscribers = ss;
+						}					
+					}
 
-				this.lookupFromLib = function() {
-					var h = function(o) {
-						self.resource.libid = o.objid;
-						self.resource.libtype = o.category;
-						self.resource.content_type = o.content_type;
-						self.resource.linkref = o.fileurl;
+					this.save = function() {
+						if( this.senderid )
+							this.resource.subscribers.push({userid: this.senderid});
+							
+						if( this.allowed.length > 0 )
+							this.allowed.each(function(o){ self.resource.subscribers.push({userid: o}) });
 						
-						self.libres = o;
-						self._controller.refresh();
-					};
-					return new PopupOpener("library:res_lookup",{handler:h});
+						this.resource.refid = this.parentid;
+						var svc = ProxyService.lookup("AttachmentService");
+						
+						//this.mode may be or may not be passed by the caller
+						if( this.mode == 'edit' )
+							svc.updateAttachment(this.resource);
+						else
+							svc.addAttachment(this.resource);
+						
+						if( this.handler ) this.handler(this.resource);
+						return "_close";
+					}
+
+					this.title;
+					this.searchLib = function(txt) {
+						var m = {category: self.libtype, title: txt};
+						return ProxyService.lookup("LibraryService").findResources( m );
+					}
+
+					this.lookupFromLib = function() {
+						var h = function(o) {
+							self.resource.libid = o.objid;
+							self.resource.libtype = o.category;
+							self.resource.content_type = o.content_type;
+							self.resource.linkref = o.fileurl;
+							
+							self.libres = o;
+							self._controller.refresh();
+						};
+						return new PopupOpener("library:res_lookup",{handler:h});
+					}
 				}
-			}
-		);	
+			);
+		</script>
  	</jsp:attribute>
 	
 	<jsp:attribute name="style">

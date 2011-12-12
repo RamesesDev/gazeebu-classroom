@@ -94,8 +94,16 @@
 					return new PopupOpener("common:invite_student");
 				}
 
+				var memberMenu;
 				this.showMemberMenu = function() {
-					return new DropdownOpener("#membermenu", null, {position: 'bottom-right'});
+					if( !memberMenu ) {
+						memberMenu = new DropdownOpener("#membermenu", null, {
+							position: 'bottom-right',
+							styleClass: 'mbr-menu',
+							handleClassOnOpen: 'mbr-btn-open',
+						});
+					}
+					return memberMenu;
 				}
 				
 				//called by dropdown opener
@@ -205,7 +213,9 @@
 							</td>
 							<td valign="top" width="3px">
 								<c:if test="${CLASS_INFO.usertype == 'teacher'}">
-									<a r:context="classroom" r:visibleWhen="#{item.usertype == 'student'}" r:name="showMemberMenu">&#9660;</a>
+									<a r:context="classroom" r:visibleWhen="#{item.usertype == 'student'}" r:name="showMemberMenu" class="mbr-btn">
+										&#9660;
+									</a>
 								</c:if>
 							</td>
 						</tr>
@@ -214,7 +224,11 @@
 			</div>
 			
 			<div id="membermenu" style="display:none;">
-				<a r:context="classroom" r:name="removeMember">Remove</a>
+				<ul>
+					<li>
+						<a r:context="classroom" r:name="removeMember">Remove</a>
+					</li>
+				</ul>
 			</div>
 		</div>
 	</jsp:body>

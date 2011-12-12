@@ -10,6 +10,7 @@ class ClassroomUpdateNotifier {
     public def notifyClassMembers( def evt ) {
 		def classid = evt.args[0];
 		def m = evt.args[1];
+		println "notifying ... ";
 		ExecutorService exec = Executors.newCachedThreadPool();
 		m.members.each {
 			sessionService.notifyUser( it.objid, [classroom: classid] );

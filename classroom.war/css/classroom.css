@@ -80,10 +80,38 @@
 	margin: 3px 0;
 }
 
+.message .link,
 .message .btn ,
 .message .remove {
 	background: #efefef;
 	border: solid 1px #eee;
+	display: inline-block;
+	font-size: 11px; font-family: arial;
+	height: 12px; line-height: 12px;
+	text-align: center;
+	text-decoration: none;
+	color: #777;
+}
+
+.message .link { padding: 0 2px; }
+
+.message .btn,
+.message .remove {
+	width: 12px;
+}
+
+.message .link:hover,
+.message .btn:hover,
+.message .remove:hover {
+	color: #333;
+	background: #ddd;
+}
+
+
+/*--  member menu ---*/
+a.mbr-btn {
+	background: #efefef;
+	border: solid 1px #ccc;
 	display: inline-block;
 	font-size: 11px; font-family: arial;
 	width: 12px; height: 12px; line-height: 12px;
@@ -91,11 +119,32 @@
 	text-decoration: none;
 	color: #777;
 }
+a.mbr-btn-open
+{
+	background: #bbb;
+	color: #000;
+	border-color: #bbb;
+}
 
-.message .btn:hover,
-.message .remove:hover {
-	color: #333;
-	background: #ddd;
+.mbr-menu {
+	border: solid 1px #bbb;
+	border-bottom-width: 2px;
+	box-shadow: 0px 2px 5px #bbb;
+	-webkit-box-shadow: 0px 2px 5px #bbb;
+	-moz-box-shadow: 0px 2px 5px #bbb;
+	padding: 4px 0px 0px;
+}
+.mbr-menu ul { list-style: none; margin: 0; padding: 0; }
+.mbr-menu li { display: inline-block; width: 100%; padding: 0; margin: 0; }
+.mbr-menu a{ 
+	display: block; padding: 5px 15px; text-decoration: none; 
+	border-top: solid 1px transparent;
+	border-bottom: solid 1px transparent;
+}
+.mbr-menu a:hover { 
+	background: #eee; 
+	border-top: solid 1px #bbb;
+	border-bottom: solid 1px #bbb;
 }
 
 

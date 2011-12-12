@@ -20,7 +20,7 @@ class SMSMessageHandler {
 		def r = evt.result;
 		if( !r ) return;
 		
-	def user = profileSvc.getUserInfo([objid: r.userid]);
+		def user = profileSvc.getUserInfo([objid: r.userid]);
 		def message = r.message + "\nfrm: $user.lastname, $user.firstname";
 		if( r.subscribers ) {
 			r.subscribers.each {

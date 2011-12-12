@@ -18,93 +18,103 @@
 	
 	<jsp:attribute name="head">
 		<link href="${pageContext.request.contextPath}/js/ext/lightbox/jquery.lightbox.css" rel="stylesheet"/>
+		
 		<script src="${pageContext.request.contextPath}/js/ext/MessageServiceClient.js"></script>
 		<script src="${pageContext.request.contextPath}/js/ext/lightbox/jquery.lightbox.js"></script>
-	</jsp:attribute>
 
-	<jsp:attribute name="script">
-		$register({id:"view_embed", context:"view_embed", page: "library/view_embed.jsp", title:"Embeded Attachment", options:{width:600,height:500}});
-		$register( {id:"new_thread", context:"new_thread", page:"classroom/discussion/new_thread.jsp", title:"New Discussion Thread", options: {width:500,height:420}} );
+		<script type="text/javascript">
+			$register({id:"view_embed", context:"view_embed", page: "library/view_embed.jsp", title:"Embeded Attachment", options:{width:600,height:500}});
+			$register( {id:"new_thread", context:"new_thread", page:"classroom/discussion/new_thread.jsp", title:"New Discussion Thread", options: {width:500,height:420}} );
 
-		$put("thread", 	
-			new function() 
-			{
-				var self = this;
-				this.objid;
-				var svc = ProxyService.lookup("DiscussionService");
-				this.classid = "${param['classid']}";
-				
-				var client;
-				this.listModel;
-				this.selectedTopic;
-				this.users;
-
-				this.onload = function() {
-					client = new MessageServiceClient("topic", this.classid, this.objid);
-					client.init();
-					this.listModel = client.messageList;
-					this.users = $ctx('classroom').usersIndex;
+			$put("thread", 	
+				new function() 
+				{
+					var self = this;
+					this.objid;
+					var svc = ProxyService.lookup("DiscussionService");
+					this.classid = "${param['classid']}";
 					
-					setTimeout( function(){ $('.photo a').lightBox({fixedNavigation:true}); }, 100 );
-				}
-				
-				this.addTopic = function() {
-					var f = function(o) {
-						client.post( o );
+					var client;
+					this.listModel;
+					this.selectedTopic;
+					this.selectedResource;
+					this.users;
+
+					this.onload = function() {
+						client = new MessageServiceClient("topic", this.classid, this.objid);
+						client.init();
+						this.listModel = client.messageList;
+						this.users = $ctx('classroom').usersIndex;
+						
+						setTimeout( function(){ $('.photo a').lightBox({fixedNavigation:true}); }, 100 );
 					}
-					var o = new PopupOpener( "common:message_form", {saveHandler: f});
-					o.title = "New Topic";
-					return o;
-				}
-				
-				this.removeTopic = function() {
-					client.removeMessage(this.selectedTopic.objid);
-				}
-				
-				this.editThread = function() {
-					var h = function(o) {
-						svc.updateThread(o);
-						window.location.reload();
-					};
-					var o = new PopupOpener("new_thread", {saveHandler:h, entry: <ui:tojson value="${THREAD}"/> });
-					o.title = "Edit Discussion Thread";
-					return o;
-				}
-				
-				this.addAttachment = function() {
-					var h = function() {
-						self.resourceList.refresh(true);
-					};
-					var p = {parentid: this.objid, handler: h};
-					if( '${THREAD.userid}' != '${SESSION_INFO.userid}' )
-						p.senderid = '${THREAD.userid}';
 					
-					return new PopupOpener("common:add_attachment", p);
-				}
-				
-				this.viewEmbed = function() {
-					var h = function() {
-						return self.selectedResource.embedcode;
-					};
+					this.addTopic = function() {
+						var f = function(o) {
+							client.post( o );
+						}
+						var o = new PopupOpener( "common:message_form", {saveHandler: f});
+						o.title = "New Topic";
+						return o;
+					}
 					
-					return new PopupOpener("view_embed", {handler:h});
-				}
-				
-				var attachSvc = ProxyService.lookup("AttachmentService");
-				this.selectedResource;
-				this.resourceList = {
-					fetchList: function() {
-						return attachSvc.getAttachments({refid: self.objid});
-					},
-					removeItem: function() {
-						if( !this.getSelectedItem() ) return;
-						if( !confirm('Are you sure you want to remove this item?') ) return;
-						attachSvc.removeAttachment({objid: this.getSelectedItem().objid});
-						this.refresh(true);
+					this.removeTopic = function() {
+						client.removeMessage(this.selectedTopic.objid);
+					}
+					
+					this.editThread = function() {
+						var h = function(o) {
+							svc.updateThread(o);
+							window.location.reload();
+						};
+						var o = new PopupOpener("new_thread", {saveHandler:h, entry: <ui:tojson value="${THREAD}"/> });
+						o.title = "Edit Discussion Thread";
+						return o;
+					}
+					
+					this.addAttachment = function() {
+						var h = function() {
+							self.resourceList.refresh(true);
+						};
+						var p = {parentid: this.objid, handler: h};
+						if( '${THREAD.userid}' != '${SESSION_INFO.userid}' )
+							p.senderid = '${THREAD.userid}';
+						
+						return new PopupOpener("common:add_attachment", p);
+					}
+					
+					this.editAttachment = function() {
+						var h = function() {
+							self.resourceList.refresh(true);
+						};
+						var p = {resource:this.selectedResource, handler:h, mode: 'edit'};
+						return new PopupOpener("common:add_attachment", p);
+					}
+					
+					this.viewEmbed = function() {
+						var h = function() {
+							return self.selectedResource.embedcode;
+						};
+						
+						return new PopupOpener("view_embed", {handler:h});
+					}
+					
+					var attachSvc = ProxyService.lookup("AttachmentService");
+					this.selectedResource;
+					this.resourceList = {
+						fetchList: function() {
+							return attachSvc.getAttachments({refid: self.objid});
+						},
+						removeItem: function() {
+							if( !this.getSelectedItem() ) return;
+							if( !confirm('Are you sure you want to remove this item?') ) return;
+							attachSvc.removeAttachment({objid: this.getSelectedItem().objid});
+							this.refresh(true);
+						}
 					}
 				}
-			}
-		);	
+			);
+		</script>
  	</jsp:attribute>
 	
 	<jsp:attribute name="style">
@@ -152,7 +162,8 @@
 					</div>
 					
 					<div>
-						<table class="message" width="100%" r:context="thread" r:model="resourceList" r:varName="item" r:varStatus="stat" r:name="selectedResource">
+						<table r:context="thread" r:model="resourceList" r:varName="item" r:varStatus="stat" r:name="selectedResource"
+						       class="message" width="100%">
 							<tr>
 								<td rowspan="2" valign="top" width="1px" style="padding-right: 10px;">
 									<img src="profile/photo.jsp?id=#{item.userid}&t=thumbnail&v=#{users[item.userid].info.photoversion}}" width="${!empty picSize ? picSize : '40px'}"/>
@@ -161,7 +172,12 @@
 									#{item.subject}
 								</td>
 								<td align="right">
-									<a class="remove" r:context="thread" r:name="resourceList.removeItem" r:visibleWhen="#{item.userid == '${SESSION_INFO.userid}'}">
+									<a r:context="thread" r:name="editAttachment" r:visibleWhen="#{item.userid == '${SESSION_INFO.userid}'}"
+									   class="link" title="edit attachment">
+										edit
+									</a>
+									<a r:context="thread" r:name="resourceList.removeItem" r:visibleWhen="#{item.userid == '${SESSION_INFO.userid}'}"
+									   class="remove" title="remove attachment">
 										x
 									</a>
 								</td>
@@ -169,7 +185,7 @@
 							<tr>
 								<td colspan="2">
 									<div style="font-size:11px;color:gray;font-weight:normal;">
-										#{item.message}
+										<i>#{item.message? item.message : 'No description.'}</i>
 										<br/>
 										#{users[item.userid].lastname}, #{users[item.userid].firstname} - Posted #{item.dtposted}
 									</div>
@@ -219,7 +235,7 @@
 					</div>
 					<br>
 
-					<table width="98%" r:context="thread" r:model="listModel" r:varName="item" r:varStatus="stat"
+					<table width="100%" r:context="thread" r:model="listModel" r:varName="item" r:varStatus="stat"
 						   r:emptyText="No topic posted yet" cellspacing="0" r:name="selectedTopic"
 						   class="message" cellpadding="0" border="0">
 						<tbody>
@@ -255,7 +271,6 @@
 						</tbody>
 					</table>
 					<a r:context="thread" r:name="listModel.fetchNext" r:visibleWhen="#{listModel.isEOF()=='false'}">View More</a>
-					
 				</td>
 			</tr>
 		</table>

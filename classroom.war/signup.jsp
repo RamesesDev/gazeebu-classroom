@@ -12,11 +12,10 @@
 				{
 					this.status;
 					var self = this;
-					this._controller;
 					this.confirmpassword;
 					
 					var svc = ProxyService.lookup("UserProfileService");
-					var user_isavailable;
+					var user_isavailable = null;
 
 					this.entity = {
 						firstname: "${param['firstname']}",
@@ -26,13 +25,27 @@
 					
 					this.roles = [];
 					
+					this.onload = function() {
+						if( !this.entity.username ) {
+							var uid = '';
+							if( this.entity.firstname ) uid += this.entity.firstname;
+							if( this.entity.lastname )  uid += this.entity.lastname;
+							this.entity.username = uid.replace(/\s+/, '');
+						}
+					}
+					
 					this.signup = function() {
 						if(this.roles.length==0)
 							throw new Error("Please choose at least one role");
 
 						this.entity.roles = this.roles.join("|");
 						
-						if( !user_isavailable ) {
+						if( user_isavailable == null ) {
+							var uid = this.entity.username;
+							this.propertyChangeListener["entity.username"](uid);
+						}
+						
+						if( user_isavailable == false ) {
 							alert('Username is not available.');
 							return;
 						}
@@ -56,6 +69,7 @@
 						},
 							
 						"entity.username" : function(o) {
+							o = self.entity.username = o.replace(/\s+/, '');
 							user_isavailable = svc.verifyUsername(o);							
 							$('#username-a').hide();
 							$('#username-na').hide();
@@ -65,6 +79,7 @@
 							else {
 								$('#username-na').show();
 							}
+							self._controller.refresh();
 						}
 					}
 				}
