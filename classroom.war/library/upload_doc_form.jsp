@@ -61,8 +61,9 @@
 		<div class="label">4. Enter Keywords <i>( to help you find your documents easier )</i></div>
 		<div><textarea r:context="upload_doc_form" r:name="entry.keywords" style="width:380px;"></textarea></div>	
 		<br>
-		<button style="padding-left:10px;padding-right:10px;padding-top:5px;padding-bottom:5px">
-			<a r:context="upload_doc_form" r:name="save">Save</a>
+		<button r:context="upload_doc_form" r:name="save"
+		        style="padding-left:10px;padding-right:10px;padding-top:5px;padding-bottom:5px">
+			Save
 		</button>
 	</jsp:body>
 	
