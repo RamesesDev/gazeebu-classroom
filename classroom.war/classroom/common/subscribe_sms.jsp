@@ -117,7 +117,7 @@
 			I want to send message from my mobile phone.
 		</label>
 		<br/>
-		<i>Type in your keyword and send to the Gazeebu number.<a href="#" onclick="return false">View here for available countries</a></i><br>
+		<i>Type in your keyword and send to 09229990188.</i><br>
 		<c:if test="${USER_INFO.usertype=='teacher'}">
 			<input id="send_sms_keyword" type="text" r:context="subscribe_sms" r:name="keyword" readonly="readonly">Send message to bulletin.<br>
 		</c:if>
