@@ -43,6 +43,7 @@ class SMSInboxService
 			message.scope = 'public';
 			message.msgtype = result.msgtype;
 			message.senderid = result.userid;
+			message.userid = result.userid;
 			message.channelid = result.classid;
 			
 			def user = profileSvc.getUserInfo( [objid: result.userid] );

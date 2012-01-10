@@ -6,7 +6,7 @@
         <connection-url>jdbc:mysql://localhost/gazeebu_classroom</connection-url>
         <driver-class>com.mysql.jdbc.Driver</driver-class>
         <user-name>root</user-name>
-        <password>igor128</password>
+        <password>12345</password>
         <min-pool-size>5</min-pool-size>
         <max-pool-size>50</max-pool-size>
          <metadata>
@@ -21,7 +21,7 @@
         <connection-url>jdbc:mysql://localhost/gazeebu_classroom</connection-url>
         <driver-class>com.mysql.jdbc.Driver</driver-class>
         <user-name>root</user-name>
-        <password>igor128</password>
+        <password>12345</password>
         <min-pool-size>5</min-pool-size>
         <max-pool-size>50</max-pool-size>
          <metadata>

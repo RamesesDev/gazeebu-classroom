@@ -2,8 +2,10 @@
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 
 <t:public redirect_session="false">
-	<h2 style="color:red;">Error Login.</h2>
-	<p>Your username or password is incorrect. Please re-enter and submit</p>
+	<div style="color:red;">
+		<h2>Error Login.</h2>
+		<p>Your username or password is incorrect.</p>
+	</div>
 	
 	<form action="login.jsp" method="post">
 		<table cellspacing="0" cellpadding="1" class="loginform">

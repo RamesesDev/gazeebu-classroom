@@ -50,4 +50,9 @@ class ${name} {
 		serverMgmt.reloadScripts();
     }
 	
+	@ProxyMethod
+	public def redeploy( name ) {
+		serverMgmt.reloadScript( name );
+	}
+	
 }

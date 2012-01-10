@@ -4,17 +4,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 
 
-<t:content title="News">
-	<jsp:attribute name="actions">
-			
-	</jsp:attribute>
-
-	<jsp:attribute name="rightpanel">
-		<div style="font-family:helvetica;font-size:1.3em;color:red;font-weight:bolder;">Deals for the day</div>
-		<br>
-		<i>No deals today in your area</i>
-	</jsp:attribute>
-	
+<t:content title="Home">
 	<jsp:attribute name="style">
 		.classhead td {
 			padding:4px;
@@ -71,7 +61,16 @@
 		);
 		</script>
 	</jsp:attribute>
-	
+
+	<jsp:attribute name="actions">
+			
+	</jsp:attribute>
+
+	<jsp:attribute name="rightpanel">
+		<div style="font-family:helvetica;font-size:1.3em;color:red;font-weight:bolder;">Deals for the day</div>
+		<br>
+		<i>No deals today in your area</i>
+	</jsp:attribute>
 	
 	<jsp:body>
 		<table r:context="main" r:model="listModel" r:varName="item" r:name="selectedInvite" cellpadding="0" cellspacing="0" width="80%">

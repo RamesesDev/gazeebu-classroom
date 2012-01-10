@@ -15,7 +15,7 @@
 		if( qs != null )
 			uri = uri + "?" + qs;
 		
-		response.sendRedirect("authenticate.jsp?u=" + uri);
+		response.sendRedirect("authenticate.jsp?u=" + java.net.URLEncoder.encode(uri));
 	%>
 </c:if>
 
