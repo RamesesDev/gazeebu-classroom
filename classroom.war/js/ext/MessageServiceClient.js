@@ -84,6 +84,10 @@ function MessageServiceClient( _msgtype, _channelid, _threadid ) {
 	this.init = function() {
 		Session.handler = function( o ) {
 			if(o.channelid == self.channelid && o.msgtype == self.msgtype ) {
+				if( o._update == true ) {
+					var old = self.messageList.getList().find(function(it){ return it.objid == o.objid });
+					if(old) self.messageList.getList().remove(old);
+				}
 				self.messageList.prependItem( o );
 			}
 			else if( !self.parentid && o.channelid == self.channelid && o.msgtype == (self.msgtype+'-removed') ) {
@@ -104,6 +108,18 @@ function MessageServiceClient( _msgtype, _channelid, _threadid ) {
 	}
 
 	this.post = function(msg) {
+		if(!msg.message || !msg.message.trim()) 
+			throw new Error("Please provide a message" );
+			
+		msg.msgtype  = this.msgtype;
+		msg.channelid = this.channelid;
+		if( this.threadid ) msg.threadid = this.threadid;
+		
+		svc.send( msg );
+	}
+	
+	this.editPost = function(msg) {
+		msg._update = true;
 		if(!msg.message || !msg.message.trim()) 
 			throw new Error("Please provide a message" );
 			

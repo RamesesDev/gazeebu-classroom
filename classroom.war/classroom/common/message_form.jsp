@@ -17,11 +17,15 @@
 			new function() 
 			{
 				this.saveHandler;
-				this.entry = { resources:[], subscribers: [], viewoption:"0" };
+				this.entry;
 				this._controller;
 				this.viewoption = "0";
 				
 				var self = this;
+				
+				this.onload = function() {
+					this.entry = $.extend({resources:[], subscribers: [], viewoption:"0"}, this.entry);
+				}
 
 				this.save = function() {
 					if( this.viewoption == "2" && this.entry.subscribers.length==0) {

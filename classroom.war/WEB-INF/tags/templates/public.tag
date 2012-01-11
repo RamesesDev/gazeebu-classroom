@@ -7,6 +7,7 @@
 <%@ attribute name="head" fragment="true" %>
 <%@ attribute name="script" fragment="true"%>
 <%@ attribute name="style" fragment="true"%>
+<%@ attribute name="pageTitle" fragment="false"%>
 
 <c:if test="${check_useragent != 'false'}">
 	<%
@@ -35,7 +36,7 @@
 	<!DOCTYPE html>
 	<html>
 		<head>
-			<title>Gazeebu Classroom</title>
+			<title>Gazeebu Classroom<c:if test="${not empty pageTitle}"> - ${pageTitle}</c:if></title>
 			<meta charset="UTF-8" >
 			<link href="${pageContext.servletContext.contextPath}/js/lib/css/jquery-ui/jquery.css" type="text/css" rel="stylesheet" />
 			<link href="${pageContext.servletContext.contextPath}/js/lib/css/rameses-lib.css" type="text/css" rel="stylesheet" />

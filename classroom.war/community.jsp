@@ -1,6 +1,6 @@
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 
-<t:index tab="community" redirect_session="false">
+<t:index tab="community" redirect_session="false" pageTitle="Community">
 	<table width="100%">
 		<tr>
 			<td valign="top">

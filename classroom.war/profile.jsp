@@ -1,7 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 
-<t:secured-master>
+<t:secured-master pageTitle="Profile">
 
 	<jsp:attribute name="head">
 		<link href="${pageContext.servletContext.contextPath}/profile/profile.css" type="text/css" rel="stylesheet" />

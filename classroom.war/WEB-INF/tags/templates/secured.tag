@@ -7,6 +7,7 @@
 <%@ attribute name="script" fragment="true" %>
 <%@ attribute name="style" fragment="true" %>
 <%@ attribute name="header_middle" fragment="true" %>
+<%@ attribute name="pageTitle" fragment="false"%>
 
 <c:if test="${empty SESSIONID}">
 	<%
@@ -26,6 +27,7 @@
 	<!DOCTYPE html>
 	<html>
 		<head>
+			<title>Gazeebu Classroom<c:if test="${not empty pageTitle}"> - ${pageTitle}</c:if></title>
 			<link href="${pageContext.servletContext.contextPath}/js/lib/css/jquery-ui/jquery.css" type="text/css" rel="stylesheet" />
 			<link href="${pageContext.servletContext.contextPath}/js/lib/css/rameses-lib.css" type="text/css" rel="stylesheet" />
 			<script src="${pageContext.servletContext.contextPath}/js/lib/jquery-all.js"></script>

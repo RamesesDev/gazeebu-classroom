@@ -7,8 +7,10 @@
 <%@ attribute name="script" fragment="true" %>
 <%@ attribute name="style" fragment="true" %>
 <%@ attribute name="head" fragment="true" %>
+<%@ attribute name="pageTitle" fragment="false"%>
 
-<t:secured>
+
+<t:secured pageTitle="${pageTitle}">
 
 	<jsp:attribute name="before_rendering">
 		<jsp:invoke fragment="before_rendering"/>
@@ -43,7 +45,7 @@
 					</table>
 				</td>
 				<td valign="top" height="100%">
-					<table class="shadowbox" width="100%" height="550">
+					<table class="shadowbox canvas" width="100%" height="550">
 						<tr>
 							<td align="right">
 								<a id="toggle" href="#" style="text-decoration:none" title="Expand content panel">

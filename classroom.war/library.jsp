@@ -1,7 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
 
-<t:secured>
+<t:secured pageTitle="Library">
 
 	<jsp:attribute name="style">
 		.title {
@@ -47,8 +47,8 @@
 				</td>
 				<td style="border-left:1px solid lightgrey;width:5px;">&nbsp;</td>
 				<!-- RIGHT PANEL -->
-				<td valign="top" id="content">
-					&nbsp;
+				<td valign="top" class="canvas">
+					<div id="content"></div>
 				</td>
 			</tr>
 		</table>	

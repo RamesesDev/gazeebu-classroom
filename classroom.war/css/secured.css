@@ -42,9 +42,9 @@ img { border: none; }
 	font-family:arial;
 	font-size:10px;
 }
+
 .shadowbox {
-	border-radius: 5px; -webkit-border-radius:5px; -moz-border-radius:5px; 
-	background:white url(../img/loading.gif) no-repeat 15px 25px; 
+	border-radius: 5px; -webkit-border-radius:5px; -moz-border-radius:5px;
 	border:1px solid lightgrey;
 	-moz-box-shadow: 5px 5px 5px #ccc;
 	-webkit-box-shadow: 5px 5px 5px #ccc;
@@ -54,7 +54,12 @@ img { border: none; }
 	padding-bottom: 50px;
 }
 
-.shadowbox #content { opacity: 0; background: #fff; }
+/*-- canvas is the wrapper of #content in which the loading gif is attached --*/
+.canvas {
+	background:white url(../img/loading.gif) no-repeat 15px 25px; 
+}
+
+.canvas #content { opacity: 0; background: #fff; }
 
 
 /*-- usermenu styles ----*/

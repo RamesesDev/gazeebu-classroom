@@ -69,14 +69,19 @@ class MessageService {
 	
 	@ProxyMethod
 	public def send(o) {
-		o.objid = "MSGFD:" + new java.rmi.server.UID();
+		if(!o.objid) o.objid = "MSGFD:" + new java.rmi.server.UID();
 		if(!o.msgtype) throw new Exception("Please provide a message type");
 		o.dtposted = dateSvc.serverDate;
 		
 		if(!o.userid) o.userid = env.userid;
 		if(o.privacy == null) o.privacy = 0;
 		
-		em.create( "message", o );	
+		if(o._update) {
+			em.save("message", o);
+		}
+		else {
+			em.create("message", o);
+		}
 		o.dtposted = df.format( o.dtposted );
 		
 		//if message is private add also sender as recipient.

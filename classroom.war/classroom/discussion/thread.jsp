@@ -58,6 +58,15 @@
 						return o;
 					}
 					
+					this.editTopic = function() {
+						var f = function(o) {
+							client.editPost( o );
+						}
+						var o = new PopupOpener( "common:message_form", {saveHandler: f,entry:this.selectedTopic});
+						o.title = "Edit Topic";
+						return o;
+					}
+					
 					this.removeTopic = function() {
 						client.removeMessage(this.selectedTopic.objid);
 					}
@@ -247,6 +256,10 @@
 									<a href="#discussion:topic?objid=#{item.objid}">#{item.subject}</a>
 								</td>
 								<td align="right" valign="top" class="message-head" style="padding-right:2px;">
+									<a r:context="thread" r:name="editTopic" r:visibleWhen="#{'${SESSION_INFO.userid}' == item.userid }"
+									   title="remove message"  class="link">
+										edit
+									</a>
 									<a r:context="thread" r:name="removeTopic" r:visibleWhen="#{'${SESSION_INFO.userid}' == item.userid }"
 									   title="remove message"  class="remove">
 										x

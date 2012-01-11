@@ -6,6 +6,7 @@
 <%@ attribute name="tab" fragment="false" %>
 <%@ attribute name="script" fragment="true"%>
 <%@ attribute name="style" fragment="true"%>
+<%@ attribute name="pageTitle" fragment="false"%>
 
 <%
 
@@ -32,7 +33,7 @@ if( userAgent.contains("MSIE") ) {
 	<!DOCTYPE html>
 	<html>
 		<head>
-			<title>Gazeebu Classroom</title>
+			<title>Gazeebu Classroom<c:if test="${not empty pageTitle}"> - ${pageTitle}</c:if></title>
 			<meta charset="UTF-8" >
 			<link rel="stylesheet" href="${pageContext.servletContext.contextPath}/js/lib/css/jquery-ui/jquery.css" type="text/css"/>
 			<link rel="stylesheet" href="${pageContext.servletContext.contextPath}/js/lib/css/rameses-lib.css" type="text/css" />
