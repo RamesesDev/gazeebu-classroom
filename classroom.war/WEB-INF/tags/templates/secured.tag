@@ -20,6 +20,13 @@
 	%>
 </c:if>
 
+<%
+
+//get the app version
+request.setAttribute("APP_VERSION", application.getInitParameter("app.version"));
+
+%>
+
 <c:if test="${!empty SESSIONID}">
 	<s:invoke service="SessionService" method="getInfo" params="${SESSIONID}" var="SESSION_INFO"/>
 
@@ -28,19 +35,20 @@
 	<html>
 		<head>
 			<title>Gazeebu Classroom<c:if test="${not empty pageTitle}"> - ${pageTitle}</c:if></title>
-			<link href="${pageContext.servletContext.contextPath}/js/lib/css/jquery-ui/jquery.css" type="text/css" rel="stylesheet" />
-			<link href="${pageContext.servletContext.contextPath}/js/lib/css/rameses-lib.css" type="text/css" rel="stylesheet" />
-			<script src="${pageContext.servletContext.contextPath}/js/lib/jquery-all.js"></script>
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ext-lib.js"></script>
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ui.js"></script>
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-proxy.js"></script>
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-session.js"></script>
-			<link href="${pageContext.servletContext.contextPath}/css/secured.css" type="text/css" rel="stylesheet" />
+			<link href="${pageContext.servletContext.contextPath}/js/lib/css/jquery-ui/jquery.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
+			<link href="${pageContext.servletContext.contextPath}/js/lib/css/rameses-lib.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
+			<script src="${pageContext.servletContext.contextPath}/js/lib/jquery-all.js?v=${APP_VERSION}"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ext-lib.js?v=${APP_VERSION}"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ui.js?v=${APP_VERSION}"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-proxy.js?v=${APP_VERSION}"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-session.js?v=${APP_VERSION}"></script>
+			<link href="${pageContext.servletContext.contextPath}/css/secured.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
 			
 			<script>
 				Env.sessionid = $.cookie("sessionid");
 				var Session = new Notifier( Env.sessionid );
-				Registry.add( {id:"#usermenu", context:"session"} );
+				Registry.add( {id:"#usermenu", context:"session"} );				
+				ProxyService.contextPath = '${pageContext.request.contextPath}';
 				
 				$put("session",
 					new function() {

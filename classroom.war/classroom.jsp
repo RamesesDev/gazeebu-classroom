@@ -13,8 +13,9 @@
 
 <t:secured-master>	
 	<jsp:attribute name="head">
-		<link href="${pageContext.servletContext.contextPath}/css/classroom.css" type="text/css" rel="stylesheet" />
-		<script src="${pageContext.servletContext.contextPath}/js/ext/textarea.js"></script>
+		<link href="${pageContext.servletContext.contextPath}/css/classroom.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
+		<script src="${pageContext.servletContext.contextPath}/js/ext/textarea.js?v=${APP_VERSION}"></script>
+		<script src="${pageContext.servletContext.contextPath}/js/ext/infobox.js?v=${APP_VERSION}"></script>
 		
 		<script type="text/javascript">
 
@@ -39,7 +40,6 @@
 				var svc = ProxyService.lookup("ClassroomService");
 				var classid = "${param['classid']}";
 				this.classInfo;
-				this._controller;
 				var self = this;
 				this.usersIndex;
 				
@@ -57,6 +57,63 @@
 						}	
 						return self.classInfo.members;
 					}
+				}
+				
+				this.inviteStudents = function() {
+					return new PopupOpener("common:invite_student");
+				}
+				
+				var memberInfo = new InfoBox('#member-info', '');
+				this.selectedMember;
+				this.showMemberControls;
+				this.showMemberInfo = function(elem,id,options) {
+					this.selectedMember = this.findMember(id);
+					options = options || {};
+					this.showMemberControls = (options.showControls != false);
+					memberInfo.offset = options.offset || {x: 20};
+					memberInfo.show(elem);
+				}
+
+				//called by dropdown opener
+				this.selectedMember;
+				this.removeMember = function() {
+					if(this.selectedMember) {
+						if( this.selectedMember.status == 'online' ) throw new Error('Cannot remove online members.');
+						if(confirm("You are about to remove " + this.selectedMember.lastname + "," + this.selectedMember.firstname + " from this class. Continue?") ) {
+							svc.removeMember( {userid: this.selectedMember.objid, classid: classid} ); 
+						}
+					}
+					return "_close";
+				}
+				
+				this.sendMail = function() {}
+				this.chatMember = function() {}
+				
+				this.findMember = function(id) {
+					return this.classInfo.members.find(
+						function(t) {
+							return (t.objid == id);
+						}
+					)
+				}
+				
+				this.getName = function( item ) {
+					var max = item.usertype=='teacher'? 22 : 27;
+					var n = item.lastname +', '+ item.firstname;					
+					if( n.length > max - 3 ) n = n.substr(0,max-3) + '...';
+					return n;
+				}
+				
+				this.subscribeSMS = function() {
+					return new PopupOpener( "common:subscribe_sms", {msgtype: "bulletin"}); 
+				}
+				
+				this.sendMail = function() {
+					alert('This feature is not yet implemented.');
+				}
+				
+				this.chatMember = function() {
+					alert('This feature is not yet implemented.');
 				}
 				
 				this.onload = function() {
@@ -89,53 +146,6 @@
 						}
 					}
 				}
-				
-				this.inviteStudents = function() {
-					return new PopupOpener("common:invite_student");
-				}
-
-				var memberMenu;
-				this.showMemberMenu = function() {
-					if( !memberMenu ) {
-						memberMenu = new DropdownOpener("#membermenu", null, {
-							position: 'bottom-right',
-							styleClass: 'mbr-menu',
-							handleClassOnOpen: 'mbr-btn-open',
-						});
-					}
-					return memberMenu;
-				}
-				
-				//called by dropdown opener
-				this.selectedMember;
-				this.removeMember = function() {
-					if(this.selectedMember) {
-						if( this.selectedMember.status == 'online' ) throw new Error('Cannot remove online members.');
-						if(confirm("You are about to remove " + this.selectedMember.lastname + "," + this.selectedMember.firstname + " from this class. Continue?") ) {
-							svc.removeMember( {userid: this.selectedMember.objid, classid: classid} ); 
-						}
-					}
-					return "_close";
-				}
-				
-				this.findMember = function(id) {
-					return this.classInfo.members.find(
-						function(t) {
-							return (t.objid == id);
-						}
-					)
-				}
-				
-				this.getName = function( item ) {
-					var max = 22;
-					var n = item.lastname +', '+ item.firstname;					
-					if( n.length > max - 3 ) n = n.substr(0,max-3) + '...';
-					return n;
-				}
-				
-				this.subscribeSMS = function() {
-					return new PopupOpener( "common:subscribe_sms", {msgtype: "bulletin"}); 
-				}
 			}
 		);
 		
@@ -149,6 +159,18 @@
 		.menuitem {
 			font-color: 
 		}
+		
+		.member-info {
+			width: 250px;
+			z-index: 999;
+		}
+		.member-info img {
+			margin-right: 10px;
+		}
+		.member-info span.caption {
+			color: #444;
+		}
+		.teacher { font-weight: bold; }
 	</jsp:attribute>
 	
 	<jsp:attribute name="header_middle">
@@ -205,30 +227,47 @@
 								<img src="img/#{item.status}.png"/>
 							</td>
 							<td valign="top">
-								<a href="#common:usermessage?objid=#{item.objid}" class="menuitem" title="#{item.lastname}, #{item.firstname}">
-									<span class="capitalized">#{getName(item)}</span>
-									<br/>
-									<span class="caption">#{item.usertype} #{item.me? '<b>(me)</b>' : ''}</span>
+								<a href="#common:usermessage?objid=#{item.objid}" class="menuitem"
+								   onmouseover="$ctx('classroom').showMemberInfo(this,'#{item.objid}')">
+									<span class="capitalized #{item.usertype}">
+										#{getName(item)}
+									</span>
 								</a>
-							</td>
-							<td valign="top" width="3px">
-								<c:if test="${CLASS_INFO.usertype == 'teacher'}">
-									<a r:context="classroom" r:visibleWhen="#{item.usertype == 'student'}" r:name="showMemberMenu" class="mbr-btn">
-										&#9660;
-									</a>
-								</c:if>
 							</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
-			
-			<div id="membermenu" style="display:none;">
-				<ul>
-					<li>
-						<a r:context="classroom" r:name="removeMember">Remove</a>
-					</li>
-				</ul>
+
+			<!-- Class member information -->
+			<div id="member-info" class="member-info" style="display:none;">
+				<label r:context="classroom"
+				       class="clearfix" style="display:block">
+					<div class="left thumb" style="width:50px;height:50px;">
+						<img src="profile/photo.jsp?id=#{selectedMember.objid}&t=thumbnail&v=#{users[selectedMember.objid].info.photoversion}" width="50px"/>
+					</div>
+					<div>
+						<span class="capitalized"><b>#{selectedMember.lastname}, #{selectedMember.firstname}</b></span>
+						<br/>
+						<span class="caption">
+							<b>#{selectedMember.usertype} #{selectedMember.me? '(me)' : ''}</b>
+							<br/>
+							#{selectedMember.username}
+							#{selectedMember.email? '<br/>' + selectedMember.email : ''}
+						</span>
+					</div>
+					<div r:context="classroom" r:visibleWhen="#{showMemberControls == true}">
+						<div class="clear"></div>
+						<div class="align-r">
+							<div class="hr"></div>
+							<button r:context="classroom" r:name="sendMail">Email</button>
+							<button r:context="classroom" r:name="chatMember">Chat</button>
+							<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+								<button r:context="classroom" r:name="removeMember">Remove</button>
+							</c:if>
+						</div>
+					</div>
+				</label>
 			</div>
 		</div>
 	</jsp:body>

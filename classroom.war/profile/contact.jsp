@@ -3,7 +3,6 @@
 
 <t:content title="contact">
 	<jsp:attribute name="head">
-		<script src="js/ext/birthdate.js"></script>
 		<script>
 			Registry.add({id:"editcontacts", page:"profile/editcontacts.jsp", context:"editcontacts"});
 		   

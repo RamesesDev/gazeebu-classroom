@@ -127,9 +127,12 @@
 			</tr>
 			
 			<!-- display the students -->
-			<c:forEach items="${INFO.students}" var="student">
+			<c:forEach items="${INFO.students}" var="student" varStatus="stat">
 				<tr>
-					<td>
+					<td style="position:relative;padding-left:15px;">
+						<span style="position:absolute;left:0;top:0;background: #dedede;padding:0 2px;">
+							${stat.index+1}
+						</span>
 						<a href="#classrecord:student_record?studentid=${student.objid}">
 							${student.lastname},${student.firstname}
 						</a>

@@ -1,0 +1,6 @@
+attachment type:
+ - homework/assignment
+ - lecture presentation (teacher)
+ - report
+ - group project
+ 

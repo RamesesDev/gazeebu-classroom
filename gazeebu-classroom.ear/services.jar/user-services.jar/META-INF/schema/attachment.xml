@@ -2,6 +2,7 @@
 
 	<element name="attachment" tablename="attachment">
         <field name="objid" primary="true"/>
+		<field name="type"/>
 		<field name="refid"/>
 		<field name="dtposted"/>
 		<field name="userid"/>

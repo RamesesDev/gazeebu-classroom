@@ -24,9 +24,16 @@
 			}
 		}
 	}
-
+	
 	%>
 </c:if>
+
+<%
+
+//get the app version
+request.setAttribute("APP_VERSION", application.getInitParameter("app.version"));
+
+%>
 
 <c:if test="${!empty SESSIONID and redirect_session=='true'}">
 	<%response.sendRedirect("home.jsp");%>
@@ -38,14 +45,18 @@
 		<head>
 			<title>Gazeebu Classroom<c:if test="${not empty pageTitle}"> - ${pageTitle}</c:if></title>
 			<meta charset="UTF-8" >
-			<link href="${pageContext.servletContext.contextPath}/js/lib/css/jquery-ui/jquery.css" type="text/css" rel="stylesheet" />
-			<link href="${pageContext.servletContext.contextPath}/js/lib/css/rameses-lib.css" type="text/css" rel="stylesheet" />
-			<link href="${pageContext.servletContext.contextPath}/css/public.css" type="text/css" rel="stylesheet" />		
-			<script src="${pageContext.servletContext.contextPath}/js/lib/jquery-all.js"></script>
+			<link href="${pageContext.servletContext.contextPath}/js/lib/css/jquery-ui/jquery.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
+			<link href="${pageContext.servletContext.contextPath}/js/lib/css/rameses-lib.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
+			<link href="${pageContext.servletContext.contextPath}/css/public.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />		
+			<script src="${pageContext.servletContext.contextPath}/js/lib/jquery-all.js?v=${APP_VERSION}"></script>
 			
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ext-lib.js"></script>
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ui.js"></script>
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-proxy.js"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ext-lib.js?v=${APP_VERSION}"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ui.js?v=${APP_VERSION}"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-proxy.js?v=${APP_VERSION}"></script>
+			<script type="text/javascript">
+				ProxyService.contextPath = '${pageContext.request.contextPath}';
+			</script>
+			
 			<jsp:invoke fragment="head" />
 			<c:if test="${! empty script}">
 			<script>

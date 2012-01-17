@@ -21,8 +21,10 @@
 					this.resource =  {subscribers:[]}
 					this.linktypes = ["link", "embed", "library"];
 					
-					//passed by the caller
+					//--- passed by the caller --
 					this.parentid;
+					//default is resource, other possible values: project, assignment, etc.
+					this.type = 'resource';
 					this.senderid;
 					this.handler;
 					this.subscribers;
@@ -55,6 +57,9 @@
 							this.allowed.each(function(o){ self.resource.subscribers.push({userid: o}) });
 						
 						this.resource.refid = this.parentid;
+						if(!this.resource.type)
+							this.resource.type = this.type;
+						
 						var svc = ProxyService.lookup("AttachmentService");
 						
 						//this.mode may be or may not be passed by the caller
@@ -130,7 +135,7 @@
 				Provide the embedded code (for example youtube videos)
 			</p>
 			<div class="label">Enter Embedded Code</div>
-			<textarea r:context="add_attachment" r:name="resource.embedcode" r:required="true" style="width:300px;height:50px;"></textarea>
+			<textarea r:context="add_attachment" r:name="resource.embedcode" r:required="true" style="width:300px;height:100px;"></textarea>
 		</div>
 		
 		<div r:context="add_attachment" r:depends="resource.reftype" r:visibleWhen="#{resource.reftype == 'library'}">

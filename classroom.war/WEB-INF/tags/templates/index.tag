@@ -23,6 +23,9 @@ if( userAgent.contains("MSIE") ) {
 	}
 }
 
+//get the app version
+request.setAttribute("APP_VERSION", application.getInitParameter("app.version"));
+
 %>
 
 <c:if test="${!empty SESSIONID and redirect_session=='true'}">
@@ -35,20 +38,22 @@ if( userAgent.contains("MSIE") ) {
 		<head>
 			<title>Gazeebu Classroom<c:if test="${not empty pageTitle}"> - ${pageTitle}</c:if></title>
 			<meta charset="UTF-8" >
-			<link rel="stylesheet" href="${pageContext.servletContext.contextPath}/js/lib/css/jquery-ui/jquery.css" type="text/css"/>
-			<link rel="stylesheet" href="${pageContext.servletContext.contextPath}/js/lib/css/rameses-lib.css" type="text/css" />
-			<script src="${pageContext.servletContext.contextPath}/js/lib/jquery-all.js"></script>
+			<link rel="stylesheet" href="${pageContext.servletContext.contextPath}/js/lib/css/jquery-ui/jquery.css?v=${APP_VERSION}" type="text/css"/>
+			<link rel="stylesheet" href="${pageContext.servletContext.contextPath}/js/lib/css/rameses-lib.css?v=${APP_VERSION}" type="text/css" />
+			<script src="${pageContext.servletContext.contextPath}/js/lib/jquery-all.js?v=${APP_VERSION}"></script>
 			
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ext-lib.js"></script>
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ui.js"></script>
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-proxy.js"></script>
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-session.js"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ext-lib.js?v=${APP_VERSION}"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ui.js?v=${APP_VERSION}"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-proxy.js?v=${APP_VERSION}"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-session.js?v=${APP_VERSION}"></script>
 
 			
-			<link href="${pageContext.servletContext.contextPath}/css/index.css" type="text/css" rel="stylesheet"/>	
+			<link href="${pageContext.servletContext.contextPath}/css/index.css?v=${APP_VERSION}" type="text/css" rel="stylesheet"/>	
 			
 			
 			<script>
+				ProxyService.contextPath = '${pageContext.request.contextPath}';
+				
 				$put("login",
 					new function() {
 						this.username = '${param['u']}';
@@ -89,7 +94,7 @@ if( userAgent.contains("MSIE") ) {
 						<table width="100%" height="100%" cellpadding="0" cellspacing="0">
 							<tr>
 								<td id="topmenu" align="left" valign="top">
-									<a href="/classroom">
+									<a href="${pageContext.servletContext.contextPath}">
 										<img src="img/biglogo.png" style="border:none;">	
 									</a>
 								</td>

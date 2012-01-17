@@ -8,12 +8,13 @@
 <%@ attribute name="commentList" %>
 <%@ attribute name="usersMap" %>
 <%@ attribute name="removeAction"%>
+<%@ attribute name="emptyText"%>
 
 
 <table class="message comments" r:context="${context}" r:model="${commentList}" r:varName="comment" 
-       cellpadding="0" cellspacing="0" width="100%" r:emptyText="No comments posted yet.">
+       cellpadding="0" cellspacing="0" width="100%" r:emptyText="${empty emptyText? 'No comments posted yet.' : emptyText}">
 	<tr>
-		<td valign="top" rowspan="2" class="msg-divider"  r:context="${context}">
+		<td valign="top" rowspan="2" class="msg-divider"  r:context="${context}" width="40px">
 			<img src="profile/photo.jsp?id=#{comment.userid}&t=thumbnail&v=#{${usersMap}[comment.userid].info.photoversion}" width="30px"/>
 		</td>
 		<td valign="top" class="message-head" style="padding-left:4px">

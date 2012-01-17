@@ -1,3 +1,5 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
 <%@ attribute name="leftactions" fragment="true" %>
 <%@ attribute name="rightactions" fragment="true" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>

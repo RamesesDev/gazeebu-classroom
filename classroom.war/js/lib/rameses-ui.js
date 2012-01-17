@@ -1,7 +1,7 @@
-/***
-    Rameses UI library
-	depends: rameses-extension library
-**/
+/**
+ *	Rameses UI library
+ *	depends: rameses-extension library
+ */
 
 var R = {
 	DEBUG: false,
@@ -28,7 +28,7 @@ var BindingUtils = new function() {
     this.loaders = [];
     this.input_attributes = [];
 
-	var controlLoader =  function(idx, elem) {
+	var controlLoader =  function(idx, elem, force) {
 		var $e = $(elem);
 		var isVisible = true;
 
@@ -47,7 +47,7 @@ var BindingUtils = new function() {
 		
 		if( isVisible ) {
 			if( $e.is(':hidden') ) $e.show();
-		}
+			}
 		else {
 			$e.hide();
 		}
@@ -57,7 +57,14 @@ var BindingUtils = new function() {
 		var contextName = R.attr($(elem),  'context' );
 		if( !contextName ) return;
 		
-        var controller = $get(contextName);
+        var controller;
+		try {
+			controller = $get(contextName);
+		}
+		catch(e) {
+			if(window.console) console.log(e.stackTrace || e.message);
+		}
+		
         if( controller != null ) {
 			if( controller.name == null ) controller.name = contextName;
 			
@@ -87,7 +94,7 @@ var BindingUtils = new function() {
 			else if( R.attr(elem, 'type') ) {
 				nodeName = nodeName + "_" + R.attr(elem, 'type');
 			}
-			if( _self.handlers[nodeName] ) _self.handlers[nodeName]( elem, controller, idx );
+			if( _self.handlers[nodeName] ) _self.handlers[nodeName]( elem, controller, idx, force );
         }
     };
 
@@ -102,11 +109,11 @@ var BindingUtils = new function() {
 		}
 	};
 
-    this.bind = function(ctxName, selector) {
+    this.bind = function(ctxName, selector, force) {
 		//just bind all elements that has the attribute context
 		var idx = 0;
         $('*', selector || document).filter(function() {
-			if( R.attr(this, 'context') ) controlLoader( idx++, this );
+			if( R.attr(this, 'context') ) controlLoader( idx++, this, force );
 		});
     };
 
@@ -222,7 +229,7 @@ function InputHintDecorator( inp, hint ) {
 		span =  $('<span class="hint"></span>').insertBefore( input );
 	
 	span.html( hint? hint : R.attr(input, 'hint') )
-	 .css({position:'absolute', 'z-index':100, overflow:'hidden', top:'0', left:'0'})
+	 .css({position:'absolute', overflow:'hidden', top:'0', left:'0'})
 	 .hide()
 	 .disableSelection()
 	 .click(onClick);
@@ -339,7 +346,7 @@ var BeanUtils = new function(){
         if(!_act.endsWith("\\)")) {
 			if(args==null) {
 				_act = _act + "()";
-            }
+				}
             else {
 				_act = _act + "(args)";
             }
@@ -884,27 +891,42 @@ BindingUtils.handlers.input_submit = function( elem, controller, idx ) {
 	};
 };
 
-BindingUtils.handlers.label = function( elem, controller, idx ){
-	var lbl = $(elem);
+/**
+ *	label handlers
+ *	label elements: 
+ *		- <label></label> (default)
+ *		- <span r:type="label"></span>
+ *		- <div r:type="label"></div>
+ */
+(function(){
+	BindingUtils.handlers.label = renderer;
+	BindingUtils.handlers.span_label = renderer;
+	BindingUtils.handlers.div_label = renderer;
 	
-	if( R.attr(lbl, 'name') ) {
-		var v = controller.get(R.attr(lbl, 'name'));
-		lbl.html( v? v : '' );
-	}
-	else {
-		var expr;
-		if( lbl.data('expr')!=null ) {
-			expr = lbl.data('expr');
-		} else {
-			expr = unescape(lbl.html());
-			lbl.data('expr', expr);
+	function renderer(elem, controller, idx)
+	{
+		var lbl = $(elem);
+		
+		if( R.attr(lbl, 'name') ) {
+			var v = controller.get(R.attr(lbl, 'name'));
+			lbl.html( v? v : '' );
 		}
+		else {
+			var expr;
+			if( lbl.data('expr')!=null ) {
+				expr = lbl.data('expr');
+			} else {
+				expr = unescape(lbl.html());
+				lbl.data('expr', expr);
+			}
 
-		//bind label elements
-		BindingUtils.bind( null, lbl );
-		lbl.html( expr.evaluate(controller.code) );
-	}
-};
+			//bind label elements
+			lbl.html( expr.evaluate(controller.code) );
+			BindingUtils.bind( null, lbl );
+		}
+	};
+})();
+
 
 BindingUtils.handlers.div = function( elem, controller, idx ){
 	var div = $(elem);
@@ -1157,10 +1179,10 @@ BindingUtils.handlers.input_file = function( elem, controller, idx ) {
  *
  * @author jaycverg
  *-----------------------------------*/
-BindingUtils.handlers.table = function( elem, controller, idx ) {
+BindingUtils.handlers.table = function( elem, controller, idx, force ) {
 	if( $(elem).data('_has_model') ) {
 		var model = $(elem).data('_has_model');
-		if( model ) model.refresh(false);
+		if( model ) model.refresh( (force == true) );
 		return;
 	}
 	if( !window.___table_ctr ) window.___table_ctr = 0;
@@ -1385,10 +1407,19 @@ function DataTable( table, bean, controller ) {
 		 .parent().removeClass('hover');
 	}
 
+	var __attrs = null;
 	function evalAttr(origElem, cloneElem, ctx) {
-		var attrs = origElem.attributes;
-		for(var i=0; i<attrs.length; ++i) {
-			var attr = attrs[i];
+		origElem = origElem.jquery? origElem[0] : origElem;
+		if( __attrs == null ) {
+			__attrs = [];
+			$(origElem.attributes).each(function(idx,attr){
+				if( !attr.specified || !attr.value ) return;
+				if( attr.name.toLowerCase().startsWith('jquery') ) return; //this issue occured in IE
+				__attrs.push(attr);
+			})
+		}
+		for(var i=0; i<__attrs.length; ++i) {
+			var attr = __attrs[i];
 			if( !attr.specified || !attr.value ) continue;
 
 			try {
@@ -1397,12 +1428,12 @@ function DataTable( table, bean, controller ) {
 				if( attrName.endsWith('expr') ) {
 					attrName = attrName.replace(/expr$/, '');
 				}
-				R.attr($(cloneElem), attrName, attrValue);
+				$(cloneElem).attr(attrName, attrValue);
 			}
 			catch(e) {;}
 		}
 	}
-	
+
 	function createEvalCtx( item ) {
 		var ctx = $.extend({},bean);
 		if( varStat ) ctx[varStat] = status;
@@ -1654,7 +1685,7 @@ function DefaultTableModel() {
 		$(controller.get(R.attr($e, 'items'))).each(function(i,o){
 			var li;
 			if( tpl ) {
-				var html = tpl;
+				var html = unescape(tpl);
 				li = $( (html+'').evaluate( createEvalCtx(o) ) );
 			}
 			else {

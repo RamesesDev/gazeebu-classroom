@@ -29,8 +29,8 @@ from
    and m.msgtype=$P{msgtype} and m.dtposted < $P{lastdtposted} 
    and (
 	   (m.userid = $P{userid}) or 
-	   (exists (select * from message_subscriber ms where ms.msgid=m.objid and ms.userid=$P{userid}) ) or
-	   (not exists (select * from message_subscriber ms where ms.msgid=m.objid) )
+	   m.privacy = 0 or
+	   (exists (select * from message_subscriber ms where ms.msgid=m.objid and ms.userid=$P{userid}) ) 
    ) 
 ) nf 
 order by nf.dtposted desc  
@@ -39,8 +39,8 @@ limit $P{limit}
 
 [responses]
 select msg.*  from message_response msg 
-where msg.msgid=$P{objid}  
-order by msg.dtposted desc
+where msg.msgid=$P{objid} 
+${filter} 
 
 [subscribers]
 select userid from message_subscriber where msgid = ?

@@ -63,8 +63,16 @@ class MessageService {
 	
 	@ProxyMethod
 	public def getResponses(o) {
-		def list = em.sqlContext.createNamedQuery("message:responses").setParameters(o).resultList;
-		return formatMessages(list);
+		def filter = [];
+		if(o.resptype) filter << 'resptype = $P{resptype}';
+		filter = filter.size()>0? ' and ' + filter.join(' and ') : ' ';
+		if(o.orderby != 'desc') 
+			filter += ' order by msg.dtposted asc';
+		else
+			filter += ' order by msg.dtposted desc';
+
+		def query = em.sqlContext.createNamedQuery("message:responses").setVars([filter:filter]).setParameters(o);
+		return formatMessages(query.resultList);
 	}
 	
 	@ProxyMethod
@@ -84,6 +92,12 @@ class MessageService {
 		}
 		o.dtposted = df.format( o.dtposted );
 		
+		//if this is a message update, remove all subscribers first
+		if( o._update ) {
+			em.sqlContext.createExecutor('delete from message_subscriber where msgid=?')
+			  .setParameter(1,o.objid).execute();
+		}
+		
 		//if message is private add also sender as recipient.
 		if( o.subscribers ) {
 			o.subscribers.each {
@@ -93,6 +107,7 @@ class MessageService {
 				em.save( "message:subscriber", x );
 			}
 		}
+		
 		o.replies = 0;
 		return o;
 	}
@@ -105,7 +120,8 @@ class MessageService {
 			o.objid = "MSGRS:" + new java.rmi.server.UID();
 			o.dtposted = dateSvc.serverDate;
 			
-			if(!o.userid) o.userid = env.userid;	
+			if(!o.userid)  o.userid = env.userid;
+			if(!o.resptype) o.resptype = 'comment';
 			
 			em.create( "message:response", o );
 			def s = [msgid: o.msgid, userid: o.userid];

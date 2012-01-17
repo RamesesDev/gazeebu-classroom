@@ -3,7 +3,6 @@
 
 <t:content title="Account Settings">
 	<jsp:attribute name="head">
-		<script src="js/ext/birthdate.js"></script>
 		<script>
 			Registry.add({id:"editpassword", page:"profile/editpassword.jsp", context:"editpassword"});
 			Registry.add({id:"editsecurity", page:"profile/editsecurity.jsp", context:"editsecurity"});

@@ -25,11 +25,18 @@ class EmailMessageHandler {
 			def m = [:];
 			m.subject = subject;
 			if( classname ) m.subject += " [ class " + classname + "]";	
+			
+			def tplParam = [subject: subject, classname: classname, msg: msg, sender: sender, parent: parent];
 			try {
-				m.message = template.getResult("${TPL_DIR}/${tplname}.groovy", [classname: classname, msg: msg, sender: sender, parent: parent]);	
+				m.message = template.getResult("${TPL_DIR}/${tplname}.groovy", tplParam);
 			}
 			catch(e) {
-				m.message = msg;
+				try {
+					m.message = template.getResult("${TPL_DIR}/default.groovy", tplParam);
+				}
+				catch(ex) {
+					m.message = msg;
+				}
 			}
 			m.recipients = recipients;
 			emailSvc.send(m);	

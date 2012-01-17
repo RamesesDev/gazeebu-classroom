@@ -88,6 +88,11 @@
 				<td valign="top">#{item.msg? item.msg : ''}</td>
 			</tr>
 		</table>
+		<!--
+		<msg:list context="bulletin" name="selectedMessage"
+				  postCommentAction="postComment" commentName="comment"
+				  model="listModel" usersMap="$ctx('classroom').usersIndex"/>
+		-->
 	</jsp:body>
 	
 </t:content>

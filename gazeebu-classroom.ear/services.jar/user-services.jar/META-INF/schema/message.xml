@@ -23,6 +23,7 @@
 	    <field name="userid"/>
 		<field name="msgid" />
 		<field name="message"/>
+		<field name="resptype"/>
     </element>
 
 </schema>

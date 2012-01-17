@@ -6,9 +6,9 @@
 
 <t:secured-master>
 	<jsp:attribute name="head">
-		<link href="${pageContext.servletContext.contextPath}/css/home.css" type="text/css" rel="stylesheet" />
-		<link href="${pageContext.servletContext.contextPath}/js/ext/richtext/richtext.css" rel="stylesheet" />
-		<script src="${pageContext.servletContext.contextPath}/js/ext/richtext/richtext.js"></script>
+		<link href="${pageContext.servletContext.contextPath}/css/home.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
+		<link href="${pageContext.servletContext.contextPath}/js/ext/richtext/richtext.css?v=${APP_VERSION}" rel="stylesheet" />
+		<script src="${pageContext.servletContext.contextPath}/js/ext/richtext/richtext.js?v=${APP_VERSION}"></script>
 	</jsp:attribute>
 	
 	<jsp:attribute name="script">

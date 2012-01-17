@@ -19,7 +19,7 @@
 	<tbody>
 		<tr>
 			<td valign="top" align="center" rowspan="${showComments != 'false'? '3' : '2'}">
-				<img src="profile/photo.jsp?id=#{item.userid}&t=thumbnail&v=#{${usersMap}[item.userid].info.photoversion}}" width="${!empty picSize ? picSize : '40px'}"/>
+				<img src="profile/photo.jsp?id=#{item.userid}&t=thumbnail&v=#{${usersMap}[item.userid].info.photoversion}" width="${!empty picSize ? picSize : '40px'}"/>
 			</td>
 			<td valign="top" class="message-head" style="padding-left:4px;">
 				<span class="sendername">
@@ -48,17 +48,17 @@
 						&nbsp;
 						<label r:context="${context}" class="notifycount" title="New comments unread" r:visibleWhen="#{item.notifycount}">#{item.notifycount}</label>
 					</div>
-					<c:if test="${not empty commentName and not empty postCommentAction}">
-						<div style="margin-top:2px;">
-							<div class="hint-wrapper" style="width:100%;">
-								<input type="text" r:context="${context}" r:name="${commentName}" 
-								       r:action="${postCommentAction}" r:hint="${empty commentHint? 'Write a comment' : commentHint}"
-									   style="width:99%;margin:0;margin-bottom:4px;"/>
-							</div>
-						</div>
-					</c:if>
-					<div>
+					<div class="ui-widget ui-widget-content" style="padding: 2px 4px; width:90%;">
 						<template r:context="${context}" r:id="comment_tpl" r:params="{objid:'#{item.objid}'}" />
+						<c:if test="${not empty commentName and not empty postCommentAction}">
+							<div class="comment" style="margin-top:2px;">
+								<div class="hint-wrapper" style="width:100%;">
+									<input r:context="${context}" r:name="${commentName}" 
+										   r:action="${postCommentAction}" r:hint="${empty commentHint? 'Write a comment' : commentHint}"
+										   type="text" class="text" style="width:99%;margin:0;margin-bottom:4px;"/>
+								</div>
+							</div>
+						</c:if>
 					</div>
 				</td>
 			</tr>
@@ -75,11 +75,10 @@
 
 <c:if test="${showComments != 'false'}">
 	<div id="comment_tpl" style="display:none;">
-		<br/>
 		<table class="message comments" r:context="${context}" r:items="${model}.getCommentsIndex()[params.objid]" r:varName="comment" 
 			cellpadding="0" cellspacing="0" width="100%">
 			<tr>
-				<td valign="top" rowspan="2" class="msg-divider"  r:context="${context}">
+				<td valign="top" rowspan="2" class="msg-divider"  r:context="${context}" width="40px">
 					<img src="profile/photo.jsp?id=#{comment.userid}&t=thumbnail&v=#{${usersMap}[comment.userid].info.photoversion}" width="30px"/>
 				</td>
 				<td valign="top" class="message-head" style="padding-left:4px">
@@ -90,6 +89,11 @@
 			<tr>	
 				<td valign="top"  style="padding-left:4px">
 					#{comment.message}
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div class="hr"></div>
 				</td>
 			</tr>
 		</table>

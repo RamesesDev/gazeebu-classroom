@@ -86,7 +86,7 @@
 		&nbsp;&nbsp;
 	
 		<c:if test="${CLASS_USER_INFO.usertype == 'teacher'}">
-			<input type="button" r:context="discussion" r:name="create" value="New Thread"/>
+			<button type="button" r:context="discussion" r:name="create">New Thread</button>
 		</c:if>
 	</jsp:attribute>
 	

@@ -84,7 +84,7 @@
 	</jsp:attribute>
 	
 	<jsp:attribute name="leftactions">
-		<input type="button" r:context="new_topic" r:name="save" value="Save"/>
+		<button type="button" r:context="new_topic" r:name="save">Save</button>
 	</jsp:attribute>
 	
 	<jsp:attribute name="sections">

@@ -1,5 +1,7 @@
-function MessageServiceClient( _msgtype, _channelid, _threadid ) {
+function MessageServiceClient( _msgtype, _channelid, _threadid, _onMsgCallback ) 
+{
 	
+	this.parentid;
 	this.msgtype = _msgtype;
 	this.channelid = _channelid;
 	this.threadid = _threadid;
@@ -54,6 +56,19 @@ function MessageServiceClient( _msgtype, _channelid, _threadid ) {
 		}
 	};
 	
+	this.commentHandlers = {};
+	this.createCommentList = function(resptype, orderby) {
+		if(this.commentHandlers[resptype])
+			return this.commentHandlers[resptype];
+			
+		this.commentHandlers[resptype] = new (function(type, order){
+			this.fetchList = function(o) {
+				return svc.getResponses({objid:self.parentid, resptype:type, orderby: order});
+			};
+		})(resptype, orderby);
+		return this.commentHandlers[resptype];
+	};
+	
 	this.subscriberList = {
 		fetchList: function(o) {
 			return svc.getSubscribers({msgid: self.parentid});
@@ -69,8 +84,7 @@ function MessageServiceClient( _msgtype, _channelid, _threadid ) {
 			//force the load so it will get the new comments
 			self.comments[msgid] = svc.getResponses( {objid: msgid, msgtype: self.msgtype } );
 			thread.replies = self.comments[msgid].length;
-			
-			console.log('receiving....');
+
 			if(thread._expanded != "true" ) {
 				self.comments[msgid] = null;
 				if(thread.notifycount==null) thread.notifycount = 0;
@@ -89,12 +103,15 @@ function MessageServiceClient( _msgtype, _channelid, _threadid ) {
 					if(old) self.messageList.getList().remove(old);
 				}
 				self.messageList.prependItem( o );
+				if(_onMsgCallback) _onMsgCallback(o);
 			}
 			else if( !self.parentid && o.channelid == self.channelid && o.msgtype == (self.msgtype+'-removed') ) {
 				self.messageList.refresh(true);
+				if(_onMsgCallback) _onMsgCallback(o);
 			}
 			else if( !self.parentid && o.channelid == self.channelid && o.msgtype == (self.msgtype+'-response') ) {
 				self.loadMessageResponses( o.msgid );
+				if(_onMsgCallback) _onMsgCallback(o);
 			}
 			else if( o.msgid == self.parentid ) {
 				if( self.commentList.prependItem ) {
@@ -103,6 +120,16 @@ function MessageServiceClient( _msgtype, _channelid, _threadid ) {
 				if( self.subscriberList.refresh ) {
 					self.subscriberList.refresh(true);
 				}
+				if( self.commentHandlers ) {
+					for(var i in self.commentHandlers) {
+						if( i == o.resptype ) {
+							var h = self.commentHandlers[i];
+							if(h.prependItem)
+								h.prependItem(o);
+						}
+					}
+				}
+				if(_onMsgCallback) _onMsgCallback(o);
 			}
 		}
 	}
@@ -130,9 +157,10 @@ function MessageServiceClient( _msgtype, _channelid, _threadid ) {
 		svc.send( msg );
 	}
 
-	this.respond = function( msgid, resp ) {
+	this.respond = function( msgid, resp, resptype ) {
 		resp.msgid = msgid;
 		resp.channelid = this.channelid;
+		if( resptype ) resp.resptype = resptype;
 		if( this.threadid ) resp.threadid = this.threadid;
 		svc.respond( resp );
 	}

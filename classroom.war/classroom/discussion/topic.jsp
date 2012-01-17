@@ -93,9 +93,6 @@
 			padding : 4px;
 			background-color: lightgrey;
 		}
-		#leftpanel1 {
-			display:none;
-		}
  	</jsp:attribute>
 
 

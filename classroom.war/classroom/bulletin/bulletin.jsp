@@ -8,7 +8,7 @@
 <t:content title="Bulletin Board" subtitle="Post announcements and important news">
 	
 	<jsp:attribute name="head">
-		<script src="${pageContext.request.contextPath}/js/ext/MessageServiceClient.js"></script>
+		<script src="${pageContext.request.contextPath}/js/ext/MessageServiceClient.js?v=${APP_VERSION}"></script>
 	</jsp:attribute>
 
 	<jsp:attribute name="script">
@@ -48,13 +48,18 @@
 
 	
 	<jsp:attribute name="actions">
-		<input type="button" r:context="classroom" r:name="subscribeSMS" value="Subscribe SMS" class="button"/>
+		<button r:context="classroom" r:name="subscribeSMS">
+			Subscribe SMS
+		</button>
 	</jsp:attribute>
 	
 	<jsp:attribute name="rightpanel">
 		<c:if test="${CLASS_INFO.usertype == 'teacher'}">
-			<input type="button" r:context="classroom" r:name="inviteStudents" value="Invite Students" class="button"/>
-			<br>
+			<div class="align-r">
+				<button r:context="classroom" r:name="inviteStudents">
+					Invite Students
+				</button>
+			</div>
 		</c:if>
 	</jsp:attribute>
 	

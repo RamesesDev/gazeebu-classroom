@@ -1,0 +1,52 @@
+.section-label {
+	font-weight:bold;
+	font-size:12px;
+	padding : 4px;
+	background-color: lightgrey;
+}
+
+.section-label a,
+.section-label a:visited {
+	color: navy;
+	text-decoration: none;
+}
+
+.section-label a:hover {
+	color: blue;
+}
+
+.topic {
+	border-bottom: solid 1px #ddd;
+	padding: 5px;
+}
+
+.thread .active {
+	
+}
+
+ul.participants,
+ul.attachments { margin: 2px 3px; padding: 0; }
+
+ul.participants li,
+ul.attachments li { margin: 0; padding: 0; list-style: none; }
+
+ul.attachments .subject {
+	background: url(../img/classroom/attachment.png) left center no-repeat;
+	line-height: 16px;
+	padding-left: 20px;
+	cursor: pointer;
+}
+
+ul.participants li {
+	margin: auto 2px;
+	overflow: hidden;
+	width: 20px; height: 20px;
+}
+
+#topic-box {}
+
+#topic-box .slide {
+	background: #fff;
+	width: 100%; 
+	overflow: hidden;
+}
