@@ -37,7 +37,7 @@ var BindingUtils = new function() {
 			var ctxName = R.attr($e,'context');
 			try {
 				var res = expr.evaluate( $ctx(ctxName) );
-				isVisible = (res && res != 'false' && res != 'null' && res != 'undefined')
+				isVisible = (res && res != 'false' && res != 'null' && res != 'undefined' && res != '');
 			}
 			catch(e) {
 				if( window.console && R.DEBUG ) console.log('error evaluating visibleWhen: ' + e.message);
@@ -47,7 +47,7 @@ var BindingUtils = new function() {
 		
 		if( isVisible ) {
 			if( $e.is(':hidden') ) $e.show();
-			}
+		}
 		else {
 			$e.hide();
 		}
@@ -62,7 +62,7 @@ var BindingUtils = new function() {
 			controller = $get(contextName);
 		}
 		catch(e) {
-			if(window.console) console.log(e.stackTrace || e.message);
+			if(window.console) console.log(e.stack || e.message);
 		}
 		
         if( controller != null ) {
@@ -147,17 +147,34 @@ var BindingUtils = new function() {
         elem.value = (c ? c : "" );
         var dtype = R.attr(o, "datatype");
         if(dtype=="decimal") {
-            elem.onchange = function () { $get(controller.name).set(fldName, NumberUtils.toDecimal(this.value) ); }
+			$(elem).css('text-align', 'right');
+            elem.onchange = function () { controller.set(fldName, NumberUtils.toDecimal(this.value), this ); }
         }
         else if( dtype=="integer") {
-            elem.onchange = function () { $get(controller.name).set(fldName, NumberUtils.toInteger(this.value) ); }
+			$(elem).css('text-align', 'right');
+            elem.onchange = function () { controller.set(fldName, NumberUtils.toInteger(this.value), this ); }
         }
         else if( dtype == "date" ){
 			o.datepicker({dateFormat:"yy-mm-dd"});
-            elem.onchange = function () { $get(controller.name).set(fldName, this.value ); }
+            elem.onchange = function () { controller.set(fldName, this.value, this ); }
         }
         else {
-            elem.onchange = function () { $get(controller.name).set(fldName, this.value ); }
+			var tc = R.attr(elem,'textcase');
+			if( 'upper' == tc )
+				$(elem).css('text-transform', 'uppercase');
+			else if( 'lower' == tc )
+				$(elem).css('text-transform', 'lowercase');
+			
+            elem.onchange = function () {
+				var v = this.value;
+				var tc = R.attr(this,'textcase');
+				if( 'upper' == tc )
+					v = v.toUpperCase();
+				else if( 'lower' == tc )
+					v = v.toLowerCase();
+
+				controller.set(fldName, v, this); 
+			};
         }
 
 		//add hints
@@ -228,6 +245,10 @@ function InputHintDecorator( inp, hint ) {
 	else
 		span =  $('<span class="hint"></span>').insertBefore( input );
 	
+	if( R.attr(inp, 'hintclass') ) {
+		span.addClass(R.attr(inp, 'hintclass'));
+	}
+	
 	span.html( hint? hint : R.attr(input, 'hint') )
 	 .css({position:'absolute', overflow:'hidden', top:'0', left:'0'})
 	 .hide()
@@ -253,7 +274,7 @@ function InputHintDecorator( inp, hint ) {
 		var css = {};
 		css.left = parseValue(input.css('padding-left')) + parseValue(input.css('margin-left')) + parseValue(input.css('border-left-width'))+2;
 		css.top = parseValue(input.css('padding-top')) + parseValue(input.css('margin-top')) + parseValue(input.css('border-top-width'));
-		css.width = span[0].offsetWidth > input.width() ? input.width() : span[0].offsetWidth;
+		//css.width = span[0].offsetWidth > input.width() ? input.width() : span[0].offsetWidth;
 		span.css( css );
 	}
 	
@@ -383,7 +404,9 @@ function Controller( code, pages ) {
 	
 	this.container;
 	
-    this.set = function(fieldName, value) {
+    this.set = function(fieldName, value, elem) {
+		if( elem && $(elem).is(':hidden') ) return;
+		
         BeanUtils.setProperty( this.code, fieldName, value );
 		this.notifyDependents( fieldName );
     }
@@ -456,6 +479,7 @@ function Controller( code, pages ) {
             }
         }
 		catch(e) {
+			if(window.console) console.log(e.stack || e);
 			alert( e.message, "ERROR!" );
 		}
     }
@@ -484,7 +508,7 @@ function Controller( code, pages ) {
 				this.container.reload();	
 			}
 			else {
-				//intended only for <div context="name"></div>
+				//intended only for <div r:controller="name"></div>
 				var _outcome = this.currentPage;	
 				var _target = this.name;
 				var _controller = this;
@@ -637,16 +661,23 @@ BindingUtils.handlers.input_text = function(elem, controller, idx ) {
 				}
 			}
 			input.autocomplete({ source: src, focus: suggestFocus, select: suggestSelect, change: suggestChange });
-
-			if( suggTpl ) {
-				input.data('autocomplete')._renderItem = suggestItemRenderer;
-			}
+			input.data('autocomplete')._renderItem = suggestItemRenderer;
 		}
 		
 		//helper functions
 		function suggestItemRenderer(ul, item) {
-			var html = $('#'+suggTpl).html();
-			html = unescape(html).evaluate(item);
+			var html;
+			if(suggTpl) {
+				html = $('#'+suggTpl).html();
+				html = unescape(html).evaluate(item);
+			}
+			else if(suggExpr) {
+				html = '<a>'+suggExpr.evaluate(item)+'</a>';
+			}
+			else {
+				html = '<a>'+item+'</a>';
+			}
+			
 			return $( "<li></li>" )
 				.data( "item.autocomplete", item )
 				.append( html )
@@ -738,11 +769,11 @@ BindingUtils.handlers.select = function(elem, controller, idx ) {
 			var op = this.options[this.selectedIndex];
 			var objval = $(op).data('value');
 			if( name )
-				$get(controller.name).set(name, (objval? objval : op? op.value : null) );
+				controller.set(name, (objval? objval : op? op.value : null), this );
 				
 			objval = $(op).data('object_value');
 			if( selectedItem )
-				$get(controller.name).set(selectedItem, objval);
+				controller.set(selectedItem, objval, this);
 		})
 		.data('_binded', true);
 		
@@ -768,7 +799,7 @@ BindingUtils.handlers.input_radio = function(elem, controller, idx ) {
 
 	elem.onchange = function () {
 		if( this.checked ) {
-			controller.set(name, this.value );
+			controller.set(name, this.value, this );
 		}
 	}
 }
@@ -789,7 +820,7 @@ BindingUtils.handlers.input_checkbox = function(elem, controller, idx ) {
 			elem.onclick = function () {
 				var _list = $get(controller.name).get(name);
 				var v = R.attr($(this),  "checkedValue" );
-				if( v == null ) alert( "checkedValue in checkbox must be specified" );
+				if( v == null ) alert("checkedValue in checkbox must be specified","Error");
 				if(this.checked) {
 					_list.push( v );
 				}
@@ -1056,7 +1087,7 @@ BindingUtils.handlers.input_file = function( elem, controller, idx ) {
 		try {
 			value = $.parseJSON(resptext);
 		}catch(e){
-			alert( resptext );
+			alert( resptext, "Upload Error" );
 			controller.refresh();
 			return;
 		}
@@ -1304,6 +1335,12 @@ function DataTable( table, bean, controller ) {
 			}
 		}
 		
+		var collapseWhenEmpty = R.attr(table, 'collapseWhenEmpty');
+		if( collapseWhenEmpty != 'true' && rows == -1 && list.length == 0 ) {
+			createRow(i, null).appendTo( tbody );
+			status.index++;
+		}
+		
 		if( bindItems ) BindingUtils.bind( rows );
 		
 		return selectedTds;
@@ -1407,20 +1444,12 @@ function DataTable( table, bean, controller ) {
 		 .parent().removeClass('hover');
 	}
 
-	var __attrs = null;
 	function evalAttr(origElem, cloneElem, ctx) {
 		origElem = origElem.jquery? origElem[0] : origElem;
-		if( __attrs == null ) {
-			__attrs = [];
-			$(origElem.attributes).each(function(idx,attr){
-				if( !attr.specified || !attr.value ) return;
-				if( attr.name.toLowerCase().startsWith('jquery') ) return; //this issue occured in IE
-				__attrs.push(attr);
-			})
-		}
-		for(var i=0; i<__attrs.length; ++i) {
-			var attr = __attrs[i];
-			if( !attr.specified || !attr.value ) continue;
+
+		$(origElem.attributes).each(function(idx,attr){
+			if( !attr.specified || !attr.value ) return;
+			if( attr.name.toLowerCase().startsWith('jquery') ) return; //this issue occured in IE
 
 			try {
 				var attrName = attr.name.toLowerCase();
@@ -1431,7 +1460,7 @@ function DataTable( table, bean, controller ) {
 				$(cloneElem).attr(attrName, attrValue);
 			}
 			catch(e) {;}
-		}
+		})
 	}
 
 	function createEvalCtx( item ) {
@@ -1938,13 +1967,19 @@ var Hash = new function() {
 	
 	this.reload = function( params ) {
 		var hash = window.location.hash.substring(1);
+		var hashparam;
 		if( hash.indexOf("?") > 0 ) {
-			hash = hash.split("?")[0];
+			var arr = hash.split("?");
+			hash = arr[0];
+			hashparam = arr[1];
 		}
-		if(params!=null) {
-			hash = hash + "?" + WindowUtil.stringifyParams( params );
+		if(params) {
+			hash = hash + "?" + WindowUtil.stringifyParams(params);
 		}
-		
+		if(hashparam) {
+			hash += (params?'&':'?') + hashparam;
+		}
+
 		if( window.location.hash == '#' + hash )
 			$(window).trigger('hashchange');
 		else
@@ -2068,7 +2103,7 @@ function PopupOpener( id, params, options )
     this.load = function() {
 		var inv = Registry.find(this.id);
 		if(inv==null) {
-			alert( this.id + " is not registered" );
+			alert( this.id + " is not registered", "Error" );
 			return;
 		}
         var n = inv.context;
@@ -2159,7 +2194,7 @@ function PopupOpener( id, params, options )
 			
 			var inv = Registry.find(this.id);
 			if(inv==null) {
-				alert( this.id + " is not registered" );
+				alert( this.id + " is not registered", "Error" );
 				return;
 			}
 			var n = inv.context;

@@ -3,13 +3,23 @@ body {
 	background-color:#eee;
 }
 
-body, table, p  {
+body, table, p, ul, ol  {
 	font-family: arial, Verdana, sans-serif;
 	font-size: 11px;
 	line-height: 1.45em;
 }
 
 img { border: none; }
+
+h1,h2,h3,h4,h5,h6 { margin: 5px 0; }
+
+form,
+ul, ul li,
+ol, ol li {
+	margin: 0; padding: 0;
+}
+
+ul li, ol li { list-style-position: outside; margin-left: 20px; }
 
 .header {
 	padding-top:1px;
@@ -166,6 +176,44 @@ a.menu_open:hover
 .ui-dialog .ui-dialog-titlebar {
 	background: rgb(54,160,205) url('../img/header-bg.png') repeat-x bottom left;
 	border: solid 1px rgb(54,160,205);
+}
+
+/*-- no titlebar dialog --*/
+.thick-bordered {
+	border: solid 2px #ccc;
+	box-shadow: 0 2px 10px #222;
+	-moz-box-shadow: 0 2px 10px #222;
+	-webkit-box-shadow: 0 2px 10px #222;
+}
+
+.thick-bordered .ui-dialog-titlebar {
+	display: none;
+}
+
+
+/*-- jquery autocomplete ----*/
+.ui-autocomplete {
+	border: solid 1px #888;
+	background: #f0f0f0;
+	background: -moz-linear-gradient(top,#f0f0f0 0,#e0e0e0 100%);
+	background: -ms-linear-gradient(top,#f0f0f0 0,#e0e0e0 100%);
+	background: -o-linear-gradient(top,#f0f0f0 0,#e0e0e0 100%);
+	background: -webkit-gradient(linear,left top,left bottom,color-stop(0,#f0f0f0),color-stop(100%,#e0e0e0));
+	background: -webkit-linear-gradient(top,#f0f0f0 0,#e0e0e0 100%);
+	background: linear-gradient(to bottom,#f0f0f0 0,#e0e0e0 100%);	
+}
+
+.ui-autocomplete .ui-state-hover {
+	background: #3B5998;
+	border-color: #fff;
+	color: #fff;
+}
+
+.ui-autocomplete .ui-menu-item a {
+	-moz-border-radius: 0;
+	-webkit-border-radius: 0;
+	border-radius: 0;
+	padding: 5px 3px;
 }
 
 

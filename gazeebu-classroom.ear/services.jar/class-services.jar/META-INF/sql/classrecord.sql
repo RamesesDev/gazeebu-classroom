@@ -1,7 +1,12 @@
 [activitylist]
 select a.*,c.colorcode from activity a 
 inner join grading_criteria c on a.criteriaid = c.objid 
-where a.classid=$P{classid} order by a.activitydate 
+where a.classid=$P{classid} order by a.activitydate
+
+[activitylist-by-criteria]
+select a.*,c.colorcode from activity a 
+inner join grading_criteria c on a.criteriaid = c.objid 
+where a.classid=$P{classid} order by c.title, a.activitydate 
 
 [activitylist-byperiod]
 select a.*,c.colorcode from activity a 

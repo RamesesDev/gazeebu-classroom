@@ -114,12 +114,6 @@
 
 .message .comment .hint { font-size: 12px; }
 
-/*-- thumnail photo --*/
-.thumb {
-	overflow: hidden;
-	margin-right: 10px;
-}
-
 
 /*--  member menu ---*/
 a.mbr-btn {
@@ -219,6 +213,18 @@ a.mbr-btn-open
 	border-top: solid 1px #ccc;
 	border-bottom: solid 1px #ddd;
 }
+
+
+/*-- thumnail photo --*/
+.thumb {
+	overflow: hidden;
+	margin-right: 10px;
+}
+
+
+/*-- user image panel --*/
+ul.userimgpanel { margin: 2px 3px; padding: 0; }
+ul.userimgpanel li { margin: 0; margin-left: 5px; padding: 0; list-style: none; }
 
 
 

@@ -46,7 +46,7 @@
 						<a r:context="${context}" r:name="${model}.showComments" r:visibleWhen="#{item._expanded != 'true'}">View Comments (#{item.replies})</a>
 						<a r:context="${context}" r:name="${model}.hideComments" r:visibleWhen="#{item._expanded == 'true'}">Hide Comments (#{item.replies})</a>
 						&nbsp;
-						<label r:context="${context}" class="notifycount" title="New comments unread" r:visibleWhen="#{item.notifycount}">#{item.notifycount}</label>
+						<label r:context="${context}" class="notifycount" title="New comments unread" r:visibleWhen="#{item.notifycount!=null}">#{item.notifycount}</label>
 					</div>
 					<div class="ui-widget ui-widget-content" style="padding: 2px 4px; width:90%;">
 						<template r:context="${context}" r:id="comment_tpl" r:params="{objid:'#{item.objid}'}" />
@@ -75,8 +75,8 @@
 
 <c:if test="${showComments != 'false'}">
 	<div id="comment_tpl" style="display:none;">
-		<table class="message comments" r:context="${context}" r:items="${model}.getCommentsIndex()[params.objid]" r:varName="comment" 
-			cellpadding="0" cellspacing="0" width="100%">
+		<table class="message comments" r:context="${context}" r:items="${model}.getCommentsIndex()[params.objid]"
+			r:varName="comment" r:collapseWhenEmpty="true" cellpadding="0" cellspacing="0" width="100%">
 			<tr>
 				<td valign="top" rowspan="2" class="msg-divider"  r:context="${context}" width="40px">
 					<img src="profile/photo.jsp?id=#{comment.userid}&t=thumbnail&v=#{${usersMap}[comment.userid].info.photoversion}" width="30px"/>

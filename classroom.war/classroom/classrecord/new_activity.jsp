@@ -20,7 +20,7 @@
 	<jsp:attribute name="script">
 		$put("new_activity",
 			new function() {
-				var svc = ProxyService.lookup("ClassrecordService");
+				var svc = ProxyService.lookup("ClassrecordService2");
 				var gradingSvc = ProxyService.lookup("GradingCriteriaService");
 
 				var self = this;
@@ -68,16 +68,29 @@
 		<table width="100%" cellpadding="0" cellspacing="0">
 			<tr>
 				<td valign="top">Activity Title</td>
-				<td valign="top"><input type="text" r:context="new_activity" r:name="activity.title" r:caption="Title"  r:required="true" style="width:300px;"/></td>
+				<td valign="top">
+					<input type="text" r:context="new_activity" r:name="activity.title" r:caption="Title"  r:required="true" style="width:300px;"/>
+					<span class="req"> *</span>
+				</td>
 			</tr>
 			
 			<tr>	
 				<td valign="top">Date of activity</td>
-				<td valign="top"><input type="text" r:context="new_activity" r:name="activity.activitydate" r:datatype="date"  r:required="true"  r:caption="Date of activity"/></td>
+				<td valign="top">
+					<input type="text" r:context="new_activity" r:name="activity.activitydate" r:datatype="date"  r:required="true"  r:caption="Date of activity"/>
+					<span class="req"> *</span>
+				</td>
 			</tr>
 			<tr>
 				<td valign="top">Highest Possible Score</td>
-				<td><input type="text" r:context="new_activity" r:name="activity.totalscore" r:caption="Highest Possible Score"  r:required="true" /></td>
+				<td>
+					<input type="text" r:context="new_activity" r:name="activity.totalscore" r:caption="Highest Possible Score"  r:required="true" />
+					<span class="req"> *</span>
+				</td>
+			</tr>
+			<tr>
+				<td valign="top">Passing Score</td>
+				<td><input type="text" r:context="new_activity" r:name="activity.passingscore"/></td>
 			</tr>
 			<tr>
 				<td>Grading Criteria</td>
@@ -85,14 +98,17 @@
 					<select r:context="new_activity" r:name="activity.criteriaid" r:allowNull="true" r:items="criteriaList" r:itemKey="objid" r:itemLabel="title"  r:caption="Grading Criteria" r:required="true"/>
 					<select r:context="new_activity" r:name="activity.subcriteriaid" r:emptyText="Choose a subcriteria" r:depends="activity.criteriaid" 
 						r:visibleWhen="#{hasSubcriteria == 'true'}" r:allowNull="true" r:items="subcriteriaList" 
-						r:itemKey="objid" r:itemLabel="title"  r:caption="Subcriteria" r:required="true"/>
-					
+						r:itemKey="objid" r:itemLabel="title"  r:caption="Subcriteria" r:required="true">
+					</select>
+					<span class="req"> *</span>
 				</td>
 			</tr>	
 			<c:if test="${! empty PERIODS}">
 				<td valign="top">Period</td>
 				<td valign="top">
-					<select r:context="new_activity" r:name="activity.periodid"  r:allowNull="true"  r:items="periodList" r:itemKey="objid" r:itemLabel="title"  r:caption="Grading Period"  r:required="true"/>
+					<select r:context="new_activity" r:name="activity.periodid"  r:allowNull="true"  r:items="periodList" r:itemKey="objid" r:itemLabel="title"  r:caption="Grading Period"  r:required="true">
+					</select>
+					<span class="req"> *</span>
 				</td>
 			</c:if>
 			<tr>	

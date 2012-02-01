@@ -12,6 +12,10 @@
 	List elements = ModuleUtil.getEntries( application, "invokers", name, name );
 	List newList = new ArrayList();
 	Iterator iter = elements.iterator();
+	
+	String ctxpath = request.getContextPath();
+	if(ctxpath == null) ctxpath = "/";
+	
 	while( iter.hasNext() ) {
 		boolean isPermitted = true;
 		Map o = (Map) iter.next();
@@ -33,7 +37,7 @@
 				if( m.get("page")==null ) {
 					m.put( "page", o.get("id") + ".jsp" );
 				}
-				m.put( "page", name + "/" + modname + "/" + m.get("page" ) );
+				m.put( "page", ctxpath + "/" + name + "/" + modname + "/" + m.get("page" ) );
 				m.put( "id", modname + ":" + m.get("id") );
 				if( m.get("parent")!=null) {
 					m.put( "parent", modname + ":" + m.get("parent") );

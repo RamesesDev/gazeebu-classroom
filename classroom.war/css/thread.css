@@ -24,10 +24,8 @@
 	
 }
 
-ul.participants,
-ul.attachments { margin: 2px 3px; padding: 0; }
 
-ul.participants li,
+ul.attachments { margin: 2px 3px; padding: 0; }
 ul.attachments li { margin: 0; padding: 0; list-style: none; }
 
 ul.attachments .subject {
@@ -37,11 +35,6 @@ ul.attachments .subject {
 	cursor: pointer;
 }
 
-ul.participants li {
-	margin: auto 2px;
-	overflow: hidden;
-	width: 20px; height: 20px;
-}
 
 #topic-box {}
 

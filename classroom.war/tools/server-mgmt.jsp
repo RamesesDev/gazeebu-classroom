@@ -14,12 +14,19 @@
 			$put(
 				'server-mgmt',
 				{
-					modname: '',
-					reload: function() {
+					svcname: '',
+					reloadSvc: function() {
 						ProxyService.lookup("ScriptMgmtService").redeploy(this.modname);
 					},
-					reloadAll: function() {
+					reloadAllSvc: function() {
 						ProxyService.lookup("ScriptMgmtService").redeployAll();
+					},
+					schemaname: '',
+					reloadSchema: function() {
+						ProxyService.lookup("SchemaMgmtService").redeploy(this.schemaname);
+					},
+					reloadAllSchema: function() {
+						ProxyService.lookup("SchemaMgmtService").redeployAll();
 					}
 				}
 			);
@@ -27,8 +34,12 @@
 	</head>
 	<body>
 		<h1>Reload Script</h1>
-		<input type="text" r:name="modname" r:context="server-mgmt" />
-		<button r:context="server-mgmt" r:name="reload">Reload</button>
-		<button r:context="server-mgmt" r:name="reloadAll">Reload All</button>
+		<input type="text" r:name="svcname" r:context="server-mgmt" />
+		<button r:context="server-mgmt" r:name="reloadSvc">Reload</button>
+		<button r:context="server-mgmt" r:name="reloadAllSvc">Reload All</button>
+		<h1>Reload Schema</h1>
+		<input type="text" r:name="schemaname" r:context="server-mgmt" />
+		<button r:context="server-mgmt" r:name="reloadSchema">Reload</button>
+		<button r:context="server-mgmt" r:name="reloadAllSchema">Reload All</button>
 	</body>
 </html>

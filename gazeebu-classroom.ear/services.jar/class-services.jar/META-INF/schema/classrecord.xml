@@ -4,6 +4,7 @@
     	<field name="title"/>
 	   	<field name="activitydate"/>
 		<field name="totalscore"/>
+		<field name="passingscore"/>
 		<field name="notes"/>
 		<field name="classid"/>
 		<field name="criteriaid"/>

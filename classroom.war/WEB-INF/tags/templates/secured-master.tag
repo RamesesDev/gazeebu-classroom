@@ -8,6 +8,7 @@
 <%@ attribute name="style" fragment="true" %>
 <%@ attribute name="head" fragment="true" %>
 <%@ attribute name="pageTitle" fragment="false"%>
+<%@ attribute name="sections" fragment="true"%>
 
 
 <t:secured pageTitle="${pageTitle}">
@@ -30,7 +31,11 @@
 	
 	<jsp:attribute name="style">
 		<jsp:invoke fragment="style"/>
-	</jsp:attribute>	
+	</jsp:attribute>
+	
+	<jsp:attribute name="sections">
+		<jsp:invoke fragment="sections"/>
+	</jsp:attribute>
 	
 	<jsp:body>
 		<table width="100%" height="100%" cellpadding="0" cellspacing="0">

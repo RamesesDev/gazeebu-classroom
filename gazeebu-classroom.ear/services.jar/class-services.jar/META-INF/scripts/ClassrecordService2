@@ -1,0 +1,173 @@
+import com.rameses.annotations.*;
+
+class ClassrecordService2 {
+	
+	@PersistenceContext("main")
+	def em;
+
+	@Service("ClassroomService")
+    def classroomService;
+	
+	@Service("GradingCriteriaService")
+    def gradingService;
+	
+	@Env
+	def env;
+	
+	private def dtformat = new java.text.SimpleDateFormat( "MM/dd" );
+	private def dtformat_full = new java.text.SimpleDateFormat( "MMM dd, yyyy" );
+	private def dec_format = new java.text.DecimalFormat('#,##0.00');
+	
+	
+	@ProxyMethod
+	public def getSummary(def p) {
+		def classInfo = classroomService.getClassInfo(p.classid);
+		def summary = [:];
+		summary.gradingPeriods = gradingService.getGradingPeriods( p );
+		summary.gradingCriteria = gradingService.getGradingCriteria( p );
+		def qryName = (p.periodid) ? 'classrecord:activitylist-byperiod' : 'classrecord:activitylist';
+		summary.activities = em.sqlContext.createNamedQuery(qryName).setParameters(p).resultList;
+		summary.students = classInfo.members.findAll{ it.usertype == "student" };
+		summary.activities.each {
+			if(it.activitydate) it.activitydate = dtformat.format(it.activitydate);
+			it.totalscore = new BigDecimal( it.totalscore );
+		}
+		def classResults = em.sqlContext.createNamedQuery("classrecord:class-results").setParameters(p).resultList;
+		//retrieve results by class and target result to the student's results 
+		summary.students.each { stud ->
+			stud.entries = [:];
+			summary.activities.each { exm->
+				def entry = classResults.find{ x-> return (x.studentid == stud.objid && x.activityid == exm.objid) };
+				if(!entry) entry = [:];
+				stud.entries[exm.objid] = entry; 
+				
+				//determine the state
+				if( entry.score ) {
+					try {
+						entry.score = entry.score as BigDecimal;
+						if( exm.passingscore ) {
+							def ps = exm.passingscore as BigDecimal;
+							entry.scorestate = entry.score < ps ? 'failed' : 'passed';
+						}
+					}
+					catch(ign){;}	
+				}	
+			}
+		}
+		return summary;
+	}
+	
+	@ProxyMethod
+	public def addActivity(def o) {
+		if(!o.objid) o.objid = "ACV"+ new java.rmi.server.UID();
+		if(!o.categoryid) o.remove("categoryid");
+		if(!o.periodid) o.remove("periodid");
+		return em.create( "classrecord:activity", o );
+	}
+	
+	@ProxyMethod
+	public def getActivityResult(def activityid) {
+		def e = em.read( "classrecord:activity", [objid:activityid] );
+		def classInfo = classroomService.getClassInfo(e.classid);
+		def students = classInfo.members.findAll{ it.usertype == "student" };
+		def activityResults = em.sqlContext.createNamedQuery("classrecord:results-byactivity").setParameters([activityid:e.objid]).resultList;
+		def results = [];
+		students.each { stud->
+			def v = activityResults.find{z-> stud.objid == z.studentid }
+			if(!v) {
+				v = [objid: "ACVG:"+new java.rmi.server.UID(), activityid:e.objid, studentid: stud.objid ];
+			}
+			v.lastname = stud.lastname;
+			v.firstname = stud.firstname;
+			v.profile = stud.profile;
+			results.add( v );
+		}
+		return [title:e.title, 
+				activitydate:dtformat.format(e.activitydate), 
+				totalscore:e.totalscore,
+				passingscore:e.passingscore,
+				results:results ];	
+	}
+	
+	@ProxyMethod
+	public def saveActivityResults(def results) {
+		results.each {
+			em.save("classrecord:grade", it );
+		};
+	}
+	
+	@ProxyMethod
+	public def getStudentRecord(def p) {
+		if(!p.studentid) p.studentid = env.userid;
+		def result = [:];
+		
+		def classInfo = classroomService.getClassInfo(p.classid);
+		result.student = classInfo.members.find{ it.objid == p.studentid };
+		def activities = em.sqlContext.createNamedQuery('classrecord:activitylist-by-criteria').setParameters(p).resultList;
+		
+		activities.each { if(it.activitydate) it.activitydate = dtformat_full.format(it.activitydate); }
+		
+		def studentResults = em.sqlContext.createNamedQuery('classrecord:student-results').setParameters(p).resultList;
+		studentResults.each {
+			def actid = it.activityid;
+			def m = activities.find{ z->z.objid == actid };
+			m.score = it.score;
+			m.remarks = it.remarks;
+			
+			try {
+				def sc = m.score?.isNumber()? m.score as BigDecimal : null;
+				def tsc = m.totalscore?.isNumber()? m.totalscore as BigDecimal : null;
+				if( sc && tsc )
+					m.percentage = dec_format.format( (sc / tsc) * 100 );
+
+				def ps = m.passingscore?.isNumber()? m.passingscore as BigDecimal : null;
+				if( ps && sc ) {
+					m.scorestate = sc < ps ? 'failed' : 'passed';
+				}
+			}
+			catch(e){
+				e.printStackTrace();
+			}
+		}
+		
+		def criterias = gradingService.getGradingCriteria( p );
+		result.criteriaTitles = criterias;
+		result.criteria =  criterias.groupBy{ it.objid }.each {it.value = it.value[0] };
+		
+		result.periodList = gradingService.getGradingPeriods( p ).eachWithIndex{o,idx-> o.index = idx };
+		result.periodMap = result.periodList.groupBy { it.objid }.each {it.value = it.value[0] };
+		
+		result.totals = activities.groupBy{ [it.criteriaid, it.periodid] }.collect {
+			[	criteriaid: it.key[0], 
+				periodid: it.key[1],
+				totalscore: it.value.findAll{x->x.totalscore.isNumber()}.sum{x->new BigDecimal(x.totalscore)},
+				score: it.value.findAll{x->x.score.isNumber()}.sum{x->new BigDecimal(x.score)}
+			]   
+		}
+		
+		def ptotals = [:]; //key is criteriaid + periodid
+		
+		result.totals.each {
+			def c = result.criteria[it.criteriaid];
+			c.totalscore = (c.totalscore? c.totalscore + it.totalscore : it.totalscore);
+			c.score = (c.score? c.score + it.score : it.score);
+			c.percentage = dec_format.format( (c.score / c.totalscore) * 100 );
+			
+			def ptkey = it.criteriaid + (it.periodid? it.periodid : '');
+			def pt = ptotals[ptkey];
+			if( !pt ) ptotals[ptkey] = (pt = [:]);
+			pt.totalscore = (pt.totalscore? pt.totalscore + it.totalscore : it.totalscore);
+			pt.score = (pt.score? pt.score + it.score : it.score);
+			pt.percentage = dec_format.format( (pt.score / pt.totalscore) * 100 );
+		};
+		
+		result.activities = result.totals.collect{ [criteriaid: it.criteriaid] }.unique().each{ o ->
+			o.items = activities.findAll{a-> a.criteriaid == o.criteriaid  };
+		};
+		
+		result.periodTotals = ptotals;
+		
+		return result;
+	}
+	
+}

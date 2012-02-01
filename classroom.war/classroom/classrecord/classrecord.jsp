@@ -13,33 +13,62 @@
 	request.setAttribute( "params", m );
 %>
 
-<s:invoke service="ClassrecordService" method="getSummary" params="${params}" var="INFO"/>
+<s:invoke service="ClassrecordService2" method="getSummary" params="${params}" var="INFO" debug="true"/>
 
 <t:content title="Class Record">
 
 	<jsp:attribute name="style">
-		.title {
+		.students {
+			font-size:11px;
+			border: solid 1px #888;
+			box-shadow: 0 4px 10px #aaa;
+			-moz-box-shadow: 0 4px 10px #aaa;
+			-webkit-box-shadow: 0 4px 10px #aaa;
+		}
+		
+		.students th,
+		.students td {
+			padding: 2px 3px;
+			border-bottom: solid 1px #aaa;
+			border-right: solid 1px #bbb;
+		}
+		
+		.students .title {
 			padding: 4px;
 			font-weight:bold;
 			border-bottom: 1px solid lightgrey;
 		}
-		#activitytext {
+		.students .activitytext {
 			writing-mode:tb-rl;
 			filter: flipV flipH;
 			-webkit-transform:rotate(-90deg);
 			-moz-transform:rotate(-90deg);
 			-o-transform: rotate(-90deg);
-			display:block;
+			transform: rotate(-90deg);
 			bottom:0;
-			white-space: inherit;
+			display: block;
 			font-size: 9px;
 		}
-		.students {
-			font-size:12px;
+		
+		.students .row-num {
+			position:absolute; left:-7px; top:0;
+			color: #fff;
+			background: #555;
+			border: solid 1px #ccc;
+			border-radius: 4px;
+			-moz-border-radius: 4px;
+			-webkit-border-radius: 4px;
+			font-size: 9px;
+			height: 14px; line-height: 14px;
+			width: 14px;
+			text-align: center;
 		}
-		#fail {
-			color:red;
-		}
+		
+		.students .link { text-decoration: none; }
+		.students .link:hover { text-decoration: underline; }
+		.students tr.separator td { border-bottom: solid 2px #888; }
+		.students tr.first-row td { border-top: solid 1px #aaa; }		
+		.students .failed { color:red; }
 	</jsp:attribute>
 	
 	<jsp:attribute name="script">
@@ -65,9 +94,14 @@
 				this.editEntry = function() {
 					return new PopupOpener("edit_activity", {activityid: this.activityid, saveHandler:afterSave});
 				}
+				
+				var firstLoad = true;
 				this.propertyChangeListener = {
 					"periodid" : function(o) {
-						location.hash='classrecord:classrecord?periodid='+o;
+						if( !firstLoad ) {
+							location.hash='classrecord:classrecord?periodid='+o;
+						}
+						firstLoad = false;
 					}
 				}
 			}
@@ -96,51 +130,61 @@
 		
 		
 		<br>
-		<table class="students" cellpadding="1" cellspacing="0" width="100%" border="1">
+		<table class="students" cellpadding="0" cellspacing="0" width="100%" border="0">
 			<tr>
-				<td width="150" height="120" valign="top" class="title">Students</td>
+				<td width="150" height="120" valign="top">Students</td>
 				<c:forEach items="${INFO.activities}" var="item" varStatus="stat">
-					<td align="center" width="50" title="${item.title}" style="background-color:${item.colorcode}">
+					<td align="center" width="50px" height="100px" title="${item.title}" style="background-color:${item.colorcode}">
 						<a r:context="classrecord" r:name="editEntry" r:params="{activityid: '${item.objid}'}">
-							<div id="activitytext">${item.title}</div>
+							<div class="activitytext">${item.title}</div>
 						</a>
 					</td>
 				</c:forEach>
 				<td>&nbsp;</td>
 			</tr>	
 			<tr>
-				<td align="right" class="title">Date Taken</td>
+				<td align="right">Date Taken</td>
 				<c:forEach items="${INFO.activities}" var="item"  varStatus="stat">
-					<td align="center" class="title"  style="background-color:${item.colorcode}">${item.activitydate}</td>
+					<td align="center" style="background-color:${item.colorcode}">${item.activitydate}</td>
 				</c:forEach>
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td align="right" class="title">Highest Possible Score</td>
+				<td align="right">Highest Possible Score</td>
 				<c:forEach items="${INFO.activities}" var="item" varStatus="stat">
 					<td align="center" style="background-color:${item.colorcode}">${item.totalscore}</td>
 				</c:forEach>
 				<td>&nbsp;</td>
 			</tr>
-			<tr>
-				<td colspan="${fn:length(INFO.activities)+2}" style="padding:4px;">&nbsp;</td>
+			<tr class="separator">
+				<td align="right">Passing Score</td>
+				<c:forEach items="${INFO.activities}" var="item" varStatus="stat">
+					<td align="center" style="background-color:${item.colorcode}">
+						${empty item.passingscore? '-' : item.passingscore}
+					</td>
+				</c:forEach>
+				<td>&nbsp;</td>
 			</tr>
 			
 			<!-- display the students -->
 			<c:forEach items="${INFO.students}" var="student" varStatus="stat">
-				<tr>
-					<td style="position:relative;padding-left:15px;">
-						<span style="position:absolute;left:0;top:0;background: #dedede;padding:0 2px;">
-							${stat.index+1}
-						</span>
-						<a href="#classrecord:student_record?studentid=${student.objid}">
-							${student.lastname},${student.firstname}
-						</a>
+				<tr class="${stat.first? 'first-row' : ''}" title="${student.lastname},${student.firstname}">
+					<td>
+						<div style="position:relative;padding-left:15px;">
+							<span class="row-num">
+								${stat.index+1}
+							</span>
+							<a href="#classrecord:student_record?studentid=${student.objid}"
+							   class="capitalized link">
+								${student.lastname},${student.firstname}
+							</a>
+						</div>
 					</td>
 					<c:forEach items="${INFO.activities}" var="item">
 						<c:set var="activityid">${item.objid}</c:set>
-						<td align="center" style="background-color:${item.colorcode}" title="${student.entries[activityid].remarks}">
-							${student.entries[activityid].score}
+						<c:set var="activity" value="${student.entries[activityid]}"/>
+						<td align="center" class="${activity.scorestate}" style="background-color:${item.colorcode}" title="${activity.remarks}">
+							${empty activity.score? '-' : activity.score}
 						</td>
 					</c:forEach>
 					<td>&nbsp;</td>

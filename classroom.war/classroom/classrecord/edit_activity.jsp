@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 
-<s:invoke service="ClassrecordService" method="getActivityResult" params="${param['activityid']}" var="INFO"/>
+<s:invoke service="ClassrecordService2" method="getActivityResult" params="${param['activityid']}" var="INFO"/>
 
 <t:popup>
 
@@ -16,7 +16,7 @@
 	<jsp:attribute name="script">
 		$put("edit_result",
 			new function() {
-				var svc = ProxyService.lookup( "ClassrecordService" );
+				var svc = ProxyService.lookup( "ClassrecordService2" );
 				this.results = [];
 				this.saveHandler;
 				<c:forEach items="${INFO.results}" var="item">
@@ -40,17 +40,21 @@
 		<table class="edit_result">
 			<tr>
 				<td width="100"><b>Title</b></td>
+				<td>:</td>
 				<td>${INFO.title}</td>
 				<td width="50">&nbsp;</td>
 				<td><b>Highest Possible Score</b></td>
+				<td>:</td>
 				<td>${INFO.totalscore}</td>
 			</tr>
 			<tr>
 				<td><b>Date</b></td>
+				<td>:</td>
 				<td>${INFO.activitydate}</td>
 				<td>&nbsp;</td>
-				<td>&nbsp;</td>
-				<td>&nbsp;</td>
+				<td><b>Passing Score</b></td>
+				<td>:</td>
+				<td>${empty INFO.passingscore? '-' : INFO.passingscore}</td>
 			</tr>
 		</table>
 	

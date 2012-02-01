@@ -2,6 +2,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags/message" prefix="msg" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
+<%@ taglib tagdir="/WEB-INF/tags/common/ui" prefix="ui" %>
+
 
 <s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="CLASS_INFO"/>
 
@@ -54,7 +56,17 @@
 	</jsp:attribute>
 	
 	<jsp:attribute name="rightpanel">
+		<div>
+			Class Members
+			<ui:userimagepanel 
+				context="classroom" items="classInfo.members" 
+				varname="item" usersmap="usersIndex" 
+				onmouseover="$ctx('classroom').showMemberInfo(this,'#{item.objid}',{offset:{x:0,y:0}})"
+				imagewidth="20px"
+				/>
+		</div>
 		<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+			<div class="hr"></div>	
 			<div class="align-r">
 				<button r:context="classroom" r:name="inviteStudents">
 					Invite Students

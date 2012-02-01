@@ -26,7 +26,7 @@ class GradingCriteriaService {
 	
 	@ProxyMethod
 	public def getGradingPeriods(def o) {
-		def list = em.sqlContext.createNamedQuery("grading:periods").setParameters(o).resultList;
+		def list = em.sqlContext.createNamedQuery("grading:periods").setParameters(o).resultList.sort();
 		list.each {
 			if(it.fromdate) it.fromdate = dtformat.format(it.fromdate);
 			if(it.todate) it.todate = dtformat.format(it.todate);

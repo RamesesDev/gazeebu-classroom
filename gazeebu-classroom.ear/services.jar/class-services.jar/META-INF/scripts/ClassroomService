@@ -50,7 +50,10 @@ class ClassroomService {
 		c.members.sort{ a,b ->
 			if( a.usertype == 'teacher' ) return -1;
 			if( b.usertype == 'teacher' ) return 1;
-			return (a.lastname+'').compareTo(b.lastname);
+			
+			def alname = (a.lastname+'').toLowerCase();
+			def blname = (b.lastname+'').toLowerCase();
+			return alname.compareTo(blname);
 		};
 
 		//determine the role of the requester

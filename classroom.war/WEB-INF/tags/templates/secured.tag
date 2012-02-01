@@ -8,6 +8,7 @@
 <%@ attribute name="style" fragment="true" %>
 <%@ attribute name="header_middle" fragment="true" %>
 <%@ attribute name="pageTitle" fragment="false"%>
+<%@ attribute name="sections" fragment="true"%>
 
 <c:if test="${empty SESSIONID}">
 	<%
@@ -236,6 +237,7 @@ request.setAttribute("APP_VERSION", application.getInitParameter("app.version"))
 				</tr>
 			</table>
 			
+			<jsp:invoke fragment="sections"/>
 		</body>
 	</html>	
 </c:if>

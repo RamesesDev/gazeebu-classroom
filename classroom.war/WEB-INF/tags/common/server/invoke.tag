@@ -5,6 +5,7 @@
 <%@ attribute name="service"%>
 <%@ attribute name="method"%>
 <%@ attribute name="var"%>
+<%@ attribute name="debug"%>
 <%@ attribute name="params" rtexprvalue="true" type="java.lang.Object" required="false"%>
 
 <%
@@ -39,7 +40,13 @@
 		
 	}
 	catch(Exception e) {
-		request.setAttribute("error", com.rameses.util.ExceptionManager.getOriginal(e) );
+		if("true".equals(debug)) e.printStackTrace();
+		
+		String errorMessage = "";
+		e = com.rameses.util.ExceptionManager.getOriginal(e);
+		if( e != null ) errorMessage = e.getMessage();
+		
+		request.setAttribute("error", errorMessage );
 	} 	
 %>
 
