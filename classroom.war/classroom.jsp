@@ -15,7 +15,6 @@
 	<jsp:attribute name="head">
 		<link href="${pageContext.servletContext.contextPath}/css/classroom.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
 		<script src="${pageContext.servletContext.contextPath}/js/ext/textarea.js?v=${APP_VERSION}"></script>
-		<script src="${pageContext.servletContext.contextPath}/js/ext/infobox.js?v=${APP_VERSION}"></script>
 		
 		<script type="text/javascript">
 
@@ -85,10 +84,13 @@
 					this.removeMember = function() {
 						if(this.selectedMember) {
 							if( this.selectedMember.status == 'online' ) throw new Error('Cannot remove online members.');
-							if(confirm("You are about to remove " + this.selectedMember.lastname + "," + this.selectedMember.firstname + " from this class. Continue?") ) {
-								svc.removeMember( {userid: this.selectedMember.objid, classid: classid} );
-								this._controller.refresh();
-							}
+							MsgBox.confirm(
+							  "You are about to remove <b class='capitalized'>" + this.selectedMember.lastname + ", " + this.selectedMember.firstname + "</b> from this class. Continue?",
+							  function() {
+								svc.removeMember( {userid: self.selectedMember.objid, classid: classid} );
+								self._controller.refresh();
+							  }
+							);
 						}
 						return "_close";
 					}
@@ -116,11 +118,11 @@
 					}
 					
 					this.sendMail = function() {
-						alert('This feature is not yet implemented.');
+						MsgBox.alert('This feature is not yet implemented.');
 					}
 					
 					this.chatMember = function() {
-						alert('This feature is not yet implemented.');
+						MsgBox.alert('This feature is not yet implemented.');
 					}
 					
 					this.onload = function() {

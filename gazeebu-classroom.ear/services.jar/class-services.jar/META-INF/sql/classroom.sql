@@ -11,3 +11,9 @@
  
 [remove-member]
 delete from class_membership where classid=$P{classid} and userid=$P{userid}
+
+[remove-member-activities]
+ delete
+ from activity_grade
+ where studentid = $P{userid} and 
+ activityid in (select objid from activity where classid = $P{classid});

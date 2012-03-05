@@ -140,8 +140,8 @@ class ClassrecordService2 {
 		result.totals = activities.groupBy{ [it.criteriaid, it.periodid] }.collect {
 			[	criteriaid: it.key[0], 
 				periodid: it.key[1],
-				totalscore: it.value.findAll{x->x.totalscore.isNumber()}.sum{x->new BigDecimal(x.totalscore)},
-				score: it.value.findAll{x->x.score.isNumber()}.sum{x->new BigDecimal(x.score)}
+				totalscore: it.value.findAll{x->x.totalscore?.isNumber()}.sum{x->new BigDecimal(x.totalscore)},
+				score: it.value.findAll{x->x.score?.isNumber()}.sum{x->new BigDecimal(x.score)}
 			]   
 		}
 		
@@ -149,16 +149,22 @@ class ClassrecordService2 {
 		
 		result.totals.each {
 			def c = result.criteria[it.criteriaid];
-			c.totalscore = (c.totalscore? c.totalscore + it.totalscore : it.totalscore);
-			c.score = (c.score? c.score + it.score : it.score);
-			c.percentage = dec_format.format( (c.score / c.totalscore) * 100 );
+			if( it.totalscore )
+				c.totalscore = (c.totalscore? c.totalscore + it.totalscore : it.totalscore);			
+			if( it.score )
+				c.score = (c.score? c.score + it.score : it.score);			
+			if( c.score && c.totalscore )
+				c.percentage = dec_format.format( (c.score / c.totalscore) * 100 );
 			
 			def ptkey = it.criteriaid + (it.periodid? it.periodid : '');
 			def pt = ptotals[ptkey];
-			if( !pt ) ptotals[ptkey] = (pt = [:]);
-			pt.totalscore = (pt.totalscore? pt.totalscore + it.totalscore : it.totalscore);
-			pt.score = (pt.score? pt.score + it.score : it.score);
-			pt.percentage = dec_format.format( (pt.score / pt.totalscore) * 100 );
+			if( !pt ) ptotals[ptkey] = (pt = [:]);			
+			if( it.totalscore )
+				pt.totalscore = (pt.totalscore? pt.totalscore + it.totalscore : it.totalscore);
+			if( it.score )
+				pt.score = (pt.score? pt.score + it.score : it.score);			
+			if( pt.score && pt.totalscore )
+				pt.percentage = dec_format.format( (pt.score / pt.totalscore) * 100 );
 		};
 		
 		result.activities = result.totals.collect{ [criteriaid: it.criteriaid] }.unique().each{ o ->

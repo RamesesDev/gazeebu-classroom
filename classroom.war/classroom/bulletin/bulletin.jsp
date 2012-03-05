@@ -53,11 +53,37 @@
 		<button r:context="classroom" r:name="subscribeSMS">
 			Subscribe SMS
 		</button>
+		<button>
+			View Course Syllabus
+		</button>
 	</jsp:attribute>
 	
 	<jsp:attribute name="rightpanel">
 		<div>
-			Class Members
+			<h3 class="clearfix">
+				Class Profile
+				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+					<span class="right">
+						<a href="#">Edit</a>
+					</span>
+				</c:if>
+			</h3>
+			<div class="hr"></div>
+			<div style="padding-left: 5px;">
+				<h4>Class Name:</h4>
+				${CLASS_INFO.name}
+				<h4>Description:</h4>
+				${CLASS_INFO.description}
+				<h4>Schedule:</h4>
+				${CLASS_INFO.schedules}
+				<h4>School:</h4>
+				${CLASS_INFO.school}
+			</div>
+		</div>
+		<br/>
+		<div>
+			<h3>Class Members</h3>
+			<div class="hr"></div>
 			<ui:userimagepanel 
 				context="classroom" items="classInfo.members" 
 				varname="item" usersmap="usersIndex" 

@@ -71,7 +71,7 @@
 						return o;
 					}
 					
-					this.detailsBtnCaption = 'Show Details';
+					this.detailsBtnCaption = 'Hide Details';
 					this.toggleDetails = function() {
 						$('#thread-details').toggle('slide', {direction:'up'});
 						this.detailsBtnCaption = (this.detailsBtnCaption=='Show Details'? 'Hide Details' : 'Show Details');
@@ -189,15 +189,20 @@
 					
 					this.removeAttachment = function() {
 						if( !this.selectedAttachment ) return;
-						if( !confirm('Are you sure you want to remove this item?') ) return;
-						attachSvc.removeAttachment({objid: this.selectedAttachment.objid});
 						
-						if(this.attachmentOwner == 'topic')
-							_topicAttachmentList = null;
-						else
-							_attachmentList = null;
+						MsgBox.confirm(
+						  'Are you sure you want to remove this item?',
+						  function(){
+							attachSvc.removeAttachment({objid: self.selectedAttachment.objid});
 						
-						this._controller.refresh('selectedAttachment');
+							if(self.attachmentOwner == 'topic')
+								_topicAttachmentList = null;
+							else
+								_attachmentList = null;
+							
+							self._controller.refresh('selectedAttachment');
+						  }
+						);
 					}
 					
 					var attachmentInfo = new InfoBox('#attachment_info', '', {x: 35});
@@ -247,7 +252,7 @@
 	<jsp:attribute name="actions">
 		<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
 			<button r:context="" r:name="" title="Publish to bulletin" 
-			        onclick="alert('This feature is not yet implemented.');">
+			        onclick="MsgBox.alert('This feature is not yet implemented.');">
 				Publish
 			</button>
 			<button r:context="thread" r:name="editThread" title="Edit discussion thread">
@@ -262,7 +267,7 @@
 	</jsp:attribute>
 
 	<jsp:body>
-		<div id="thread-details" class="clearfix" style="display:none">
+		<div id="thread-details" class="clearfix">
 			<div class="left" style="width:65%">
 				${THREAD.description}
 			</div>

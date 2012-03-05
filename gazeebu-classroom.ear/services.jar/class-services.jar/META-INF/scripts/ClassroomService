@@ -1,5 +1,5 @@
 import com.rameses.annotations.*;
-
+import com.rameses.util.*;
 import java.util.concurrent.*;
 
 /***
@@ -42,7 +42,8 @@ class ClassroomService {
 			}
 		}
 		
-		//load the user profile for each
+		//load the users profile for each
+		println "loading users profile";
 		c.members.each {
 			it.putAll(  userService.getInfo( [objid: it.objid] ) );
 		}
@@ -129,20 +130,28 @@ class ClassroomService {
 	
 	@ProxyMethod
 	public void addMember(def o) {
-		o.objid = "CLSMMBRS" + new java.rmi.server.UID();
-		em.create( "class_membership", o );
+		try {
+			o.objid = "CLSMMBRS" + new java.rmi.server.UID();
+			em.create( "class_membership", o );
 
-		o.objid = o.userid;
-		o.status = 'online';
-		cacheService.update( o.classid, 
-			[ '''
-				{o,v->
-					o.members.add( v.user );
-				};
-			  ''', 
-			  [user: o]  
-			]
-		);
+			o.objid = o.userid;
+			o.status = 'online';
+			cacheService.update( o.classid, 
+				[ '''
+					{o,v->
+						o.members.add( v.user );
+					};
+				  ''', 
+				  [user: o]  
+				]
+			);
+		}
+		catch(e) {
+			def oe = ExceptionManager.getOriginal(e);
+			if( !oe.message?.toLowerCase()?.contains('duplicate entry') ) {
+				throw e;
+			}
+		}
 	}
 	
 	@ProxyMethod
@@ -160,6 +169,11 @@ class ClassroomService {
 	@ProxyMethod
 	public void removeMember(def o) {
 		em.sqlContext.createNamedExecutor("classroom:remove-member").setParameters(o).execute();
+		
+		//remove also the class related items
+		em.sqlContext.createNamedExecutor("classroom:remove-member-activities").setParameters(o).execute();
+		
+		//update cache
 		cacheService.update( o.classid, 
 			[ '''
 				{o,v->

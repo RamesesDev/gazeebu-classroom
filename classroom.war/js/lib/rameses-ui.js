@@ -161,7 +161,7 @@ var BindingUtils = new function() {
         else {
 			var tc = R.attr(elem,'textcase');
 			if( 'upper' == tc )
-				$(elem).css('text-transform', 'uppercase');
+			$(elem).css('text-transform', 'uppercase');
 			else if( 'lower' == tc )
 				$(elem).css('text-transform', 'lowercase');
 			
@@ -602,7 +602,7 @@ function Controller( code, pages ) {
             }
         }
         else {
-            this.navigate( "default" );
+            this.navigate( this.currentPage || "default" );
         }
     }
 	
@@ -621,7 +621,11 @@ var ContextManager = new function() {
             throw new Error("Please indicate a name");
         var c = new Controller( code, pages );
         if(code.onload!=null) {
-            BindingUtils.loaders.push( function() { code.onload() } );
+            BindingUtils.loaders.push( function() {
+				var result = code.onload() 
+				if( typeof result == 'string' )
+					c.currentPage = result;
+			});
         }
 		code._controller = c;
 		c.name = name;
@@ -2420,3 +2424,182 @@ var Scroller = new function(){
 	}
 	
 };
+
+
+/*
+ * @author		jaycverg
+ * description	themable implementation of message box
+ */
+var MsgBox = {
+	/*
+	 * interfaces:
+	 *  - confirm(msg, title, callback)
+	 *  - confirm(msg, callback)
+	 */
+	"confirm": function(msg, arg1, arg2) {
+		var fn = arg2, title = '';
+		if( typeof arg1 == 'function' )
+			fn = arg1;
+		else
+			title = arg1;
+		
+		MsgBox.showDialog(msg, 'ui-icon-help', {
+			title: title || 'Confirm',
+			modal: true,
+			buttons: {
+				'Ok' : function(){
+					$(this).dialog('close');
+					try { fn(); }
+					catch(e) {
+						MsgBox.error( e.message );
+					}
+				},
+				'Cancel' : function() {
+					$(this).dialog('close');
+				}
+			}
+		});
+	},
+	"error": function(msg, title) {
+		MsgBox.showDialog(msg, 'ui-icon-alert', {
+			title: title || 'Error', 
+			modal: true, 
+			buttons:{
+				'Close' : function() {
+					$(this).dialog('close');
+				}
+			}
+		});
+	},
+	"alert": function(msg, title) {
+		MsgBox.showDialog(msg, 'ui-icon-info', {
+			title: title || 'Information', 
+			modal: true, 
+			buttons:{
+				'Close' : function() {
+					$(this).dialog('close');
+				}
+			}
+		});
+	},
+	"showDialog": function(msg, icon, options) {
+		msg = msg.replace(/\n/g, '<br/>');
+		var div = $('#rameses-message-box');
+		if(div.length==0) {
+			div = $('<div id="rameses-message-box"><p><span class="ui-icon" style="float:left; margin:0 7px 20px 0;"></span><span class="message"></span></p></div>')
+			       .hide().appendTo('body');
+		}
+		
+		div = div.clone().appendTo('body');
+		options.close = function(){ $(this).remove(); };
+		
+		div.find('.ui-icon').addClass(icon);
+		div.find('.message').html(msg);
+		div.dialog(options);
+	}
+};
+
+
+
+
+/**
+ * @author	jaycverg <jaycverg@gmail.com>
+ * depends	jquery.1.4.+
+ * @param	selector		- a valid jquery selector
+ * @param	orientation		- a string value of either 'left', 'top',  'right', or 'bottom'
+ * 							- default is 'bottom'
+ * @param	offset			- an object to specify either the offsetX and offsetY of the element
+ *							- fields are x and y (i.e., offset.x = -1)
+ */
+
+
+function InfoBox(selector, orientation, offset, delay) 
+{
+	var infobox;
+	var _this = this;
+	
+	this.offset = offset;
+	this.delay = delay;
+	
+	this.show = function(elem) {
+		if($(elem).data('_infobox_attached')) return;
+		
+		if(!infobox) infobox = $(selector);
+		var delay = this.delay? this.delay : 500; //millis
+		$(elem).mouseover(function() {
+			if( $(elem).data('info') ) return;
+			
+			var ib = infobox.clone(true).removeAttr('id').insertAfter(infobox).addClass('infobox');
+			var css = position(elem);
+			ib.mouseout(function(e){ 
+				if(e.relatedTarget == this || e.relatedTarget == elem || $(e.relatedTarget).parents('.infobox')[0] == this ) return;
+				hide($(this),$(elem));
+			});
+			$(elem).data('info', ib);
+					
+			var timeid = setTimeout(
+				function() {
+					ib.show().css(css);
+					if(window.BindingUtils) BindingUtils.bind(null, ib);
+				}, delay
+			);
+			$(elem).data('timeid', timeid);
+		})
+		.mouseout(function(e){
+			var ib = $(elem).data('info');
+			if( ib && (ib[0] == e.relatedTarget || $(e.relatedTarget).parents('.infobox')[0] == ib[0] )) return;
+			if( ib ) {
+				hide(ib, $(elem));
+			}
+		})
+		.data('_infobox_attached', true)
+		.trigger('mouseover');
+	};
+	
+	function hide(ibox, elem) {
+		ibox.remove();
+		elem.removeData('info');
+		var timeid = elem.data('timeid');
+		clearTimeout(timeid);
+	}
+	
+	function position(elem) {
+		var b, css;
+		var loc = getLocation(elem);
+		
+		var ibw = infobox.outerWidth();
+		var ibh = infobox.outerHeight();
+		var ew = $(elem).outerWidth();
+		var eh = $(elem).outerHeight();
+		var wh = $(window).height();
+		var ww = $(window).width();
+		
+		if( orientation == 'left' ) {
+			css = {left:loc.x - ibw + 1, top:loc.y};
+		}
+		else if( orientation == 'top' ) {
+			css = {left:loc.x, top:loc.y - ibh - eh + 1};
+		}
+		else if( orientation == 'right' ) {
+			css = {left:loc.x + ew - 1, top:loc.y};
+		}
+		else {
+			css = {left:loc.x, top:loc.y + eh - 1};
+		}
+		
+		if( _this.offset && _this.offset.x ) css.left += _this.offset.x;
+		if( _this.offset && _this.offset.y ) css.top += _this.offset.y;	
+		
+		return css;
+	}
+	
+	function getLocation(e) {
+		var x=0,y=0;
+		while(e) {
+			x+=e.offsetLeft;
+			y+=e.offsetTop;
+			e = e.offsetParent;
+		}
+		return {x:x, y:y};
+	}
+}

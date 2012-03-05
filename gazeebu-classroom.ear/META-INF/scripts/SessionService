@@ -34,7 +34,9 @@ class SessionService {
 		if( !sessinfo ) return null;
 		
 		def h = sessinfo.handler;
-		def user = svc.invoke( h.servicename, h.method, h.params, env );
+		def svcenv = [_local:true];
+		svcenv.putAll(env);
+		def user = svc.invoke( h.servicename, h.method, h.params, svcenv );
 		sessinfo.putAll( user );		
 		return sessinfo;
 	}
