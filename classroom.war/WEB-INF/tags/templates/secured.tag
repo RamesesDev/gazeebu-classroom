@@ -51,6 +51,10 @@ request.setAttribute("APP_VERSION", application.getInitParameter("app.version"))
 				Registry.add( {id:"#usermenu", context:"session"} );				
 				ProxyService.contextPath = '${pageContext.request.contextPath}';
 				
+				//global options
+				PopupOpener.options = {show:'', hide:''};
+				
+				
 				$put("session",
 					new function() {
 

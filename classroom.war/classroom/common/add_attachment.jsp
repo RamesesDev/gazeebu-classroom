@@ -50,6 +50,7 @@
 					}
 
 					this.save = function() {
+						validate();
 						if( this.senderid )
 							this.resource.subscribers.push({userid: this.senderid});
 							
@@ -90,6 +91,11 @@
 						};
 						return new PopupOpener("library:res_lookup",{handler:h});
 					}
+					
+					function validate() {
+						if(self.resource.reftype=='library' && !self.resource.libid)
+							throw new Error('Please select a resource from the library');
+					}
 				}
 			);
 		</script>
@@ -113,29 +119,38 @@
 	
 	<jsp:body>
 		<div class="label">Subject</div>
-		<input type="text"  r:context="add_attachment" r:name="resource.subject" style="width:300px" r:required="true" r:caption="Title"/>
+		<input type="text"  r:context="add_attachment" 
+		       r:name="resource.subject" style="width:300px" r:required="true" r:caption="Title"/>
 		<br>
 		<div class="label">Add a short message</div>
-		<textarea  r:context="add_attachment" r:name="resource.message" style="width:300px;height:50px;"></textarea>
+		<textarea  r:context="add_attachment" 
+		           r:name="resource.message" style="width:300px;height:50px;"></textarea>
 		<br>
 		
 		<div class="label">Select a reference type</div>
-		<select r:context="add_attachment" r:items="linktypes" r:name="resource.reftype" r:allowNull="true" r:emptyText="-select reference type-"/>
+		<select r:context="add_attachment" r:items="linktypes" 
+		        r:name="resource.reftype" r:allowNull="true" r:emptyText="-select reference type-"
+				r:caption="Reference Type" r:required="true"/>
 		
-		<div r:context="add_attachment" r:depends="resource.reftype" r:visibleWhen="#{resource.reftype == 'link'}">
+		<div r:context="add_attachment" r:depends="resource.reftype" 
+		     r:visibleWhen="#{resource.reftype == 'link'}">
 			<p>
 				Provide the url of the website you want to reference
 			</p>
 			<div class="label">Link Reference</div>
-			<input type="text" r:context="add_attachment" r:name="resource.linkref" r:required="true" style="width:300px;" r:caption="Link Reference"/>
+			<input type="text" r:context="add_attachment" r:name="resource.linkref" 
+			       r:required="true" style="width:300px;" r:caption="Link Reference"/>
 		</div>
 		
-		<div r:context="add_attachment" r:depends="resource.reftype" r:visibleWhen="#{resource.reftype == 'embed'}">
+		<div r:context="add_attachment" r:depends="resource.reftype" 
+		     r:visibleWhen="#{resource.reftype == 'embed'}">
 			<p>
 				Provide the embedded code (for example youtube videos)
 			</p>
 			<div class="label">Enter Embedded Code</div>
-			<textarea r:context="add_attachment" r:name="resource.embedcode" r:required="true" style="width:300px;height:100px;"></textarea>
+			<textarea r:context="add_attachment" r:name="resource.embedcode" 
+			          r:required="true" style="width:300px;height:100px;"
+					  r:caption="Embed Code"></textarea>
 		</div>
 		
 		<div r:context="add_attachment" r:depends="resource.reftype" r:visibleWhen="#{resource.reftype == 'library'}">

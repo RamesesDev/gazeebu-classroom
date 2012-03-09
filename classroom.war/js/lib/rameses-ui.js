@@ -28,7 +28,7 @@ var BindingUtils = new function() {
     this.loaders = [];
     this.input_attributes = [];
 
-	var controlLoader =  function(idx, elem, force) {
+var controlLoader =  function(idx, elem, force) {
 		var $e = $(elem);
 		var isVisible = true;
 
@@ -809,29 +809,53 @@ BindingUtils.handlers.input_radio = function(elem, controller, idx ) {
 }
 
 BindingUtils.handlers.input_checkbox = function(elem, controller, idx ) {
+	if( $(elem).data('__ui_binded') ) return;
+	$(elem).data('__ui_binded', true); //just bind once
+	
 	var name = R.attr(elem, 'name');
 	var c = controller.get(name);
 	if( R.attr($(elem), "mode") == "set" ) {
 		try {
 			var checkedValue = R.attr($(elem), "checkedValue");
-
-			if( c.find( function(o) { return (o==checkedValue ) } ) !=null) {
-				elem.checked = true;
-			}
-			else {
-				elem.checked = false;
-			}
-			elem.onclick = function () {
-				var _list = $get(controller.name).get(name);
-				var v = R.attr($(this),  "checkedValue" );
-				if( v == null ) alert("checkedValue in checkbox must be specified","Error");
-				if(this.checked) {
-					_list.push( v );
+			if( checkedValue ) {
+				if( c.find( function(o) { return (o==checkedValue ) } ) !=null) {
+					elem.checked = true;
 				}
 				else {
-					_list.removeAll( function(o) { return (o == v) } );
+					elem.checked = false;
 				}
 			}
+			else {
+				var uncheckedValue = R.attr($(elem), "uncheckedValue");
+				if( c.find( function(o) { return (o==uncheckedValue ) } ) !=null) {
+					elem.checked = false;
+				}
+				else {
+					elem.checked = true;
+				}
+			}
+			$(elem).bind('change', function () {
+				var _list = $get(controller.name).get(name);
+				var v = R.attr($(this),  "checkedValue" );
+				if(v) {
+					if(this.checked) {
+						_list.push( v );
+					}
+					else {
+						_list.removeAll( function(o) { return (o == v) } );
+					}
+				}
+				else {	
+					v = R.attr($(this),  "uncheckedValue" );
+					if(this.checked) {
+						_list.removeAll( function(o) { return (o == v) } );
+					}
+					else {
+						_list.push( v );
+					}
+				}	
+				if(v==null) alert("checkedValue or uncheckedValue in checkbox must be specified","Error");
+			});
 		}
 		catch(e) {}
 	}
@@ -845,11 +869,11 @@ BindingUtils.handlers.input_checkbox = function(elem, controller, idx ) {
 			isChecked = true;
 		}
 		elem.checked = isChecked;
-		elem.onclick = function () {
+		$(elem).bind('change', function () {
 			var v = (R.attr($(this),  "checkedValue" )==null) ? true : R.attr($(this),  "checkedValue" );
 			var uv = (R.attr($(this),  "uncheckedValue" )==null) ? false : R.attr($(this),  "uncheckedValue" );
 			$get(controller.name).set(name, (this.checked) ? v : uv );
-		}
+		});
 	}
 }
 
@@ -1013,6 +1037,7 @@ BindingUtils.handlers.input_file = function( elem, controller, idx ) {
 	var labelExpr =  R.attr(infile, 'expression');
 	var name =       R.attr(infile, 'name');
 	var fieldValue = controller.get(name);
+	var params =     R.attr(infile, 'params');
 	
 	var multiFile =  fieldValue instanceof Array;
 
@@ -1141,11 +1166,24 @@ BindingUtils.handlers.input_file = function( elem, controller, idx ) {
 	}
 
 	function createForm( target, input ) {
-		return $('<form method="post" enctype="multipart/form-data"></form>')
-			    .attr({ 'target': target, 'action': R.attr(infile, 'url') })
-			    .append( input )
-			    .append( '<input type="hidden" name="file_id" value="' +target+ '"/>' )
-			    .hide();
+		var form = $('<form method="post" enctype="multipart/form-data"></form>')
+			       .attr({ 'target': target, 'action': R.attr(infile, 'url') })
+			       .append( input )
+			       .append( '<input type="hidden" name="file_id" value="' +target+ '"/>' )
+			       .hide();
+		if( params ) {
+			var txt = params.evaluate( controller.code );
+			var p = eval('('+txt+')');
+			if( p ) {
+				for(var i in p) {
+					$('<input type="hidden"/>')
+					 .attr('name', i).val(p[i])
+					 .appendTo(form);
+				}
+			}
+		}
+				   
+		return form;
 	}
 
 	//-- utility inner class for file status pulling --
@@ -1574,7 +1612,7 @@ function DefaultTableModel() {
 	function doRefresh( fetch ) {
 		if( fetch == true ) {
 			if( _dataModel && $.isFunction( _dataModel.fetchList ) ) {
-				var result = _dataModel.fetchList( _listParam );
+				var result = _dataModel.fetchList( _listParam || {} );
 				_this.setList( result );
 				return;
 			}
@@ -2433,8 +2471,8 @@ var Scroller = new function(){
 var MsgBox = {
 	/*
 	 * interfaces:
-	 *  - confirm(msg, title, callback)
-	 *  - confirm(msg, callback)
+	 *  - MsgBox.confirm(msg, title, callback)
+	 *  - MsgBox.confirm(msg, callback)
 	 */
 	"confirm": function(msg, arg1, arg2) {
 		var fn = arg2, title = '';
@@ -2450,9 +2488,7 @@ var MsgBox = {
 				'Ok' : function(){
 					$(this).dialog('close');
 					try { fn(); }
-					catch(e) {
-						MsgBox.error( e.message );
-					}
+					catch(e) { MsgBox.error( e.message ); }
 				},
 				'Cancel' : function() {
 					$(this).dialog('close');
@@ -2460,24 +2496,50 @@ var MsgBox = {
 			}
 		});
 	},
-	"error": function(msg, title) {
+	/*
+	 * interfaces:
+	 *  - MsgBox.error(msg, title, callback)
+	 *  - MsgBox.error(msg, callback)
+	 */
+	"error": function(msg, arg1, arg2) {
+		var fn = arg2, title = '';
+		if( typeof arg1 == 'function' )
+			fn = arg1;
+		else
+			title = arg1;
+		
 		MsgBox.showDialog(msg, 'ui-icon-alert', {
 			title: title || 'Error', 
 			modal: true, 
 			buttons:{
 				'Close' : function() {
 					$(this).dialog('close');
+					try { fn(); }
+					catch(e) { MsgBox.error( e.message ); }
 				}
 			}
 		});
 	},
-	"alert": function(msg, title) {
+	/*
+	 * interfaces:
+	 *  - MsgBox.alert(msg, title, callback)
+	 *  - MsgBox.alert(msg, callback)
+	 */
+	"alert": function(msg, arg1, arg2) {
+		var fn = arg2, title = '';
+		if( typeof arg1 == 'function' )
+			fn = arg1;
+		else
+			title = arg1;
+	
 		MsgBox.showDialog(msg, 'ui-icon-info', {
 			title: title || 'Information', 
 			modal: true, 
 			buttons:{
 				'Close' : function() {
 					$(this).dialog('close');
+					try { fn(); }
+					catch(e) { MsgBox.error( e.message ); }
 				}
 			}
 		});

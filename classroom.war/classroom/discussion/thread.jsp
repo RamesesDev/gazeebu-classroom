@@ -71,10 +71,10 @@
 						return o;
 					}
 					
-					this.detailsBtnCaption = 'Hide Details';
+					this.detailsShown = true;
 					this.toggleDetails = function() {
 						$('#thread-details').toggle('slide', {direction:'up'});
-						this.detailsBtnCaption = (this.detailsBtnCaption=='Show Details'? 'Hide Details' : 'Show Details');
+						this.detailsShown = !this.detailsShown;
 					}
 					
 					//==== topic
@@ -259,11 +259,6 @@
 				Edit
 			</button>
 		</c:if>
-		<span r:context="thread" r:type="label">
-			<button r:context="thread" r:name="toggleDetails" title="Show discussion thread details">
-				#{detailsBtnCaption}
-			</button>
-		</span>
 	</jsp:attribute>
 
 	<jsp:body>
@@ -292,6 +287,17 @@
 			<div class="clear"></div>
 			<br/>
 		</div>
+		<div>
+			<span r:context="thread" r:type="label">
+				<span class="wingdings" r:context="thread" r:visibleWhen="#{detailsShown}">&#217;</span>
+				<span class="wingdings" r:context="thread" r:visibleWhen="#{!detailsShown}">&#218;</span>
+				<a r:context="thread" r:name="toggleDetails" title="#{detailsShown? 'Hide' : 'Show'} discussion thread details">
+					#{detailsShown? 'Hide' : 'Show'} Details
+				</a>
+			</span>
+		</div>
+		
+		<div class="hr"></div>
 		
 		<jsp:include page="thread/topic.jsp"/>
 		
