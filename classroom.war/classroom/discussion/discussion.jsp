@@ -48,11 +48,12 @@
 					fetchList: function( p, last ){
 						var m = {classid: self.classid};
 						if(last) m.lastmsgid = last.objid; 
-						var list =  svc.getThreads( m );
-						if(list.length==0) {
-							self.eof = "true";
-						}	
-						return list;
+						svc.getThreads( m, function( list ){
+							if(list.length==0) {
+								self.eof = "true";
+							}
+							self.listModel.setList( list );
+						});
 					}
 				}
 				

@@ -16,11 +16,15 @@ function MessageServiceClient( _msgtype, _channelid, _threadid, _onMsgCallback )
 			m.msgtype = self.msgtype;
 			if( self.threadid ) m.threadid = self.threadid;  
 			if(last) m.lastmsgid = last.objid; 
-			var list =  svc.getMessages( m );
-			if(list.length==0) {
-				self.eof = "true";
-			}	
-			return list;
+			svc.getMessages( m, function(list){
+				if(list.length==0) {
+					self.eof = "true";
+				}	
+				if(!last)
+					self.messageList.setList( list );
+				else
+					self.messageList.appendAll( list );
+			});
 		},
 		showComments: function() {
 			var selected = this.getSelectedItem();
@@ -52,7 +56,9 @@ function MessageServiceClient( _msgtype, _channelid, _threadid, _onMsgCallback )
 	
 	this.commentList = {
 		fetchList: function(o) {
-			return svc.getResponses({objid: self.parentid});
+			svc.getResponses({objid: self.parentid}, function(list){
+				self.commentList.setList( list );
+			});
 		}
 	};
 	
@@ -62,8 +68,11 @@ function MessageServiceClient( _msgtype, _channelid, _threadid, _onMsgCallback )
 			return this.commentHandlers[resptype];
 			
 		this.commentHandlers[resptype] = new (function(type, order){
+			var _self = this;
 			this.fetchList = function(o) {
-				return svc.getResponses({objid:self.parentid, resptype:type, orderby: order});
+				svc.getResponses({objid:self.parentid, resptype:type, orderby: order}, function(list){
+					_self.setList( list );
+				});
 			};
 		})(resptype, orderby);
 		return this.commentHandlers[resptype];

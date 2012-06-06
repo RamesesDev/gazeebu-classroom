@@ -251,10 +251,12 @@
 	
 	<jsp:attribute name="actions">
 		<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
+			<!--
 			<button r:context="" r:name="" title="Publish to bulletin" 
 			        onclick="MsgBox.alert('This feature is not yet implemented.');">
 				Publish
 			</button>
+			-->
 			<button r:context="thread" r:name="editThread" title="Edit discussion thread">
 				Edit
 			</button>
