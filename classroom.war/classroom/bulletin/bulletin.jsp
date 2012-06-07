@@ -44,6 +44,10 @@
 					client.respond( this.selectedMessage.objid, {message: this.comment});
 					this.comment = '';
 				}
+				
+				this.editClass = function() {
+					location.hash = 'classinfo:classinfo';
+				}
 			}
 		);
 	</jsp:attribute>
@@ -53,21 +57,23 @@
 		<button r:context="classroom" r:name="subscribeSMS">
 			Subscribe SMS
 		</button>
-		<button>
-			View Course Syllabus
-		</button>
+		<c:if test="${CLASS_INFO.status == 1}">
+			<button r:context="classroom" r:name="deactivateClass">
+				Deactivate Class
+			</button>
+		</c:if>
 	</jsp:attribute>
 	
 	<jsp:attribute name="rightpanel">
 		<div>
-			<h3 class="clearfix">
-				Class Profile
+			<div class="clearfix">
+				<span class="sec-title">Class Profile</span>
 				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
 					<span class="right">
-						<a href="#">Edit</a>
+						<a r:context="bulletin" r:name="editClass">Edit</a>
 					</span>
 				</c:if>
-			</h3>
+			</div>
 			<div class="hr"></div>
 			<div style="padding-left: 5px;">
 				<h4>Class Name:</h4>
@@ -82,16 +88,16 @@
 		</div>
 		<br/>
 		<div>
-			<h3>Class Members</h3>
+			<div class="sec-title">Class Members</div>
 			<div class="hr"></div>
 			<ui:userimagepanel 
 				context="classroom" items="classInfo.members" 
 				varname="item" usersmap="usersIndex" 
-				onmouseover="$ctx('classroom').showMemberInfo(this,'#{item.objid}',{offset:{x:0,y:0}})"
+				onmouseover="$ctx('classroom').showMemberInfo(this,'#{item.objid}',{offset:{x:0,y:0}, location:'bottom right'})"
 				imagewidth="20px"
 				/>
 		</div>
-		<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+		<c:if test="${CLASS_INFO.usertype == 'teacher' and CLASS_INFO.status == 1}">
 			<div class="hr"></div>	
 			<div class="align-r">
 				<button r:context="classroom" r:name="inviteStudents">

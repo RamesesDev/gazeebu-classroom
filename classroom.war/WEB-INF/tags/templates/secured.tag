@@ -21,6 +21,25 @@
 	%>
 </c:if>
 
+<c:if test="${!empty SESSIONID and empty SESSION_INFO}">
+	<s:invoke service="SessionService" method="getInfo" params="${SESSIONID}" var="SESSION_INFO"/>
+	<c:if test="${empty SESSION_INFO}">
+	<%		
+		String uri = request.getRequestURI();
+		String qs = request.getQueryString();
+		if( qs != null )
+		uri = uri + "?" + qs;
+		
+		//remove the cookie
+		Cookie cookie = new Cookie("sessionid", "");
+		cookie.setMaxAge(0);
+		response.addCookie( cookie );
+		
+		response.sendRedirect(request.getContextPath() + "/authenticate.jsp?u=" + java.net.URLEncoder.encode(uri));
+	%>
+	</c:if>
+</c:if>
+
 <%
 
 //get the app version
@@ -196,11 +215,11 @@ request.setAttribute("APP_VERSION", application.getInitParameter("app.version"))
 				);
 				
 				//calculate feedback box position
-				$(window).load(function(){
-					var fb = $('#feedback').css('opacity', 0).show();
+				$(window).ready(function(){
+					var fb = $('#feedback').show();//.css('opacity', 0).show();
 					var box = fb.find('.box');
 					fb.css({left: -(box[0].offsetWidth+3)})
-					  .animate({opacity: 1});
+					  //.animate({opacity: 1});
 				});
 			</script>
 			<table id="feedback" style="display:none">

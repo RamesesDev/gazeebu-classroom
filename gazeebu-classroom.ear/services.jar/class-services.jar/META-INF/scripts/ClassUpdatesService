@@ -1,0 +1,26 @@
+import com.rameses.annotations.*;
+
+/***
+* This class handles management of classes.
+*/
+public class ClassService {
+
+	@PersistenceContext("main")
+	def em
+	
+	@Service('DateService')
+	def dateSvc
+	
+	@Env
+	def env
+	
+	@ProxyMethod
+	public def getUpdates( param ) {
+		def qp = [userid: env.userid, lastdtposted: dateSvc.serverDate];
+		if( param._lastitem ) {
+			qp.lastdtposted = param._lastitem.dtposted
+		}
+		def qry = em.sqlContext.createNamedQuery('class_updates:get-updates').setParameters(qp)
+		return qry.resultList
+	}
+}

@@ -11,7 +11,7 @@
 				var self = this;
 				
 				this.saveHandler;
-				this.classinfo = {}	
+				this.classinfo = {info:{}};
 				this.editmode = "new";
 				this._controller;
 				

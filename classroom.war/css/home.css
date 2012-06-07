@@ -1,11 +1,12 @@
 .menutitle { 
-			font-family:verdana;
-			font-weight:bold;
-			text-transform:underline;
-			font-size:11px;
-			padding-top:15px;
-			color: darkslateblue;
-		}
+	font-family: arial;
+	font-weight:bold;
+	text-transform:underline;
+	font-size:11px;
+	padding-top:15px;
+	color: darkslateblue;
+	letter-spacing: -0.5px;
+}
 .menuitem td{
 	font-size:11px;font-family:verdana;
 	padding:1px;
@@ -30,4 +31,20 @@
 	padding:1px;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
+}
+
+.invitation-box {
+	padding: 10px;
+	background: #D7D7E9;
+	box-shadow: 0 2px 5px #BEBEBE;
+	border: solid 1px #CFCFCF;
+	margin-bottom: 20px;
+}
+
+.invitation-box .title {
+	color: #FD2B2B;
+	padding: 5px 0;
+	font-weight: bold;
+	font-size: 1.3em;
+	border-bottom: solid 1px #C9C6C6;
 }

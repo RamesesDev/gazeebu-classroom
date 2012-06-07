@@ -115,19 +115,6 @@ class ClassroomService {
 		}
 	}
 	
-	/*
-	@ProxyMethod
-	public void addStudent(def classid, def student) {
-		def cs = [:];
-		cs.objid = "CLSMMBRS" + new java.rmi.server.UID();
-		cs.usertype = "student";
-		cs.userid = student.objid;
-		cs.classid = classid;	
-		em.create( "class_membership", cs );
-		cacheService.remove( classid );
-	}
-	*/
-	
 	@ProxyMethod
 	public void addMember(def o) {
 		try {

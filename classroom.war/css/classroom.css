@@ -2,13 +2,6 @@
 
 .left-content span.caption { color: #777; }
 
-.menutitle { 
-	font-family: arial;
-	font-weight:bold;
-	text-decoration:underline;
-	padding-top:15px;
-	color: darkslateblue;
-}
 
 .menu td {
 	line-height: 1.45em;
@@ -55,11 +48,12 @@
 	color: darkslateblue;
 	font-size:12px;
 	font-weight:bold;
-}
-
-.message .sendername {
 	text-transform: capitalize;
 }
+
+.message .profile { overflow: hidden; }
+.message .dt-posted { font-size:11px;color:gray;font-weight:normal; }
+.message .content { padding-top:5px;padding-bottom:5px;padding-left:4px; }
 
 .message .notifycount {
 	background-color: #f00;
@@ -113,6 +107,7 @@
 }
 
 .message .comment .hint { font-size: 12px; }
+
 
 
 /*--  member menu ---*/
@@ -224,7 +219,7 @@ a.mbr-btn-open
 
 /*-- user image panel --*/
 ul.userimgpanel { margin: 2px 3px; padding: 0; }
-ul.userimgpanel li { margin: 0; margin-left: 5px; padding: 0; list-style: none; }
+ul.userimgpanel li { margin: 0 0 3px 3px; padding: 0; list-style: none; overflow: hidden; }
 
 
 

@@ -7,6 +7,7 @@
 <t:secured-master>
 	<jsp:attribute name="head">
 		<link href="${pageContext.servletContext.contextPath}/css/home.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
+		<link href="${pageContext.servletContext.contextPath}/css/classroom.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
 		<link href="${pageContext.servletContext.contextPath}/js/ext/richtext/richtext.css?v=${APP_VERSION}" rel="stylesheet" />
 		<script src="${pageContext.servletContext.contextPath}/js/ext/richtext/richtext.js?v=${APP_VERSION}"></script>
 	</jsp:attribute>
@@ -16,7 +17,6 @@
 		$register({id: "classroom_info", page:"home/classroom_info.jsp", context:"classroom_info"});
 		$register({id: "new_class", page:"new_class/new_class.jsp", context:"new_class", title:"New Classroom", options: {width:520,height:430}});
 		$register({id: "join_class", page:"join_class.jsp", context:"join_class", title:"Join a class", options: {width:500,height:400}});
-		$register({id: "#classmenu", context:"home", options: {position:{at:"right bottom", my:"right top"}} });
 		$register({id: "getting_started", page:"home/getting_started.jsp", context:"getting_started", title:"Getting Started with Gazeebu",options:{width:650,height:450}});
 		$register({id: "changepass", page:"home/changepass.jsp", context:"changepass", title:"Change Password",options:{width:500,height:250}});
 
@@ -41,36 +41,23 @@
 						this._controller.navigate( new PopupOpener('changepass',{entity: {userid: userid}}) );
 					}
 				}
+				
 				this.addClass = function() {
 					var saveHandler = function() {
 						self.classListModel.refresh(true);
 					}
 					return new PopupOpener( "new_class", {saveHandler: saveHandler } );
 				}	
+				
 				this.joinClass = function() {
 					return new PopupOpener( "join_class" );
-				}	
+				}
+				
 				this.classListModel = {
 					fetchList : function(o) {
 						return svc.getOpenClasses({})
 					}
 				}
-				
-				this.selectedClass;
-				this.showClassMenu = function() {
-					return new DropdownOpener("#classmenu");
-				}
-				
-				this.activateClass = function() {
-					alert('activate ' + this.selectedClass.name );
-					return "_close";
-				}
-
-				this.editClass = function() {
-					alert('edit class ' + this.selectedClass.name );
-					return "_close";
-				}
-				
 			}
 		);
 	</jsp:attribute>
@@ -128,30 +115,23 @@
 					<c:if test="${fn:contains(SESSION_INFO.roles,'teacher')}">
 						<tr>
 							<td colspan="3">
-								<input type="button" r:context="home" r:name="addClass" 
-									style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
-									value="Add Class"/>
+								<button r:context="home" r:name="addClass">
+									Add Class
+								</button>
 							</td>
 						</tr>
 					</c:if>
 					<c:if test="${fn:contains(SESSION_INFO.roles,'student')}">
 						<tr>
 							<td colspan="3">
-								<input type="button" r:context="home" r:name="joinClass" 
-									style="font-size:11px;font-weight:bolder;border:1px solid lightgrey" 
-									value="Join Class"/>
+								<button r:context="home" r:name="joinClass">
+									Join Class
+								</button>
 							</td>		
 						</tr>	
 					</c:if>
 				</tfoot>	
 			</table>
 		</div>
-		
-		<div id="classmenu" style="display:none;">
-			<a r:context="home" r:name="activateClass">Activate</a>
-			<br>
-			<a r:context="home" r:name="editClass">Edit</a>
-		</div>
-		
 	</jsp:body>
 </t:secured-master>

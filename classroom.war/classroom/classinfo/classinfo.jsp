@@ -4,7 +4,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 <%@ page import="java.util.*" %>
 
-<s:invoke service="ClassroomService" method="getCurrentUserInfo" params="${param['classid']}" var="CLASS_INFO"/>
+<s:invoke service="ClassroomService" method="getCurrentUserInfo" params="${param['classid']}" var="USER_INFO"/>
 <c:set var="RES_PATH" value="${pageContext.servletContext.contextPath}/classroom/classinfo/syllabus_resource.jsp"/>
 
 <t:content title="Class Profile">
@@ -104,8 +104,15 @@
 	</jsp:attribute>
 	
 	<jsp:attribute name="actions">
-		<c:if test="${CLASS_INFO.usertype == 'teacher'}">
-			<input class="button" type="button" r:context="classroom" r:name="inviteStudents" value="Invite Students" />
+		<c:if test="${USER_INFO.usertype == 'teacher'}">
+			<button r:context="classroom" r:name="inviteStudents">
+				Invite Students
+			</button>
+			<label r:context="classinfo" r:visibleWhen="#{classinfo.status == 1}">
+				<button r:context="classroom" r:name="deactivateClass">
+					Deactivate Class
+				</button>
+			</label>
 		</c:if>
 	</jsp:attribute>
 	
@@ -115,7 +122,7 @@
 				<span class="sectiontitle">
 					Class Information
 				</span>
-				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+				<c:if test="${USER_INFO.usertype == 'teacher'}">
 					<span class="controls">
 						<a r:context="classinfo" r:name="edit">Edit</a>
 					</span>
@@ -129,6 +136,10 @@
 				<tr>
 					<td valign="top">Description</td>
 					<td><label r:context="classinfo">#{classinfo.description? classinfo.description : '-'}</label></td>
+				</tr>
+				<tr>
+					<td valign="top">No. of Units</td>
+					<td><label r:context="classinfo">#{classinfo.info.units}</label></td>
 				</tr>
 				<tr>
 					<td valign="top">Room Schedule</td>
@@ -159,11 +170,11 @@
 							View
 						</a>
 					</label>
-					<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+					<c:if test="${USER_INFO.usertype == 'teacher'}">
 						| <a r:context="classinfo" r:name="remove">Remove</a>
 					</c:if>
 				</span>
-				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+				<c:if test="${USER_INFO.usertype == 'teacher'}">
 					<div r:context="classinfo" r:visibleWhen="#{!syllabus}">
 						<input type="file"
 							  r:context="classinfo" 
@@ -179,14 +190,14 @@
 				<span class="sectiontitle">
 					Welcome Message
 				</span>
-				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+				<c:if test="${USER_INFO.usertype == 'teacher'}">
 					<span class="controls">
 						<a r:context="classinfo" r:name="editWelcome">Edit</a>
 					</span>
 				</c:if>
 			</div>
 			<div style="padding-left:20px;">
-				<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+				<c:if test="${USER_INFO.usertype == 'teacher'}">
 					<p>
 						Write a welcome message for your students.
 					</p>

@@ -56,11 +56,11 @@
 		<td align="left" colspan="2" valign="top" style="${not empty title ? 'border-top:1px solid lightgrey;' : ''} padding-top:10px;">
 			<table width="100%" cellpadding="0" cellspacing="0">
 				<tr>
-					<td valign="top">
+					<td valign="top" class="page-body">
 						<jsp:doBody/>	
 					</td>
 					<c:if test="${! empty rightpanel}">
-						<td valign="top" width="${! empty rightpanelwidth ? rightpanelwidth : 150}">
+						<td valign="top" width="${! empty rightpanelwidth ? rightpanelwidth : 150}" class="right-panel">
 							<jsp:invoke fragment="rightpanel"/>
 						</td>
 					</c:if>	

@@ -19,6 +19,12 @@
 				this.handler;
 				this.classinfo;
 				
+				this.onload = function() {
+					if( !this.classinfo.info ) {
+						this.classinfo.info = {};
+					}
+				}
+				
 				this.save = function() {
 					var svc = ProxyService.lookup('ClassService');
 					svc.update(this.classinfo);
@@ -42,6 +48,10 @@
 			<tr>
 				<td valign="top">Short Description</td>
 				<td><textarea r:context="edit_info" r:name="classinfo.description" style="width:250px;height:50px;"></textarea></td>
+			</tr>
+			<tr>
+				<td valign="top">No. of Units</td>
+				<td><input type="text" r:context="edit_info" r:name="classinfo.info.units" size="4"/></td>
 			</tr>
 			<tr>
 				<td valign="top">Room Schedule</td>

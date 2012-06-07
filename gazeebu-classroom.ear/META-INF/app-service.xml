@@ -1,4 +1,9 @@
 <server>
+  <mbean code="org.jboss.varia.property.SystemPropertiesService" name="rameses:sancarlos=Service,name=SystemProperties">
+    <attribute name="URLList">
+      ./apps/gazeebu-classroom.ear/META-INF/app.conf
+    </attribute>
+  </mbean>
   
   <mbean code="com.rameses.server.cluster.ClusterService" name="rameses:gazeebu-classroom=ClusterService">
 	<depends proxy-type="attribute">jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
@@ -44,15 +49,15 @@
     <attribute name="User">gazeebu</attribute>
     <attribute name="Password">gazeebu1234</attribute>
     <attribute name="Configuration">
-      <configuration>
-		<property name="mail.smtp.starttls.enable" value="true"/>  
-        <property name="mail.transport.protocol" value="smtp"/>
-        <property name="mail.smtp.host" value="smtp.gmail.com"/>
-        <property name="mail.smtp.port" value="587"/>
-        <property name="mail.from" value="gazeebu@gmail.com"/>
-        <property name="mail.smtp.auth" value="true"/>  
-        <property name="mail.debug" value="false"/>
-      </configuration>
+		<configuration>
+			<property name="mail.smtp.starttls.enable" value="true"/>  
+			<property name="mail.transport.protocol" value="smtp"/>
+			<property name="mail.smtp.host" value="smtp.gmail.com"/>
+			<property name="mail.smtp.port" value="587"/>
+			<property name="mail.from" value="gazeebu@gmail.com"/>
+			<property name="mail.smtp.auth" value="true"/>  
+			<property name="mail.debug" value="false"/>
+		</configuration>
     </attribute>
     <depends>jboss:service=Naming</depends>
   </mbean>

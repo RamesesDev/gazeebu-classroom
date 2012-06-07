@@ -17,7 +17,7 @@ and not exists (select * from class_membership where classid=$P{classid} and use
 select cm.classid, cm.userid as teacherid, concat(u.lastname, ', ', u.firstname ) as name, c.name as classname, c.schedules as schedules, u.profile  
 from class_membership cm 
 inner join userprofile u on cm.userid=u.objid 
-inner join class c on cm.classid = c.objid 
+inner join class c on cm.classid = c.objid and c.status = 1 
 where cm.usertype='teacher' 
 and concat(u.lastname, ', ', u.firstname ) like $P{name} 
 and not exists (select * from class_membership where classid=c.objid and userid=$P{userid}) 

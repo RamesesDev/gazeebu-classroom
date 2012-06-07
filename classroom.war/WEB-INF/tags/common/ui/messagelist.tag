@@ -195,7 +195,7 @@
 			</td>
 			<td valign="top" id="sendername"  class="msg-divider" style="padding-left:4px;">
 				#{users[item.userid].lastname}, #{users[item.userid].firstname}	
-				<span style="font-size:11px;color:gray;font-weight:normal;"> - Posted #{item.dtposted}</span>
+				<span class="dt-posted"> - Posted #{item.dtposted}</span>
 			</td>
 			<td align="right" style="padding-right:2px;"  class="msg-divider">
 				<c:if test="${canRemove}">
@@ -204,7 +204,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td valign="top" colspan="2" style="padding-top:5px;padding-bottom:5px;padding-left:4px;">
+			<td valign="top" colspan="2" class="content">
 				#{item.message}	
 			</td>
 		</tr>

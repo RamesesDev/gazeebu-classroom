@@ -22,16 +22,37 @@
 	
 	<jsp:attribute name="head">
 		<script type="text/javascript">
-		$put("main", 
+		$put(
+			"main", 
 			new function() {
 				
 				var svc = ProxyService.lookup( "ClassInvitationService" );
+				var updatesSvc = ProxyService.lookup( "ClassUpdatesService" );
+				var self = this;
+				
 				this._controller;
 				
+				this.hasInvitations = false;
+				
 				this.listModel = {
-					rows: 10,
 					fetchList: function(o) {
-						return svc.getInvitations(o);
+						svc.getInvitations(o, function(list){
+							self.listModel.setList(list);
+							self.hasInvitations = (list && list.length > 0)? true : false;
+							self._controller.refresh();
+						});
+					}
+				};
+				
+				this.updatesListModel = {
+					eof: false,
+					fetchList: function(o, last) {
+						o._lastitem = last;
+						updatesSvc.getUpdates(o, function(list){
+							self.updatesListModel.appendAll(list);
+							self.updatesListModel.eof = (list && list.length > 0)? false : true;
+							self._controller.refresh();
+						});
 					}
 				};
 				
@@ -51,10 +72,13 @@
 				}	
 
 				this.ignore = function() {
-					if(confirm("You are about to discard this invitation. Continue?")) {
-						svc.ignore( {classid: this.selectedInvite.classid, userid: this.selectedInvite.userid, usertype:this.selectedInvite.usertype}  );
-						this.listModel.refresh(true);
-					}
+					MsgBox.confirm(
+						"You are about to discard this invitation. Continue?", 
+						function() {
+							svc.ignore( {classid: self.selectedInvite.classid, userid: self.selectedInvite.userid, usertype:self.selectedInvite.usertype}  );
+							self.listModel.refresh(true);
+						}
+					);
 				}	
 				
 			}
@@ -67,32 +91,57 @@
 	</jsp:attribute>
 
 	<jsp:attribute name="rightpanel">
-		<div style="font-family:helvetica;font-size:1.3em;color:red;font-weight:bolder;">Deals for the day</div>
-		<br>
-		<i>No deals today in your area</i>
+		
 	</jsp:attribute>
 	
 	<jsp:body>
-		<table r:context="main" r:model="listModel" r:varName="item" r:name="selectedInvite" cellpadding="0" cellspacing="0" width="80%">
+		<div class="invitation-box" r:context="main" r:visibleWhen="#{hasInvitations}">
+			<div class="title">Classroom Invitation(s)</div>
+			<table r:context="main" r:model="listModel" r:varName="item" r:name="selectedInvite" 
+			       cellpadding="0" cellspacing="0" width="100%" class="message">
+				<tr>
+					<td class="msg-divider sendername">#{item.sendername}</td> 
+					<td class="msg-divider" align="right">
+						<button r:context="main" r:name="accept">Accept</button>
+						<button r:context="main" r:name="ignore">Not Now</button>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2"><b>Class:</b> #{item.classname} / #{item.schedules}</td>
+				</tr>
+				<tr r:visibleWhen="#{item.msg ? true : false}">
+					<td colspan="2">#{item.msg? item.msg : ''}</td>
+				</tr>
+			</table>
+		</div>
+		
+		<table r:context="main" r:model="updatesListModel" r:varName="item" r:name="selectedInvite" 
+		       cellpadding="0" cellspacing="0" width="100%" class="message">
 			<tr>
-				<td style="font-size:14px;color:darkslateblue;font-weight:bolder;" class="msg-divider">#{item.sendername}</td> 
-				<td valign="top" rowspan="3"  class="msg-divider">
-					<input type="button" r:context="main" r:name="accept" value="Accept" /> 
-					<input type="button" r:context="main" r:name="ignore" value="Not Now" /> 
+				<td valign="top" width="50px">
+					<div class="profile" style="width: 40px; height: 40px;">
+						<img src="${pageContext.request.contextPath}/profile/photo.jsp?id=#{item.userid}&t=thumbnail"
+							 width="40px"/>
+					</div>
+				</td>
+				<td valign="top">
+					<span class="sendername">
+						#{item.firstname} #{item.middlename} #{item.lastname}
+					</span>
+					<span class="dt-posted"> - Posted #{item.dtposted}</span>
+					<br/>
+					posted a #{item.msgtype} message on 
+					<a href="classroom.jsp?classid=#{item.classid}">#{item.classname}</a>
 				</td>
 			</tr>
 			<tr>
-				<td valign="top"><b>Class:</b> #{item.classname} #{item.schedules}</td>
-			</tr>
-			<tr>
-				<td valign="top">#{item.msg? item.msg : ''}</td>
+				<td colspan="2">
+					<div class="message-hr"></div>
+					<br/>
+				</td>
 			</tr>
 		</table>
-		<!--
-		<msg:list context="bulletin" name="selectedMessage"
-				  postCommentAction="postComment" commentName="comment"
-				  model="listModel" usersMap="$ctx('classroom').usersIndex"/>
-		-->
+		<a r:context="main" r:name="updatesListModel.fetchNext" r:visibleWhen="#{updatesListModel.eof==false}">View More</a>
 	</jsp:body>
 	
 </t:content>

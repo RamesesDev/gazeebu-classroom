@@ -125,6 +125,16 @@
 						MsgBox.alert('This feature is not yet implemented.');
 					}
 					
+					this.deactivateClass = function() {
+						MsgBox.confirm(
+							'Are you sure you want to deactivate this class?',
+							function() {
+								ProxyService.lookup("ClassService").deactivate(classid);
+								self._controller.reload();
+							}
+						);
+					}
+					
 					this.onload = function() {
 						//redirecto home home.jsp if you do not belong to this class
 						if( !'${CLASS_USER_INFO}' ) {

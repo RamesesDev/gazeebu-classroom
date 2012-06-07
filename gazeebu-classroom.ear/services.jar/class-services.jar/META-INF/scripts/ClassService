@@ -14,12 +14,15 @@ public class ClassService {
 	@Service("ClassroomService")
 	def classroomSvc;
 	
+	@Resource("CacheService")
+	def cacheService;
+	
 	@ProxyMethod
 	public def create( def o ){
 		o.objid = "CLASS" + new java.rmi.server.UID();
 		o.classurl = o.name.toLowerCase().trim().replaceAll( "\\s{1,}", "_"); 
 		o.msgcount = 0;
-		o.status = 0;
+		o.status = 1;
 		def m = [:];
 		m.objid = "CLSMMBR" + new java.rmi.server.UID();
 		m.classid = o.objid;
@@ -37,7 +40,7 @@ public class ClassService {
 		def userid = (user.userid) ? user.userid : env.userid;
 		if(!userid)
 			throw new Exception( "ClassService.getOpenClasses error. userid must be provided" );
-		return em.sqlContext.createQuery( 'select c.*,cm.usertype,cm.userid from class_membership cm inner join class c on cm.classid=c.objid where cm.userid=? and status=0')
+		return em.sqlContext.createQuery( 'select c.*,cm.usertype,cm.userid from class_membership cm inner join class c on cm.classid=c.objid where cm.userid=? and status=1')
 			.setParameter(1, userid ).resultList;
 	}
 
@@ -49,6 +52,7 @@ public class ClassService {
 	
 	@ProxyMethod
 	public def update( def o){
+		cacheService.remove(o.objid);
 		return em.update("class", o);
 	}
 	
@@ -57,4 +61,9 @@ public class ClassService {
 		return em.read('class', o);
 	}
 	
+	@ProxyMethod
+	public def deactivate( classid ) {
+		em.sqlContext.createExecutor('update class set status=0 where objid=?').setParameter(1, classid).execute();
+		cacheService.remove(classid);
+	}
 }
