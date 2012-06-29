@@ -17,6 +17,7 @@ public class ClassService {
 	@Resource("CacheService")
 	def cacheService;
 	
+	
 	@ProxyMethod
 	public def create( def o ){
 		o.objid = "CLASS" + new java.rmi.server.UID();
@@ -51,7 +52,7 @@ public class ClassService {
 	}
 	
 	@ProxyMethod
-	public def update( def o){
+	public def update( def o ){
 		cacheService.remove(o.objid);
 		return em.update("class", o);
 	}
@@ -66,4 +67,5 @@ public class ClassService {
 		em.sqlContext.createExecutor('update class set status=0 where objid=?').setParameter(1, classid).execute();
 		cacheService.remove(classid);
 	}
+	
 }

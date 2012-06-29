@@ -9,6 +9,7 @@ class LoginService {
 	@Service("SessionService")
 	def sessionService;
 	
+	
     @ProxyMethod
     public def login( def o ) {
 		def login = em.sqlContext.createQuery('select * from login where uid=$P{username}').setParameters(o).singleResult;
@@ -24,15 +25,16 @@ class LoginService {
 		//test first adding the roles.
 		def p = [:];
 		p.username = login.uid;	
-		p.userid = login.objid;	
+		p.userid = login.objid;
+		p.password = login.password;
 		
 		p.handler = [
 			servicename : 'UserProfileService',
 			method:       'getUserInfo',
-			params:       [[objid: login.objid]] as Object[]
+			params:       [[objid: login.objid]]
 		];
 		
-		def sessionid =  sessionService.register([username:p.userid, info:p]);
+		def sessionid =  sessionService.register( p );
 		p.sessionid = sessionid;
 		
 		return p;

@@ -8,6 +8,9 @@
 		<java>app-libs.jar</java>
 	</module>
 	<module>
+		<java>system-services.jar</java>
+	</module>
+	<module>
 		<java>services.jar</java>
 	</module>
 	<module>

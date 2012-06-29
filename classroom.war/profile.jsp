@@ -4,7 +4,7 @@
 <t:secured-master pageTitle="Profile">
 
 	<jsp:attribute name="head">
-		<link href="${pageContext.servletContext.contextPath}/profile/profile.css" type="text/css" rel="stylesheet" />
+		<link href="${pageContext.servletContext.contextPath}/css/profile.css" type="text/css" rel="stylesheet" />
 		<style>
 			.form-panel .section {
 				overflow: hidden;

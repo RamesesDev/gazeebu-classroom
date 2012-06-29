@@ -1,6 +1,9 @@
 import com.rameses.annotations.*;
 
-class SessionNotifierMessageHandler {
+class SessionNotifierMessageHandler 
+{
+	@PersistenceContext("main")
+	def em;
 	
 	@Service("SessionService")
 	def sessionService;
@@ -8,20 +11,21 @@ class SessionNotifierMessageHandler {
 	@Service("ClassroomService")
 	def classroomService;
 	
+	
     @After(pattern="MessageService.send*")
     public def broadcastMessage( def evt ) {
 		def r = evt.result;
 		
 		if( r.subscribers ) {
-			sessionService.notifyUser( r.userid, r );
+			sessionService.notifyUser( getUsername(r.userid), r );
 			r.subscribers.each {
-				sessionService.notifyUser( it.userid, r );
+				sessionService.notifyUser( getUsername(it.userid), r );
 			}
 		}
 		else if( r.channelid ){
 			def classroom = classroomService.getClassInfo( r.channelid );		
 			classroom.members.each {
-				sessionService.notifyUser( it.objid, r );
+				sessionService.notifyUser( getUsername(it.objid), r );
 			}
 		}
     }
@@ -30,16 +34,16 @@ class SessionNotifierMessageHandler {
     public def broadcastResponse( def evt ) {
 		def r = evt.result;
 		
-		sessionService.notifyUser( r.userid, r );
+		sessionService.notifyUser( getUsername(r.userid), r );
 		if( r.userid != r.parent.userid ) {
-			sessionService.notifyUser( r.parent.userid, r );
+			sessionService.notifyUser( getUsername(r.parent.userid), r );
 		}
 		
 		
 		if( r.subscribers && r.parent.privacy != 0 ) {
 			r.subscribers.each {
 				if( it.userid != r.userid && it.userid != r.parent.userid ) {
-					sessionService.notifyUser( it.userid, r );
+					sessionService.notifyUser( getUsername(it.userid), r );
 				}
 			}
 		}
@@ -47,7 +51,7 @@ class SessionNotifierMessageHandler {
 			def classroom = classroomService.getClassInfo( r.channelid );		
 			classroom.members.each {
 				if( it.objid != r.userid && it.objid != r.parent.userid ) {
-					sessionService.notifyUser( it.objid, r );
+					sessionService.notifyUser( getUsername(it.objid), r );
 				}
 			}
 		}
@@ -59,9 +63,13 @@ class SessionNotifierMessageHandler {
 		if(r.channelid) {
 			def classroom = classroomService.getClassInfo( r.channelid );		
 			classroom.members.each {
-				sessionService.notifyUser( it.objid, [msgtype:r.msgtype+"-removed", objid: r.objid, channelid: r.channelid ] );
+				sessionService.notifyUser( getUsername(it.objid), [msgtype:r.msgtype+"-removed", objid: r.objid, channelid: r.channelid ] );
 			}
 		}
+	}
+	
+	private def getUsername( objid ) {
+		return em.sqlContext.createQuery('select uid from login where objid=?').setParameter(1, objid).singleResult?.uid;
 	}
 	
 }

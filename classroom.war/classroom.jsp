@@ -1,6 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib tagdir="/WEB-INF/tags/templates" prefix="t" %>
-<%@ taglib tagdir="/WEB-INF/tags/common/ui" prefix="common" %>
+<%@ taglib tagdir="/WEB-INF/tags/common/ui" prefix="ui" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/server" prefix="s" %>
 <%@ taglib tagdir="/WEB-INF/tags/common/ui" prefix="u"%>
 <%@ page import="java.util.*" %>
@@ -17,14 +17,13 @@
 		<script src="${pageContext.servletContext.contextPath}/js/ext/textarea.js?v=${APP_VERSION}"></script>
 		
 		<script type="text/javascript">
-
 			$register({
 				id: "classroom:lookup_member", page:"classroom/lookup_member.jsp", 
 				context:"lookup_member", title:"Select Class Members", options: {height:500}
-			});		
+			});
 			$register({id: "#membermenu", context:"classroom"});
 			
-			<common:loadmodules name="classroom" role="${CLASS_INFO.usertype}"/>
+			<ui:loadmodules name="classroom" role="${CLASS_INFO.usertype}"/>
 			
 			$put("apps", 
 				new function() {
@@ -75,20 +74,19 @@
 						this.selectedMember = this.findMember(id);
 						options = options || {};
 						this.showMemberControls = (options.showControls != false);
-						memberInfo.offset = options.offset || {x: 20};
+						memberInfo.offset = options.offset || {x:5};
 						memberInfo.show(elem);
 					}
-
+					
 					//called by dropdown opener
 					this.selectedMember;
 					this.removeMember = function() {
 						if(this.selectedMember) {
-							if( this.selectedMember.status == 'online' ) throw new Error('Cannot remove online members.');
 							MsgBox.confirm(
 							  "You are about to remove <b class='capitalized'>" + this.selectedMember.lastname + ", " + this.selectedMember.firstname + "</b> from this class. Continue?",
 							  function() {
 								svc.removeMember( {userid: self.selectedMember.objid, classid: classid} );
-								self._controller.refresh();
+								location.reload();
 							  }
 							);
 						}
@@ -135,6 +133,10 @@
 						);
 					}
 					
+					this.editClass = function() {
+						location.hash = 'classinfo:classinfo';
+					}
+					
 					this.onload = function() {
 						//redirecto home home.jsp if you do not belong to this class
 						if( !'${CLASS_USER_INFO}' ) {
@@ -161,14 +163,6 @@
 						
 						//load the members
 						loadMembers();
-						
-						Session.handlers.classroom = function(o) {
-							if(o.classroom && o.classroom == classid ) {
-								loadMembers();
-								self.onlineMemberList.refresh(true);
-								self._controller.refresh();
-							}
-						}
 					}
 				}
 			);
@@ -215,10 +209,14 @@
 			<div r:context="classroom" r:type="label"
 				   class="clearfix" style="display:block">
 				<div class="left thumb" style="width:50px;height:50px;">
-					<img src="profile/photo.jsp?id=#{selectedMember.objid}&t=thumbnail&v=#{users[selectedMember.objid].info.photoversion}" width="50px"/>
+					<a href="#common:usermessage?objid=#{selectedMember.objid}">
+						<img src="profile/photo.jsp?id=#{selectedMember.objid}&t=thumbnail&v=#{users[selectedMember.objid].info.photoversion}" width="50px"/>
+					</a>
 				</div>
-				<div>
-					<span class="capitalized"><b>#{selectedMember.lastname}, #{selectedMember.firstname}</b></span>
+				<div class="user-info">
+					<a href="#common:usermessage?objid=#{selectedMember.objid}">
+						<span class="name capitalized"><b>#{selectedMember.lastname}, #{selectedMember.firstname}</b></span>
+					</a>
 					<br/>
 					<span class="caption">
 						<b>#{selectedMember.usertype} #{selectedMember.me? '(me)' : ''}</b>
@@ -242,20 +240,92 @@
 		</div>
 	</jsp:attribute>
 	
+	<jsp:attribute name="sidebar">
+		<div class="top-content scrollpane">
+			<div class="clearfix">
+				<table width="100%">
+					<td valign="middle">
+						<span class="section-title">Class Profile</span>
+					</td>
+					<td>
+						<c:if test="${CLASS_INFO.usertype == 'teacher'}">
+							<span class="right">
+								<button r:context="classroom" r:name="editClass">Edit</button>
+							</span>
+						</c:if>
+						<c:if test="${CLASS_INFO.usertype == 'teacher' and CLASS_INFO.status == 1}">
+							<div class="right">
+								<button r:context="classroom" r:name="inviteStudents">
+									Invite Students
+								</button>
+							</div>
+						</c:if>
+					</td>
+				</table>
+			</div>
+			<div class="hr"></div>
+			<div style="padding-left: 5px;">
+				<table>
+					<tr>
+						<th align="left">Class Name:</th>
+						<td>${CLASS_INFO.name}</td>
+					</tr>
+					<tr>
+						<th align="left">Description:</th>
+						<td>${CLASS_INFO.description}</td>
+					</tr>
+					<tr>
+						<th align="left">Schedule:</th>
+						<td>${CLASS_INFO.schedules}</td>
+					</tr>
+					<tr>
+						<th align="left">School:</th>
+						<td>${CLASS_INFO.school}</td>
+					</tr>
+				</table>
+				
+				<br/>
+				
+				<div>
+					<c:if test="${not empty CLASS_INFO.info.syllabus}">
+						<c:set var="ctxPath" value="${pageContext.servletContext.contextPath}"/>
+						<c:set var="RES_PATH" value="${ctxPath}/classroom/classinfo/syllabus_resource.jsp"/>
+						<c:set var="syllabus" value="${CLASS_INFO.info.syllabus}"/>
+						<img src="${ctxPath}/img/document.png" height="10px"/>
+						<a href="${RES_PATH}?t=vw&id=${syllabus.fileid}&fn=${syllabus.filename}&ct=${syllabus.content_type}" target="_blank">
+							View Course Syllabus
+						</a>
+					</c:if>	
+				</div>
+			</div>
+		</div>
+		
+		<div class="connections">
+			<jsp:include page="home/online-connections.jsp"/>
+		</div>
+	</jsp:attribute>
+	
 	<jsp:body>
 		<div class="left-content">
 			<table cellpadding="0" cellspacing="0">
 				<tr>
 					<td>
-						<img src="profile/photo.jsp?id=${SESSION_INFO.userid}&t=thumbnail&v=${SESSION_INFO.info.photoversion}"/>
+						<a href="#common:usermessage?objid=${SESSION_INFO.userid}">
+							<img src="profile/photo.jsp?id=${SESSION_INFO.userid}&t=thumbnail&v=${SESSION_INFO.info.photoversion}"/>
+						</a>
 					</td>
-					<td style="font-size:11px;padding-left:5px;">
-						${SESSION_INFO.lastname}, ${SESSION_INFO.firstname}<br>
-						<b>${CLASS_INFO.usertype}</b>
+					<td class="user-info">
+						<a href="#common:usermessage?objid=${SESSION_INFO.userid}">
+							<span class="name capitalized">${SESSION_INFO.lastname}, ${SESSION_INFO.firstname}</span>
+							<br>
+							<b>${CLASS_INFO.usertype}</b>
+						</a>
 					</td>
 				</tr>
 			</table>
-			<br>	
+			
+			<div class="hr"></div>
+			<br/>
 
 			<div r:context="apps" r:visibleWhen="true" style="display:none">
 				<table class="menu" r:context="apps" r:items="items" r:varName="item" width="100%" cellpadding="0" cellspacing="0">
@@ -269,29 +339,6 @@
 							</a>
 						</td>
 					</tr>
-				</table>
-				
-				<br>
-				<div class="hr"></div>
-				<h3>Online Members</h3>
-
-				<table r:context="classroom" r:model="onlineMemberList" r:name="selectedMember"
-					r:varStatus="stat" r:varName="item" width="95%" cellpadding="0" cellspacing="0">
-					<tbody>
-						<tr class="menu">
-							<td valign="top" width="16px;">
-								<img src="img/#{item.status}.png"/>
-							</td>
-							<td valign="top">
-								<a href="#common:usermessage?objid=#{item.objid}" class="menuitem"
-								   onmouseover="$ctx('classroom').showMemberInfo(this,'#{item.objid}')">
-									<span class="capitalized #{item.usertype}">
-										#{getName(item)}
-									</span>
-								</a>
-							</td>
-						</tr>
-					</tbody>
 				</table>
 			</div>
 		</div>

@@ -5,8 +5,7 @@ import com.rameses.http.*;
 class SMSService 
 {
 	
-	//static def SMS_HOST = 'http://mcpro2.sun-solutions.ph/mc';
-	static def SMS_HOST = 'mcpro2.sun-solutions.ph/mc';
+	static def SMS_HOST = 'mcpro1.sun-solutions.ph/mc';
 	static def USER = 'ENazareno';
 	static def PASS = 'C0ERHaet';
 	static def SENDER = 'Gazeebu';

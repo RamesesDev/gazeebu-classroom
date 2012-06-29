@@ -1,0 +1,20 @@
+import com.rameses.annotations.*
+
+public class PrivateMessageInterceptor
+{
+	@Resource('MessagingService')
+	def svc
+	
+	@Resource('ResponseService')
+	def respsvc
+	
+	@After(pattern="ResponseMessageHandler.*")
+	public void onReceive( evt ) {
+		def resp = evt.args[0]
+		println "receving response: $resp"
+		
+		def result = respsvc.getResponse( resp.requestId )
+		println "result from the remote server: $result"
+	}
+	
+}

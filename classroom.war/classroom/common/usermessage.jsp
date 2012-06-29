@@ -24,7 +24,6 @@
 				this.mobile = '-';
 
 				this.classid = "${param['classid']}";
-				this.message;
 
 				this.listModel;
 				this.selectedMessage;
@@ -46,13 +45,16 @@
 				}
 
 				this.send = function() {
-					var msg = {message: this.message};
-					if( this.me.objid != this.objid ) {
-						msg.subscribers = [{userid: this.objid}];
-						msg.privacy = 2;
+					var handler = function(txtmsg)
+					{
+						var msg = {message: txtmsg};
+						if( self.me.objid != self.objid ) {
+							msg.subscribers = [{userid: self.objid}];
+							msg.privacy = 2;
+						}
+						client.post(msg);
 					}
-					client.post(msg);
-					this.message = '';
+					return new PopupOpener('common:post_message', {handler: handler}, {title: 'Send Message'});
 				}
 			}
 		);
@@ -96,13 +98,11 @@
 	
     <jsp:body>
 		<div style="width:90%">
-			<!--
-			<msg:post context="usermessage" name="message" action="send"/>
+			<msg:post context="usermessage" action="send"/>
 			<br/>
 			<msg:list context="usermessage" name="selectedMessage"
 					  showComments="false"
 					  model="listModel" usersMap="$ctx('classroom').usersIndex"/>
-			-->
 		</div>
     </jsp:body>
 </t:content>

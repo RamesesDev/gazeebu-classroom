@@ -1,0 +1,20 @@
+import com.rameses.annotations.*
+
+public class RemoteRequestServingInterceptor
+{
+	@Resource('MessagingService')
+	def svc
+	
+	@Resource('ResponseService')
+	def respsvc
+	
+	@After(pattern="RequestMessageHandler.*")
+	public void onReceive( evt ) {
+		def req = evt.args[0]
+		if( req.message.target == svc.originName ) {
+			println 'sending response...'
+			respsvc.sendResponse( req, [message: 'no record found', code: 404] )
+		}
+	}
+	
+}

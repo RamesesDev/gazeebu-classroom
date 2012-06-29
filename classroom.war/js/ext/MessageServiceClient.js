@@ -105,12 +105,11 @@ function MessageServiceClient( _msgtype, _channelid, _threadid, _onMsgCallback )
 	
 	//sets the handlers
 	this.init = function() {
-		Session.handler = function( o ) {
+		Session.handlers.message = function( o ) {
 			if(o.channelid == self.channelid && o.msgtype == self.msgtype ) {
-				if( o._update == true ) {
-					var old = self.messageList.getList().find(function(it){ return it.objid == o.objid });
-					if(old) self.messageList.getList().remove(old);
-				}
+				var old = self.messageList.getList().find(function(it){ return it.objid == o.objid });
+				if(old) self.messageList.getList().remove(old);
+					
 				self.messageList.prependItem( o );
 				if(_onMsgCallback) _onMsgCallback(o);
 			}

@@ -25,5 +25,9 @@
 	<tr>
 		<td valign="top">School</td>
 		<td><input type="text" r:context="new_class" r:name="classinfo.school" maxlength="50" r:caption="School" style="width:80%;"/></td>
+	</tr>
+	<tr>
+		<td valign="top">Short Description</td>
+		<td><textarea r:context="new_class" r:name="classinfo.description" style="width:80%;"></textarea></td>
 	</tr>	
 </table>

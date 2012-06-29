@@ -226,13 +226,19 @@
 					
 					this.message;
 					this.postComment = function() {
-						client.respond(this.selectedTopic.objid, {message: this.message});
-						this.message = '';
+						return new PopupOpener('common:post_message', {handler: function( msg ){
+							if( !msg ) return;
+							if( !msg.trim() ) return;
+							client.respond(self.selectedTopic.objid, {message: msg});
+						}});
 					}
 					
 					this.postQuestion = function() {
-						client.respond(this.selectedTopic.objid, {message: this.message}, 'question');
-						this.message = '';
+						return new PopupOpener('common:post_message', {handler: function( msg ){
+							if( !msg ) return;
+							if( !msg.trim() ) return;
+							client.respond(self.selectedTopic.objid, {message: msg}, 'question');
+						}});
 					}
 				}
 			);

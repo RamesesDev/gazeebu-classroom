@@ -1,65 +1,94 @@
 <server>
-  <mbean code="org.jboss.varia.property.SystemPropertiesService" name="rameses:sancarlos=Service,name=SystemProperties">
-    <attribute name="URLList">
-      ./apps/gazeebu-classroom.ear/META-INF/app.conf
-    </attribute>
-  </mbean>
-  
-  <mbean code="com.rameses.server.cluster.ClusterService" name="rameses:gazeebu-classroom=ClusterService">
-	<depends proxy-type="attribute">jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
-	<attribute name="HostName">emn</attribute>
-  </mbean>
+    <mbean code="org.jboss.varia.property.SystemPropertiesService" name="rameses:gazeebu-classroom=Service,name=SystemProperties">
+        <attribute name="URLList">
+            ./apps/gazeebu-classroom.ear/META-INF/app.conf
+        </attribute>
+    </mbean>
 
-  <mbean code="com.rameses.eserver.ServerMgmt" name="rameses:gazeebu-classroom=ServerMgmt">
-	<depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
-  </mbean>
-
-  <mbean code="com.rameses.server.session.SessionService" name="rameses:gazeebu-classroom=SessionService">
-	<depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
-	<depends  optional-attribute-name="Cluster" proxy-type="com.rameses.server.cluster.ClusterServiceMBean">rameses:gazeebu-classroom=ClusterService</depends>
-	<attribute name="Timeout">180000</attribute>
-  </mbean>
-
-  <mbean code="com.rameses.cache.CacheService" name="rameses:gazeebu-classroom=CacheService">
-	<depends  optional-attribute-name="Cluster" proxy-type="com.rameses.server.cluster.ClusterServiceMBean">rameses:gazeebu-classroom=ClusterService</depends>
-	<attribute name="ScriptHandler">CacheServiceHandler</attribute>
-  </mbean>
-
-  <mbean code="com.rameses.eserver.TemplateService" name="rameses:gazeebu-classroom=TemplateService">
-	<depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
-  </mbean>
-
-  <mbean code="com.rameses.scheduler2.SchedulerService" name="rameses:gazeebu-classroom=SchedulerService">
-	<depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
-	<depends>jboss.j2ee:ear=gazeebu-classroom.ear,jar=rameses-server.jar,name=ScriptService,service=EJB3</depends>
-	<depends optional-attribute-name="Session" proxy-type="com.rameses.server.session.SessionServiceMBean">rameses:gazeebu-classroom=SessionService</depends>
-	<depends optional-attribute-name="Cluster" proxy-type="com.rameses.server.cluster.ClusterServiceMBean">rameses:gazeebu-classroom=ClusterService</depends>
-  </mbean>
-  
-  <!--
-  <mbean code="com.rameses.eserver.ScriptDeployer" name="rameses:gazeebu-classroom=ScriptDeployer">
-	<depends>jboss.j2ee:ear=gazeebu-classroom.ear,jar=rameses-server.jar,name=ScriptService,service=EJB3</depends>
-	<depends>rameses:gazeebu-classroom=CacheService</depends>
-	<depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
-  </mbean>
-  -->
-  
-  <mbean code="org.jboss.mail.MailService" name="jboss:gazeebu-classroom=Mail">
-    <attribute name="JNDIName">gazeebu-classroom/Mail</attribute>
-    <attribute name="User">gazeebu</attribute>
-    <attribute name="Password">gazeebu1234</attribute>
-    <attribute name="Configuration">
-		<configuration>
-			<property name="mail.smtp.starttls.enable" value="true"/>  
-			<property name="mail.transport.protocol" value="smtp"/>
-			<property name="mail.smtp.host" value="smtp.gmail.com"/>
-			<property name="mail.smtp.port" value="587"/>
-			<property name="mail.from" value="gazeebu@gmail.com"/>
-			<property name="mail.smtp.auth" value="true"/>  
-			<property name="mail.debug" value="false"/>
-		</configuration>
-    </attribute>
-    <depends>jboss:service=Naming</depends>
-  </mbean>
-  
+    <mbean code="com.rameses.eserver.ServerMgmt" name="rameses:gazeebu-classroom=ServerMgmt">
+        <depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
+    </mbean>	
+    
+    <mbean code="com.rameses.eserver.TemplateService" name="rameses:gazeebu-classroom=TemplateService">
+        <depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
+    </mbean>
+	
+	<mbean code="com.rameses.eserver.ScriptDeployer" name="rameses:gazeebu-classroom=ScriptDeployer">
+		<depends>jboss.j2ee:ear=gazeebu-classroom.ear,jar=rameses-server.jar,name=ScriptService,service=EJB3</depends>
+		<depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
+	</mbean>
+	
+	    
+	<mbean code="com.rameses.scheduler2.SchedulerService" name="rameses:gazeebu-classroom=SchedulerService">
+		<depends>jboss.jdbc:datasource=gazeebu-classroom_system,service=metadata</depends>
+		<depends>jboss.j2ee:ear=gazeebu-classroom.ear,jar=rameses-server.jar,name=ScriptService,service=EJB3</depends>
+	</mbean>
+	
+	<!-- DEFAULT CACHE IMPLEMENTATION  
+    <mbean code="com.rameses.cache.CacheService" name="rameses:gazeebu-classroom=CacheService">
+        <depends>jboss.j2ee:ear=gazeebu-classroom.ear,jar=rameses-server.jar,name=ScriptService,service=EJB3</depends>
+        <attribute name="ScriptHandler">CacheServiceHandler</attribute>
+    </mbean>
+	-->
+	
+	<!-- MEMCACHED IMPLEMENTATION OF CACHE SERVICE -->
+	<mbean code="com.rameses.memcached.CacheService" name="rameses:gazeebu-classroom=CacheService">
+        <depends>jboss.j2ee:ear=gazeebu-classroom.ear,jar=rameses-server.jar,name=ScriptService,service=EJB3</depends>
+        <attribute name="Host">${memcached.host}</attribute>
+        <attribute name="Port">${memcached.port}</attribute>
+        <attribute name="CachePrefix">${memcached.cache_prefix}</attribute>
+    </mbean>
+	
+	
+    <mbean code="com.rameses.xmpp.service.XMPPService" name="rameses:gazeebu-classroom=XMPPService">
+        <depends>jboss.j2ee:ear=gazeebu-classroom.ear,jar=rameses-server.jar,name=ScriptService,service=EJB3</depends>
+        <attribute name="Host">${xmpp.host}</attribute>
+        <attribute name="Port">${xmpp.port}</attribute>
+        <attribute name="Domain">${xmpp.domain}</attribute>
+        <attribute name="Username">${xmpp.username}</attribute>
+        <attribute name="Password">${xmpp.password}</attribute>
+    </mbean>
+    
+	<!--
+    <mbean code="com.rameses.xmpp.service.MessagingService" name="rameses:gazeebu-classroom=MessagingService">
+        <depends>jboss.j2ee:ear=gazeebu-classroom.ear,jar=rameses-server.jar,name=ScriptService,service=EJB3</depends>
+        <attribute name="Host">${xmpp.remote.host}</attribute>
+        <attribute name="Port">${xmpp.remote.port}</attribute>
+        <attribute name="Domain">${xmpp.remote.domain}</attribute>
+        <attribute name="OriginName">${xmpp.remote.origin_name}</attribute>
+        <attribute name="PrivateUsername">${xmpp.remote.private_username}</attribute>
+        <attribute name="PrivatePassword">${xmpp.remote.private_password}</attribute>
+		<attribute name="BroadcastUsername">${xmpp.remote.broadcast_username}</attribute>
+        <attribute name="BroadcastPassword">${xmpp.remote.broadcast_password}</attribute>
+    </mbean>
+    
+    <mbean code="com.rameses.xmpp.service.ResponseService" name="rameses:gazeebu-classroom=ResponseService">
+        <depends>jboss.j2ee:ear=gazeebu-classroom.ear,jar=rameses-server.jar,name=ScriptService,service=EJB3</depends>
+        <attribute name="RemoteHost">${response.app_host}</attribute>
+        <attribute name="RemoteContext">${response.app_context}</attribute>
+    </mbean>
+	-->
+    
+    
+    <mbean code="org.jboss.mail.MailService" name="jboss:gazeebu-classroom=Mail">
+        <attribute name="JNDIName">gazeebu-classroom/Mail</attribute>
+        <attribute name="User">gazeebu</attribute>
+        <attribute name="Password">gazeebu1234</attribute>
+        <!-- 
+        <attribute name="Configuration">
+            <configuration>
+                <property name="mail.smtp.starttls.enable" value="true"/>  
+                <property name="mail.transport.protocol" value="smtp"/>
+                <property name="mail.smtp.host" value="smtp.gmail.com"/>
+                <property name="mail.smtp.port" value="587"/>
+                <property name="mail.from" value="gazeebu@gmail.com"/>
+                <property name="mail.smtp.auth" value="true"/>  
+                <property name="mail.debug" value="false"/>
+            </configuration>
+        </attribute>
+        -->
+        <depends>jboss:service=Naming</depends>
+    </mbean>
+    
+    
 </server>

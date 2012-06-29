@@ -1,0 +1,11 @@
+import com.rameses.annotations.*
+
+
+public class ResponseMessageHandler {
+
+	@ProxyMethod
+	public void onMessage( msg ) {
+		println "receiving private message: " + msg
+	}
+
+}

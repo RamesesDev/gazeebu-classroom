@@ -26,8 +26,8 @@
 					this.handler();
 
 					return "_close";
-					}
 				}
+			  }
 			);
 		</script>
 	</jsp:attribute>

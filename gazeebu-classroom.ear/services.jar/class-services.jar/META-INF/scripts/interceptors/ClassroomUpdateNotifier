@@ -4,23 +4,33 @@ import java.util.concurrent.*;
 class ClassroomUpdateNotifier {
 	
 	@Service("SessionService")
-	def sessionService;
+	def sessionSvc;
 	
-    @After(pattern="CacheServiceHandler.(updated|removed)", eval="args[0].startsWith('CLASS')")
-    public def notifyClassMembers( def evt ) {
+	@Service("ClassroomService")
+	def classroomSvc;
+	
+	
+    @After(
+		pattern="ClassroomService.(updateOnlineStatus|updateMessageStatus|activateMembership)"
+	)
+    public def notifyClassOnlineStatusUpdate( def evt ) {
 		def classid = evt.args[0];
-		def m = evt.args[1];
-		println "notifying ... ";
-		ExecutorService exec = Executors.newCachedThreadPool();
-		m.members.each {
-			sessionService.notifyUser( it.objid, [classroom: classid] );
+		def c = classroomSvc.getClassInfo( classid );
+		c?.members?.each {
+			sessionSvc.notifyUser( it.username, [classroom: classid] );
 		};
-    } 
-    
-    @After(pattern="CacheServiceHandler.timeout", eval="args[0].startsWith('CLASS')")
-    public def notifyClassroomCacheTimeout( def evt ) {
-		
-    } 
+    }
+	
+	@After(
+		pattern="ClassroomService.(addMember|removeMember)"
+	)
+    public def notifyClassOnMembersAddedOrRemoved( def evt ) {
+		def classid = evt.args[0]?.classid;
+		def c = classroomSvc.getClassInfo( classid );
+		c?.members?.each {
+			sessionSvc.notifyUser( it.username, [classroom: classid] );
+		};
+    }
 
 }
 

@@ -131,19 +131,19 @@
 					<div class="footer"></div>
 				</div>
 				<div id="comments">
-					<msg:post context="thread" name="message" action="postComment"/>
+					<msg:post context="thread" caption="Post a comment" action="postComment"/>
 					<br/>							
 					<msg:comments context="thread" commentList="commentList" usersMap="users"/>
 				</div>
 				<div id="questions">
-					<msg:post context="thread" name="message" action="postQuestion"/>
+					<msg:post context="thread" caption="Post a question" action="postQuestion"/>
 					<br/>							
 					<msg:comments context="thread" commentList="questionList" usersMap="users" emptyText="No questions posted yet."/>
 				</div>
 				<div id="assignments">
-					<button r:context="thread" r:name="addAttachment" r:params="{attachmentOwner:'topic', attachmentType:'assignment'}">
-						Add Assignment
-					</button>
+					<msg:post context="thread" caption="Add an assignment" action="addAttachment" 
+					          params="{attachmentOwner:'topic', attachmentType:'assignment'}"/>
+					
 					<br/>
 					<br/>
 					<ul r:context="thread" r:items="getTopicAttachmentList('assignment')" r:varName="item" r:varStatus="stat" r:name="selectedAttachment"
@@ -166,9 +166,9 @@
 					</ul>
 				</div>
 				<div id="reports">
-					<button r:context="thread" r:name="addAttachment" r:params="{attachmentOwner:'topic', attachmentType:'report'}">
-						Add Report
-					</button>
+					<msg:post context="thread" caption="Add a report" action="addAttachment" 
+					          params="{attachmentOwner:'topic', attachmentType:'report'}"/>
+					
 					<br/>
 					<br/>
 					<ul r:context="thread" r:items="getTopicAttachmentList('report')" r:varName="item" r:varStatus="stat" r:name="selectedAttachment"
@@ -191,9 +191,9 @@
 					</ul>
 				</div>
 				<div id="projects">
-					<button r:context="thread" r:name="addAttachment" r:params="{attachmentOwner:'topic', attachmentType:'project'}">
-						Add Project
-					</button>
+					<msg:post context="thread" caption="Add a project" action="addAttachment" 
+					          params="{attachmentOwner:'topic', attachmentType:'project'}"/>
+					
 					<br/>
 					<br/>
 					<ul r:context="thread" r:items="getTopicAttachmentList('project')" r:varName="item" r:varStatus="stat" r:name="selectedAttachment"

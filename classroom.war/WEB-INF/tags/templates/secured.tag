@@ -10,6 +10,7 @@
 <%@ attribute name="pageTitle" fragment="false"%>
 <%@ attribute name="sections" fragment="true"%>
 
+
 <c:if test="${empty SESSIONID}">
 	<%
 		String uri = request.getRequestURI();
@@ -55,38 +56,40 @@ request.setAttribute("APP_VERSION", application.getInitParameter("app.version"))
 	<html>
 		<head>
 			<title>Gazeebu Classroom<c:if test="${not empty pageTitle}"> - ${pageTitle}</c:if></title>
+			
 			<link href="${pageContext.servletContext.contextPath}/js/lib/css/jquery-ui/jquery.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
 			<link href="${pageContext.servletContext.contextPath}/js/lib/css/rameses-lib.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
+			<link href="${pageContext.servletContext.contextPath}/js/ext/jscrollpane/jscrollpane.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
+			<link href="${pageContext.servletContext.contextPath}/css/secured.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
+			
 			<script src="${pageContext.servletContext.contextPath}/js/lib/jquery-all.js?v=${APP_VERSION}"></script>
 			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ext-lib.js?v=${APP_VERSION}"></script>
 			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-ui.js?v=${APP_VERSION}"></script>
 			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-proxy.js?v=${APP_VERSION}"></script>
-			<script src="${pageContext.servletContext.contextPath}/js/lib/rameses-session.js?v=${APP_VERSION}"></script>
-			<link href="${pageContext.servletContext.contextPath}/css/secured.css?v=${APP_VERSION}" type="text/css" rel="stylesheet" />
+			<script src="${pageContext.servletContext.contextPath}/js/lib/strophe.min.js?v=${APP_VERSION}"></script>
+			<script src="${pageContext.servletContext.contextPath}/js/ext/jscrollpane/jscrollpane.js?v=${APP_VERSION}"></script>
 			
 			<script>
 				Env.sessionid = $.cookie("sessionid");
-				var Session = new Notifier( Env.sessionid );
+				var Session = new Notifier( Env.sessionid, '/xmpp-httpbind' );
 				Registry.add( {id:"#usermenu", context:"session"} );				
 				ProxyService.contextPath = '${pageContext.request.contextPath}';
 				
 				//global options
 				PopupOpener.options = {show:'', hide:''};
 				
+				//init scrollpanes
+				$(function(){
+					$('.scrollpane').jScrollPane({
+						autoReinitialise: true,
+						hideFocus: true
+					});
+				});
+				
 				
 				$put("session",
-					new function() {
-
-						this.logout = function() {
-							try {
-								var svc = ProxyService.lookup('LogoutService');
-								svc.logout( Env.sessionid ); 
-							}
-							catch(e) {
-								if( window.console ) console.log( e );
-							}
-						}
-						
+					new function() 
+					{
 						var profileMenu;						
 						this.showProfileMenu = function() {
 							if( !profileMenu ) {
@@ -101,14 +104,13 @@ request.setAttribute("APP_VERSION", application.getInitParameter("app.version"))
 						}
 						
 						this.onload = function() {
-							Session.connectionListener.ended = function(o) {
-								$.cookie( "sessionid", null );
-								if( o == "_:ended" ) {
-									window.location = "logout.jsp";
+							Session.handlers.onmessage = function(o) {
+								if( typeof o == 'string' && o.startsWith("_:ended:") ) {
+									var sessid = o.replace("_:ended:", '');
+									if( sessid == Env.sessionid ) {
+										window.location.reload();
+									}
 								}
-								else {
-									window.location.reload(true);
-								}	
 							}	
 							Session.connect();
 						}
@@ -130,32 +132,12 @@ request.setAttribute("APP_VERSION", application.getInitParameter("app.version"))
 			</c:if>
 		</head>
 		
-		<body>
-			<div class="wrapper">
-				<table class="main-container" width="930px" align="center" cellpadding="0" cellspacing="0" height="100%">
-					<tr>
-						<td height="100%">
-							<jsp:doBody/>
-						</td>
-					</tr>
-					<tr>
-						<td class="footer" width="980" valign="top">
-							<table width="100%" cellpadding="0" cellspacing="0" class="footer">
-								<tr>
-									<td width="165">&nbsp;</td>
-									<td>
-										About Terms Privacy								
-									</td>
-									</tr>
-							</table>
-						</td>
-					</tr>
-				</table>
-			</div>
+		<body>			
+			<!-- header -->
 			<div class="header">
-				<table cellpadding="0" cellspacing="0" width="930px" height="100%" align="center">
+				<table cellpadding="0" cellspacing="0" width="100%" height="100%" align="center">
 					<tr>
-						<td width="165">
+						<td width="180">
 							<a href="${pageContext.servletContext.contextPath}">
 								<img src="${pageContext.servletContext.contextPath}/img/biglogo25.png">
 							</a>
@@ -164,7 +146,8 @@ request.setAttribute("APP_VERSION", application.getInitParameter("app.version"))
 							<jsp:invoke fragment="header_middle"/>
 						</td>
 						<td align="right" class="mainmenu">
-							<a href="home.jsp">Home</a>
+							<a href="home.jsp#main">Home</a>
+							<a href="home.jsp#connections">My Connections</a>
 							<a href="profile.jsp">Profile</a>
 							<a href="library.jsp">Library</a>
 							<a href="#" id="useraccountmenu" r:context="session" r:name="showProfileMenu">
@@ -177,7 +160,7 @@ request.setAttribute("APP_VERSION", application.getInitParameter("app.version"))
 										<a href="profile.jsp">Edit Profile</a>
 									</li>
 									<li>
-										<a r:context="session" r:name="logout">Logout</a>
+										<a href="logout.jsp">Logout</a>
 									</li>
 								</ul>
 							</div>
@@ -259,6 +242,29 @@ request.setAttribute("APP_VERSION", application.getInitParameter("app.version"))
 					</td>
 				</tr>
 			</table>
+		
+			<!-- content area -->
+			<div class="wrapper">
+				<table class="main-container" width="100%" align="center" cellpadding="0" cellspacing="0" height="100%">
+					<tr>
+						<td height="100%">
+							<jsp:doBody/>
+						</td>
+					</tr>
+					<tr>
+						<td class="footer" width="980" valign="top">
+							<table width="100%" cellpadding="0" cellspacing="0" class="footer">
+								<tr>
+									<td width="165">&nbsp;</td>
+									<td>
+										About Terms Privacy								
+									</td>
+									</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</div>
 			
 			<jsp:invoke fragment="sections"/>
 		</body>

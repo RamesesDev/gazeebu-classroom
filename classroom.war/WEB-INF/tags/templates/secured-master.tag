@@ -9,6 +9,8 @@
 <%@ attribute name="head" fragment="true" %>
 <%@ attribute name="pageTitle" fragment="false"%>
 <%@ attribute name="sections" fragment="true"%>
+<%@ attribute name="sidebar" fragment="true"%>
+<%@ attribute name="content" fragment="true"%>
 
 
 <t:secured pageTitle="${pageTitle}">
@@ -41,10 +43,12 @@
 		<table width="100%" height="100%" cellpadding="0" cellspacing="0">
 			<tr>
 				<td valign="top" width="1px" height="100%">
-					<table id="leftpanel" width="165px" cellpadding="0" cellspacing="0">
+					<table id="leftpanel" width="180px" cellpadding="0" cellspacing="0">
 						<tr>
 							<td valign="top">
-								<jsp:doBody/>
+								<div class="leftnav scrollpane">
+									<jsp:doBody/>
+								</div>
 							</td>
 						</tr>
 					</table>
@@ -52,34 +56,26 @@
 				<td valign="top" height="100%">
 					<table class="shadowbox canvas" width="100%" height="550">
 						<tr>
-							<td align="right">
-								<a id="toggle" href="#" style="text-decoration:none" title="Expand content panel">
-									[+]
-								</a>
-								<script type="text/javascript">
-									$(function(){
-										$('#toggle').click(function(){
-											var e = $(this);
-											var lp = $('#leftpanel');
-											if( e.data('expanded') ) {
-												lp.css('display',lp.data('display'));
-												e.data('expanded', false).html('[+]').attr('title','Expand content panel');
-											}
-											else {
-												lp.data('display', lp.css('display')).css('display','none');
-												e.data('expanded', true).html('[-]').attr('title','Compress content panel');
-											}
-											return false;
-										});
-									});
-								</script>
-							</td>
-						</tr>
-						<tr>
-							<td id="content" height="100%" valign="top">&nbsp;</td> 
+							<c:if test="${empty content}">
+								<td id="content" class="content" height="100%" valign="top"></td>
+							</c:if>
+							<c:if test="${not empty content}">
+								<td class="content" height="100%" valign="top">
+									<jsp:invoke fragment="content"/>
+								</td>
+							</c:if>
 						</tr>
 					</table>
 				</td>
+				<c:if test="${not empty sidebar}">
+					<td width="250" valign="top">
+						<div class="sidebar-container">
+							<div class="sidebar scrollpane">
+								<jsp:invoke fragment="sidebar"/>
+							</div>
+						</div>
+					</td>
+				</c:if>
 			</tr>
 		</table>
 	</jsp:body>

@@ -1,0 +1,46 @@
+.connections {
+	color: #444;
+}
+
+.connections .thumb {
+	height: 100px;
+	overflow: hidden;
+}
+
+.connections .name { 
+	font-size: 120%; 
+	font-weight: bold;
+	color: #333;
+}
+.connections .details { 
+	color: 888;
+}
+
+.connections .classname {
+	float: left;
+	margin: 5px;
+	padding: 10px;
+	border: solid 1px;
+	border-color: #aaa #ccc;
+	border-radius: 4px;
+	width: 100px;
+	text-align: center;
+	text-decoration: none;
+	font-weight: bold;
+	background-color: #E6E6E6;
+	filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#E6E6E6,EndColorStr=#ffffff);
+	background-image: -moz-linear-gradient(top, #E6E6E6 0, #fff 100%);
+	background-image: -ms-linear-gradient(top, #E6E6E6 0, #fff 100%);
+	background-image: -o-linear-gradient(top, #E6E6E6 0, #fff 100%);
+	background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #E6E6E6),color-stop(100%, #fff));
+	background-image: -webkit-linear-gradient(top, #E6E6E6 0, #fff 100%);
+	background-image: linear-gradient(to bottom,#E6E6E6 0,#fff 100%);
+}
+
+.connections .classname:hover {
+	box-shadow: 0 2px 5px #ccc;
+}
+
+.connections .hr {
+	margin-bottom: 20px;
+}

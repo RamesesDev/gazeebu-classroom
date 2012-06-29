@@ -1,0 +1,71 @@
+import com.rameses.annotations.*;
+
+/***
+* This class handles management of classes.
+*/
+public class ClassConnectionService {
+
+	@PersistenceContext("main")
+	def em;
+	
+	@Env
+	def env;
+	
+	@Service("ClassroomService")
+	def classroomSvc;
+
+	@Service("ClassService")
+	def classSvc;
+	
+	
+	@ProxyMethod
+	public def getAllConnections() {
+		try {
+			def classess = classSvc.getOpenClasses([:]);
+			def myconnections = [:];
+			
+			for( it in classess ) {
+				def c = classroomSvc.getClassInfo( it.objid )
+				if( !c.members ) continue;
+				
+				for( orig_m in c.members ) {
+					def m = [:]
+					m.putAll( orig_m );
+					
+					if( m.objid == env.userid ) continue;
+					
+					def role = (m.objid == c.teacher?.objid) ? 'teacher' : 'student';
+					
+					if( !myconnections[m.objid] ) {
+						m.classess = [[objid: c.objid, name: c.name, role: role]];
+						myconnections[m.objid] = m;
+					}
+					else {
+						myconnections[m.objid].classess << [objid: c.objid, name: c.name, role: role];
+					}
+				}
+			};
+			
+			def list = myconnections.values() as List;
+			list.sort { a,b ->
+				def al = a.lastname.toUpperCase()
+				def bl = b.lastname.toUpperCase()			
+				if( al != bl ) return al.compareTo(bl);
+				
+				return a.firstname.toUpperCase().compareTo( b.firstname.toUpperCase() );
+			}
+			return list;
+		}
+		catch(e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@ProxyMethod
+	public def getOnlineConnections() {
+		def list = []
+		
+		return getAllConnections()
+	}
+	
+}

@@ -41,25 +41,24 @@
 		</tr>
 		<c:if test="${showComments != 'false'}">
 			<tr>
-				<td valign="bottom" colspan="2" style="padding-left:4px;">
+				<td valign="bottom" colspan="2" class="actions">
 					<div>
 						<a r:context="${context}" r:name="${model}.showComments" r:visibleWhen="#{item._expanded != 'true'}">View Comments (#{item.replies})</a>
 						<a r:context="${context}" r:name="${model}.hideComments" r:visibleWhen="#{item._expanded == 'true'}">Hide Comments (#{item.replies})</a>
 						&nbsp;
 						<label r:context="${context}" class="notifycount" title="New comments unread" r:visibleWhen="#{item.notifycount!=null}">#{item.notifycount}</label>
-					</div>
-					<div class="ui-widget ui-widget-content" style="padding: 2px 4px; width:90%;">
-						<template r:context="${context}" r:id="comment_tpl" r:params="{objid:'#{item.objid}'}" />
+						&nbsp;
 						<c:if test="${not empty commentName and not empty postCommentAction}">
-							<div class="comment" style="margin-top:2px;">
-								<div class="hint-wrapper" style="width:100%;">
-									<input r:context="${context}" r:name="${commentName}" 
-										   r:action="${postCommentAction}" r:hint="${empty commentHint? 'Write a comment' : commentHint}"
-										   type="text" class="text" style="width:99%;margin:0;margin-bottom:4px;"/>
-								</div>
-							</div>
+							<span class="post-comment">
+								<a r:context="${context}" r:name="${postCommentAction}">
+									<span class="comment-icon"></span>
+									Comment
+								</a>
+							</span>
 						</c:if>
 					</div>
+					
+					<template r:context="${context}" r:id="comment_tpl" r:params="{objid:'#{item.objid}'}" />
 				</td>
 			</tr>
 		</c:if>
@@ -92,9 +91,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td colspan="2">
-					<div class="hr"></div>
-				</td>
+				<td class="separator"></td>
 			</tr>
 		</table>
 	</div>

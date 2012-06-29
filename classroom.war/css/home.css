@@ -1,12 +1,3 @@
-.menutitle { 
-	font-family: arial;
-	font-weight:bold;
-	text-transform:underline;
-	font-size:11px;
-	padding-top:15px;
-	color: darkslateblue;
-	letter-spacing: -0.5px;
-}
 .menuitem td{
 	font-size:11px;font-family:verdana;
 	padding:1px;
@@ -48,3 +39,23 @@
 	font-size: 1.3em;
 	border-bottom: solid 1px #C9C6C6;
 }
+
+.user-info {
+	line-height: 1.6em;
+}
+
+.user-name {
+	font-size: 1.4em;
+	font-weight: bold;
+}
+
+
+/*-- class listing --*/
+
+.sidebar .top-content .class-list {
+	position: absolute;
+	top: 40px; left: 0; right: 0; bottom: 0;
+}
+
+
+

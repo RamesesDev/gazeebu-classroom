@@ -5,7 +5,11 @@ import java.util.concurrent.*;
 /***
 * This service all classroom related functions like adding students, retrieving class info. notifying students, etc.
 */
-class ClassroomService {
+class ClassroomService 
+{
+	static final def TIMEOUT = 60 * 60 * 1000; //cache for 1 hour
+	static final def OL_MEMBERS_SUFIX = ".members.online";
+	static final def MEMBERS_SUFIX = ".members";
 
 	@PersistenceContext("main")
 	def em;
@@ -19,36 +23,53 @@ class ClassroomService {
 	@Env
 	def env;
 	
+	
 	@ProxyMethod
 	public def getClassInfo( def classid ) {
-		def c = cacheService.get(classid);
-		if(!c) {
-			c = em.read("class", [objid:classid] );
-			if(c) {
-				def threads = [];	
-				ExecutorService exec = Executors.newCachedThreadPool();
-				c.members = em.sqlContext.createNamedQuery( "classroom:members").setParameters([classid:classid]).resultList;
-				c.members.each {
-					it.messages = 0;	
-					threads.add(  exec.submit(new ClassMemberSession(member:it, em:em)) );	
-				}	
-				
-				//fork-join it
-				threads.each { it.get(); }	
-				cacheService.put(classid, c, 30000 );
-				
-				//set the teacher
-				c.teacher = c.members.find{ it.usertype == 'teacher' };
+		def classinfo = cacheService.get(classid);
+		if(!classinfo) {
+			classinfo = em.read("class", [objid:classid] );
+			if( !classinfo ) return null;
+			
+			cacheService.put(classid, classinfo, TIMEOUT );
+		}
+		
+		//load members
+		classinfo.members = cacheService.get(classid + MEMBERS_SUFIX);
+		if( !classinfo.members ) {
+			classinfo.members = em.sqlContext.createNamedQuery( "classroom:members").setParameters([classid:classid]).resultList;
+			cacheService.put(classid + MEMBERS_SUFIX, classinfo.members, TIMEOUT);
+		}
+		
+		//set the teacher
+		classinfo.teacher = classinfo.members.find{ it.usertype == 'teacher' };
+		
+		//load online members
+		def olmembers = cacheService.get(classid + OL_MEMBERS_SUFIX);
+		if( !olmembers ) {
+			def threads = [];	
+			ExecutorService exec = Executors.newCachedThreadPool();
+			classinfo.members.each {
+				it.messages = 0;	
+				threads.add(  exec.submit(new ClassMemberSession(member:it, em:em)) );	
 			}
+			
+			//fork-join it
+			threads.each { it.get(); }
+			olmembers = [:]
+			classinfo.members.each {
+				if( it.status == 'online' ) olmembers[it.objid] = 'online';
+			}
+			cacheService.put( classid + OL_MEMBERS_SUFIX, olmembers, TIMEOUT );
 		}
 		
 		//load the users profile for each
-		println "loading users profile";
-		c.members.each {
+		classinfo.members.each {
 			it.putAll(  userService.getInfo( [objid: it.objid] ) );
+			it.status = (olmembers[it.objid]) ? 'online' : 'offline';
 		}
 		
-		c.members.sort{ a,b ->
+		classinfo.members.sort{ a,b ->
 			if( a.usertype == 'teacher' ) return -1;
 			if( b.usertype == 'teacher' ) return 1;
 			
@@ -59,40 +80,22 @@ class ClassroomService {
 
 		//determine the role of the requester
 		if(env.userid) {
-			c.usertype = c.members.find{ it.objid == env.userid }?.usertype;
+			classinfo.usertype = classinfo.members.find{ it.objid == env.userid }?.usertype;
 		}	
-		return c;
+		return classinfo;
 	}
 
 	@ProxyMethod
 	public void updateOnlineStatus( def classid, def userid, def status ) {
-		def clz = getClassInfo(classid);
-		if(clz!=null) {
-			cacheService.update( classid, 
-				[ '''
-					{o,v->
-						o.members.find{x->x.objid==v.userid}?.status=v.status;
-					};
-					''', 
-				[userid:userid, status: status]  ]
-			);
-		}	
+		cacheService.remove( classid + OL_MEMBERS_SUFIX );
 	}
 	
 	@ProxyMethod
 	public void updateMessageStatus( def classid, def userid ) {
 		def clz = getClassInfo(classid);
 		if(clz!=null) {
-			cacheService.update( classid, 
-				[ '''
-					{o,v->
-						def z = o.members.find{x->x.objid==v.userid};
-						z.messages=z.messages + 1;
-					};
-				  ''', 
-				  [userid:userid]  
-				]
-			);
+			def z = clz.members.find{x->x.objid==userid};
+			z.messages=z.messages + 1;
 		}	
 	}
 	
@@ -101,18 +104,7 @@ class ClassroomService {
 		def user = em.sqlContext.createNamedQuery('classroom:find-member').setParameters([classid: classid, userid: userid]).singleResult;
 		user.state = 'ACTIVE';
 		em.update('class_membership', user);
-		
-		def clz = getClassInfo(classid);
-		if(clz!=null) {
-			cacheService.update( classid, 
-				[ '''
-					{o,v->
-						o.members.find{x->x.objid==v.userid}?.state=v.state;
-					};
-					''', 
-				[userid:userid, state: user.state]  ]
-			);
-		}
+		cacheService.remove( classid + MEMBERS_SUFIX );
 	}
 	
 	@ProxyMethod
@@ -123,15 +115,9 @@ class ClassroomService {
 
 			o.objid = o.userid;
 			o.status = 'online';
-			cacheService.update( o.classid, 
-				[ '''
-					{o,v->
-						o.members.add( v.user );
-					};
-				  ''', 
-				  [user: o]  
-				]
-			);
+			
+			cacheService.remove( o.classid + MEMBERS_SUFIX );
+			cacheService.remove( o.classid + OL_MEMBERS_SUFIX );
 		}
 		catch(e) {
 			def oe = ExceptionManager.getOriginal(e);
@@ -155,24 +141,17 @@ class ClassroomService {
 	
 	@ProxyMethod
 	public void removeMember(def o) {
+		def usr = em.sqlContext.createQuery('select uid from login where objid=?').setParameter(1, o.userid).singleResult;
+		def online = em.sqlContext.createQuery('select 1 from sys_session where username=?').setParameter(1, usr.uid).singleResult;
+		if( online ) throw new Exception('Cannot remove online member.');
+		
 		em.sqlContext.createNamedExecutor("classroom:remove-member").setParameters(o).execute();
 		
 		//remove also the class related items
 		em.sqlContext.createNamedExecutor("classroom:remove-member-activities").setParameters(o).execute();
 		
 		//update cache
-		cacheService.update( o.classid, 
-			[ '''
-				{o,v->
-					def z = o.members.find{x->x.objid==v.userid};
-					if( z ) {
-						o.members.remove(z);
-					}
-				};
-			  ''', 
-			  [userid:o.userid]  
-			]
-		);
+		cacheService.remove( o.classid + MEMBERS_SUFIX )
 	}
 	
 }
@@ -182,8 +161,9 @@ class ClassMemberSession implements Runnable {
 	def member;
 	public void run() {
 		member.status = "offline";
-		def online_count = em.sqlContext.createQuery('select count(*) as count from sys_session where username=?')
+		def online_count = em.sqlContext.createQuery('select count(*) as count from sys_session where userid=?')
 					.setParameter(1, member.objid ).singleResult.count; 
-		if( online_count > 0 ) member.status = "online";	
+
+		if( online_count > 0 ) member.status = "online";
 	}
 }

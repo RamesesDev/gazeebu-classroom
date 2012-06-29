@@ -1,0 +1,38 @@
+import com.rameses.annotations.*
+import java.io.*
+import java.nio.charset.*
+
+
+public class TestRemoteServiceCall
+{
+	@Resource("MessagingService")
+	def msgservice
+	
+	
+	@ProxyMethod
+	public void sendRequest() {
+		def msg = [
+			type		: 'REQUEST_TAXPAYER_DUE',
+			taxpayerid	: 'IND-0001-201010',
+		]
+		
+		println "-- broadcasting request ------"
+		println msg
+		println "------------------------------"
+		
+		msgservice.broadcast( msg );
+	}
+	
+	@ProxyMethod
+	public void test( value ) {
+		println value
+		
+		System.out.println("file.encoding=" + System.getProperty("file.encoding"));
+		System.out.println("Default Charset=" + Charset.defaultCharset());
+
+		OutputStreamWriter writer = new OutputStreamWriter(new ByteArrayOutputStream());
+		String enc = writer.getEncoding();
+		System.out.println("Default Charset in Use=" + enc);
+	}
+	
+}

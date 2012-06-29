@@ -1,0 +1,144 @@
+import com.rameses.annotations.*
+import com.rameses.util.*
+
+
+class SessionService 
+{
+	static final def SESSION_TIMEOUT_MILLIS = 30 * 60 * 1000; //cache for 30 minutes
+	static final def SESSION_TIMEOUT = '30m';
+	
+	
+	@PersistenceContext("java:system")
+	def em;
+	
+	@Resource("ScriptService/local")
+	def svc;
+	
+	@Resource('CacheService')
+	def cacheService;
+	
+	@Resource('XMPPService')
+	def xmppService;
+	
+	@Service('DateService')
+	def dateService;
+	
+	@Env
+	def env;
+	
+	
+	@ProxyMethod 
+	public String register( info ) {
+		try {
+			def sessionid = "SESSIONID" + new java.rmi.server.UID();
+			cacheService.put( sessionid, info, SESSION_TIMEOUT_MILLIS );
+			
+			def svrdate = dateService.serverDate
+			def sess = [
+				sessionid	: sessionid,
+				username	: info.username,
+				userid		: info.userid,
+				dtaccessed	: svrdate,
+				dtexpiry	: DateUtil.add(svrdate, SESSION_TIMEOUT),
+				info		: info,
+			];
+			em.create('session', sess);
+			return sessionid;
+		}
+		catch(e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	@ProxyMethod 
+	public def unregister(def sessionid ) {
+		def m = cacheService.get( sessionid );
+		notifyTimeout( sessionid );		
+		return m;
+	}
+
+	@ProxyMethod 
+	public def getInfo(def sessionid ) {
+		try {
+			def sessinfo = cacheService.get( sessionid );
+			if( !sessinfo ) {
+				def sess = em.read('session', [sessionid: sessionid]);
+				if( !sess ) return null;
+				
+				sessinfo = sess.info;
+				cacheService.put( sessionid, sessinfo, SESSION_TIMEOUT_MILLIS );
+			}
+			
+			def h = sessinfo.handler;
+			if( h ) {
+				def user = svc.invoke( h.servicename, h.method, h.params as Object[], env );
+				sessinfo.putAll( user );
+			}
+			
+			extendSessionExpiry( sessionid );
+			
+			return sessinfo;
+		}
+		catch(e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	@ProxyMethod 
+	public void notifyUser(username, msg ) {
+		xmppService.send( username, msg );
+	}
+
+	@ProxyMethod
+	public void notifyTimeout( sessionid ) {
+		cacheService.remove( sessionid );
+		def sess = em.sqlContext.createNamedQuery('session:get-session').setParameter('sessionid', sessionid).singleResult;
+		if( sess ) {
+			em.sqlContext.createNamedExecutor('session:remove-session').setParameter('sessionid', sessionid).execute();
+			println "notifying logout/timeout: $sessionid";
+			notifyUser( sess.username, '_:ended:' + sessionid );
+		}
+	}
+	
+	void extendSessionExpiry( sessionid ) {
+		def currdate = dateService.serverDate
+		def p = [
+			sessionid	: sessionid,
+			dtaccessed	: currdate,
+			dtexpiry	: DateUtil.add(currdate, SESSION_TIMEOUT),
+		]
+		em.sqlContext.createNamedExecutor('session:update-date').setParameters(p).execute()
+	}
+	
+	/*
+	@ProxyMethod 
+	public void send(def sessionid, def msg ) {
+		def list = em.sqlContext.createQuery('select username from sys_session where sessionid=?').setParameter(1, sessionid ).resultList;
+		list.each {
+		def subList = em.sqlContext.createQuery('select sessionid from sys_session where username=?').setParameter(1,it.username).resultList*.sessionid;
+			subList.each { o->
+				//sessionService.push( o, null, msg );
+			}	
+		}
+	}
+	
+	@ProxyMethod 
+	public void notifyAll( msg ) {
+		def list = em.sqlContext.createQuery('select sessionid from sys_session').resultList*.sessionid;
+		list.each { o->
+			//sessionService.push( o, null, msg );
+		}
+	}
+	
+	@ProxyMethod 
+	public void notifyAllExceptSender( msg, senderid ) {
+		def list = em.sqlContext.createQuery('select sessionid from sys_session where not(username=?)').setParameter(1,senderid).resultList*.sessionid;
+		list.each { o->
+			//sessionService.push( o, null, msg );
+		}
+	}
+	*/
+
+}

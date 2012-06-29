@@ -11,7 +11,7 @@
 %>
 
 
-<s:invoke service="LoginService" method="login" params="${data}" var="result" />
+<s:invoke service="LoginService" method="login" params="${data}" var="result" debug="true"/>
 <c:if test="${empty error}">
 	<c:set var="SESSIONID" value="${result.sessionid}" scope="request"/>
 	<%

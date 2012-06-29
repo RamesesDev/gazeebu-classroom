@@ -6,9 +6,11 @@
 	Cookie cookie = new Cookie( "sessionid", (String)request.getAttribute("SESSIONID") ) ;
 	cookie.setMaxAge(0);
 	response.addCookie( cookie );
+	
+	request.setAttribute("SESSIONID", null);
 %>
 
-<t:index redirect_session="true">
+<t:index>
 	<table width="100%">
 		<tr>
 			<td valign="top">

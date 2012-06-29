@@ -33,13 +33,22 @@
 		</script>
 	</head>
 	<body>
-		<h1>Reload Script</h1>
-		<input type="text" r:name="svcname" r:context="server-mgmt" />
-		<button r:context="server-mgmt" r:name="reloadSvc">Reload</button>
+		<h1>Script Management</h1>
 		<button r:context="server-mgmt" r:name="reloadAllSvc">Reload All</button>
-		<h1>Reload Schema</h1>
-		<input type="text" r:name="schemaname" r:context="server-mgmt" />
-		<button r:context="server-mgmt" r:name="reloadSchema">Reload</button>
+		
+		
+		<h1>Schema Management</h1>
 		<button r:context="server-mgmt" r:name="reloadAllSchema">Reload All</button>
+		
+		
+		<c:if test="${!empty param['moddir']}">
+			<%ModuleUtil.clearModules(application, request.getParameter("moddir") );%>
+		</c:if>
+
+		<h1>Modules Management</h1>
+		<form method="post">
+			Modules Directory <input type="text" name="moddir" value="${param.moddir}"/>
+			<input type="submit" value="Load Modules"/>
+		</form>
 	</body>
 </html>

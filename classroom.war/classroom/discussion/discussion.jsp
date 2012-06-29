@@ -13,7 +13,7 @@
 <s:invoke service="ClassroomService" method="getCurrentUserInfo" params="${param['classid']}" var="CLASS_USER_INFO"/>
 <s:invoke service="ClassroomService" method="getClassInfo" params="${param['classid']}" var="CLASS_INFO"/>
 
-<t:content title="Discussion" subtitle="Topics for discussion">
+<t:content title="Lesson" subtitle="Topics for discussion">
 	
 	<jsp:attribute name="style">
 		.threads .top {
@@ -79,13 +79,6 @@
 	</jsp:attribute>
 
 	<jsp:attribute name="actions">
-		<c:set var="RES_PATH" value="${pageContext.servletContext.contextPath}/classroom/classinfo/syllabus_resource.jsp"/>
-		<c:set var="syllabus" value="${CLASS_INFO.info.syllabus}"/>
-		<a href="${RES_PATH}?t=vw&id=${syllabus.fileid}&fn=${syllabus.filename}&ct=${syllabus.content_type}" target="_blank">
-			View Syllabus
-		</a>
-		&nbsp;&nbsp;
-	
 		<c:if test="${CLASS_USER_INFO.usertype == 'teacher'}">
 			<button type="button" r:context="discussion" r:name="create">New Thread</button>
 		</c:if>

@@ -45,7 +45,7 @@ class UserProfileService
     @ProxyMethod
     public def update( def o ) {
 		def user = em.update("userprofile", o);
-		cacheService.remove( o.objid );
+		cacheService.remove( o.objid );		
 		return user;
     }
 	

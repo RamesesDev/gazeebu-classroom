@@ -3,7 +3,7 @@ import com.rameses.annotations.*;
 /***
 * This class handles management of classes.
 */
-public class ClassService {
+public class ClassUpdateService {
 
 	@PersistenceContext("main")
 	def em
